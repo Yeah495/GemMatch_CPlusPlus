@@ -39,3 +39,21 @@
 
 # debug information files
 *.dwo
+# Visual Studio 产生的编译文件夹和文件
+*.obj
+*.exe
+*.ilk
+*.pdb
+*.suo
+*.user
+*.user.*
+.vs/
+[Dd]ebug/
+[Rr]elease/
+
+# Qt/MSVC 相关的编译产物
+# 明确排除 x64 文件夹
+x64/
+
+# 额外的 VS 解决方案配置
+*.sln.docstates
