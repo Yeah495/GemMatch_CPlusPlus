@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36408.4 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GemMatch", "GemMatch\GemMatch.vcxproj", "{E0CC33B5-42F1-4CA9-B1EF-D1D3006E1C5F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GemMatch", "GemMatch\GemMatch.vcxproj", "{8FC0C724-B9B8-40C2-9343-905F151F3E5A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E0CC33B5-42F1-4CA9-B1EF-D1D3006E1C5F}.Debug|x64.ActiveCfg = Debug|x64
-		{E0CC33B5-42F1-4CA9-B1EF-D1D3006E1C5F}.Debug|x64.Build.0 = Debug|x64
-		{E0CC33B5-42F1-4CA9-B1EF-D1D3006E1C5F}.Release|x64.ActiveCfg = Release|x64
-		{E0CC33B5-42F1-4CA9-B1EF-D1D3006E1C5F}.Release|x64.Build.0 = Release|x64
+		{8FC0C724-B9B8-40C2-9343-905F151F3E5A}.Debug|x64.ActiveCfg = Debug|x64
+		{8FC0C724-B9B8-40C2-9343-905F151F3E5A}.Debug|x64.Build.0 = Debug|x64
+		{8FC0C724-B9B8-40C2-9343-905F151F3E5A}.Release|x64.ActiveCfg = Release|x64
+		{8FC0C724-B9B8-40C2-9343-905F151F3E5A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {DE6EA2B5-E2BE-4600-926C-B152BE01AFEF}
+		SolutionGuid = {BC9A586C-5A4C-41DB-B551-EB477F890112}
 	EndGlobalSection
 EndGlobal
