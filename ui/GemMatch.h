@@ -13,6 +13,7 @@ public:
 
     int a;
     int b;
+	int c;
 private:
     Ui::GemMatchClass ui;
 };
