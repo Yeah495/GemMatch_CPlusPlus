@@ -12,7 +12,7 @@ public:
     ~GemMatch();
 
     int a;
-
+    int b;
 private:
     Ui::GemMatchClass ui;
 };
