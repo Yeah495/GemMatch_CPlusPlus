@@ -7,4 +7,9 @@ int main(int argc, char *argv[])
     GemMatch window;
     window.show();
     return app.exec();
+
 }
+
+
+
+#刘智童修改测试
