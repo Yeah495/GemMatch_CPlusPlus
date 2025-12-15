@@ -13,4 +13,6 @@ int main(int argc, char *argv[])
     int c;
     int d;
     int e;
+
+    int f;
 }
