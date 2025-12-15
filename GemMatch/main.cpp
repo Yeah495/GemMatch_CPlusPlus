@@ -12,4 +12,5 @@ int main(int argc, char *argv[])
     int b;
     int c;
     int d;
+    int e;
 }
