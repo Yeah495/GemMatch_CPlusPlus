@@ -15,4 +15,6 @@ int main(int argc, char *argv[])
     int lzt;
     
 
+    int zhw2;
+    
 }
