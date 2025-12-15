@@ -3,6 +3,30 @@
   <ItemGroup>
     <ClCompile Include="GemMatch.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Board.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="MatchFinder.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="GravitySystem.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="GameCore.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerSession.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneGame.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="GameController.cpp">
+      <Filter>controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="GemMatch.h" />
@@ -30,6 +54,36 @@
   <ItemGroup>
     <ClInclude Include="Gem.h">
       <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="Board.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="MatchFinder.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="GravitySystem.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="GameCore.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerSession.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="MainWindow.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneGame.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="GameController.h">
+      <Filter>controller</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceLoader.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

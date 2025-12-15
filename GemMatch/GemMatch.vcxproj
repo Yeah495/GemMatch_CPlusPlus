@@ -92,14 +92,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameController.cpp" />
+    <ClCompile Include="GameCore.cpp" />
+    <ClCompile Include="GravitySystem.cpp" />
+    <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="MatchFinder.cpp" />
+    <ClCompile Include="PlayerSession.cpp" />
+    <ClCompile Include="SceneGame.cpp" />
     <QtRcc Include="GemMatch.qrc" />
     <QtUic Include="GemMatch.ui" />
     <QtMoc Include="GemMatch.h" />
+    <ClCompile Include="Board.cpp" />
     <ClCompile Include="GemMatch.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Board.h" />
+    <ClInclude Include="Config.h" />
+    <ClInclude Include="GameController.h" />
+    <ClInclude Include="GameCore.h" />
     <ClInclude Include="Gem.h" />
+    <ClInclude Include="GravitySystem.h" />
+    <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="MatchFinder.h" />
+    <ClInclude Include="PlayerSession.h" />
+    <ClInclude Include="ResourceLoader.h" />
+    <ClInclude Include="SceneGame.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
