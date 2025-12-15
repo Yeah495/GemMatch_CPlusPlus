@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="GemMatch.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="GemMatch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="GemMatch.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="GemMatch.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="model">
+      <UniqueIdentifier>{f7b06752-686e-4449-99f5-be13c5d7fc36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="view">
+      <UniqueIdentifier>{9242b24a-b6d1-4083-8891-8dd0ec2d0e15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="controller">
+      <UniqueIdentifier>{8fd36572-afd9-47ae-94b2-7f695d791106}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{7c5093df-8654-41bd-a4b6-9145656e210a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
