@@ -94,6 +94,7 @@
   <ItemGroup>
     <ClCompile Include="GameController.cpp" />
     <ClCompile Include="GameCore.cpp" />
+    <ClCompile Include="GemItem.cpp" />
     <ClCompile Include="GravitySystem.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="MatchFinder.cpp" />
@@ -109,15 +110,16 @@
   <ItemGroup>
     <ClInclude Include="Board.h" />
     <ClInclude Include="Config.h" />
-    <ClInclude Include="GameController.h" />
+    <QtMoc Include="GameController.h" />
     <ClInclude Include="GameCore.h" />
     <ClInclude Include="Gem.h" />
+    <QtMoc Include="GemItem.h" />
     <ClInclude Include="GravitySystem.h" />
-    <ClInclude Include="MainWindow.h" />
+    <QtMoc Include="MainWindow.h" />
     <ClInclude Include="MatchFinder.h" />
     <ClInclude Include="PlayerSession.h" />
     <ClInclude Include="ResourceLoader.h" />
-    <ClInclude Include="SceneGame.h" />
+    <QtMoc Include="SceneGame.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
