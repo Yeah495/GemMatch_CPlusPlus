@@ -14,17 +14,8 @@
     <QtUic Include="GemMatch.ui" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="model">
-      <UniqueIdentifier>{f7b06752-686e-4449-99f5-be13c5d7fc36}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="view">
-      <UniqueIdentifier>{9242b24a-b6d1-4083-8891-8dd0ec2d0e15}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="controller">
-      <UniqueIdentifier>{8fd36572-afd9-47ae-94b2-7f695d791106}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="utils">
-      <UniqueIdentifier>{7c5093df-8654-41bd-a4b6-9145656e210a}</UniqueIdentifier>
+    <Filter Include="ui">
+      <UniqueIdentifier>{26705215-95b0-42e3-8607-fbeac35e12cc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
