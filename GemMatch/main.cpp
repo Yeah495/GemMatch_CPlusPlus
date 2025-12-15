@@ -12,6 +12,9 @@ int main(int argc, char *argv[])
 
 
     int zhw;
+    int lzt;
+    
+
     int zhw2;
     
 }
