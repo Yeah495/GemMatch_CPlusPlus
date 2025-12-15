@@ -10,8 +10,6 @@ class GemMatch : public QMainWindow
 public:
     GemMatch(QWidget *parent = nullptr);
     ~GemMatch();
-
-    int a;
 private:
     Ui::GemMatchClass ui;
 };
