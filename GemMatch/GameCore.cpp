@@ -12,6 +12,7 @@ GameCore::GameCore() {
     m_session = std::unique_ptr<PlayerSession>(new PlayerSession());
 }
 
+//初始化棋盘并清除所有自动产生的初始连消（保证稳定开局）
 void GameCore::initGame() {
     m_board->initRandomBoard();
     m_session->resetScore();
@@ -36,7 +37,7 @@ SwapResult GameCore::trySwap(int r1, int c1, int r2, int c2) {
     // 2. 必须是相邻的
     if (std::abs(r1 - r2) + std::abs(c1 - c2) != 1) return SwapResult::Fail;
 
-    // 3. 记录历史（压栈），准备悔棋用 [cite: 16]
+    // 3. 记录历史（压栈），准备悔棋用 
     m_session->pushHistory(*m_board);
 
     // 4. 逻辑交换
@@ -64,7 +65,7 @@ SwapResult GameCore::trySwap(int r1, int c1, int r2, int c2) {
         m_board->setGem(p.r, p.c, g);
     }
 
-    // 计算得分 [cite: 15]
+    // 计算得分 
     m_session->addScore(matches.size() * 10);
 
     return SwapResult::Success;

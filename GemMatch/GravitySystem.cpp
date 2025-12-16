@@ -13,7 +13,7 @@ bool GravitySystem::applyGravity(Board& board) {
 
     // 对每一列单独处理
     for (int c = 0; c < BOARD_COLS; ++c) {
-        // 数据结构应用：队列 [cite: 7]
+        // 数据结构应用：队列 
         // 逻辑：将该列所有非空宝石按顺序入队
         std::queue<Gem> columnQueue;
 

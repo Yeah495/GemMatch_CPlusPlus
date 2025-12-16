@@ -16,14 +16,14 @@ class Board {
 public:
     Board();
 
-    // 初始化地图（随机生成无消除状态的初始图） [cite: 11]
+    // 初始化地图（随机生成无消除状态的初始图） 
     void initRandomBoard();
 
     // 获取/设置宝石
     Gem getGem(int row, int col) const;
     void setGem(int row, int col, const Gem& gem);
 
-    // 交换两个位置的宝石 [cite: 12]
+    // 交换两个位置的宝石
     void swapGem(int r1, int c1, int r2, int c2);
 
     // 检查坐标是否有效

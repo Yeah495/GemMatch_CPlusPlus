@@ -13,7 +13,8 @@ struct Gem {
     GemType type;
     GemState state;
     bool markedForDeletion; // 标记是否待消除
-
+    
+    //构造函数默认 type=Empty、state=Static、markedForDeletion=false。
     Gem(GemType t = GemType::Empty)
         : type(t), state(GemState::Static), markedForDeletion(false) {
     }

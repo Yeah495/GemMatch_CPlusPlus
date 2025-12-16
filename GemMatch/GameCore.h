@@ -1,7 +1,16 @@
 #pragma once
-/*● GameCore.h (外观总管)
-  ○ 算法核心：处理消除后的下落填充。  
-  ○ 职责：Controller 层的唯一交互对象。它内部持有 Board、MatchFinder 和 GravitySystem，协调三者工作。*/
+/*● GameCore.h 
+Model 层对外的唯一接口，封装了复杂的子系统交互。
+
+职责： 初始化游戏、处理交换请求、执行消除循环。
+
+核心逻辑 (trySwap)：
+
+验证与记录： 检查移动合法性，并立即将当前状态压入历史栈（为了悔棋）。
+
+试错机制： 先交换数据，如果没有产生消除，则立即强制换回来（逻辑回滚），并弹出刚才无效的历史记录。
+
+状态流转： 如果交换成功，不立即处理下落，而是将宝石标记为 Exploding 状态，等待 View 层播放完动画后再调用 processNextState。。*/
 
 
 
@@ -27,7 +36,7 @@ public:
 
     void initGame(); // 开始新游戏
 
-    // 核心交互 API [cite: 12]
+    // 核心交互 API 
     // 尝试交换两个宝石。如果成功消除，Model内部会自动处理消除和得分
     SwapResult trySwap(int r1, int c1, int r2, int c2);
 
