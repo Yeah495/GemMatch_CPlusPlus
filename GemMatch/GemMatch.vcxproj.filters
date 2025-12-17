@@ -27,9 +27,54 @@
     <ClCompile Include="GameController.cpp">
       <Filter>controller</Filter>
     </ClCompile>
+    <ClCompile Include="GemItem.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="PageLogin.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneStart.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneRank.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="PageSettings.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="PageAbout.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="GemMatch.h" />
+    <QtMoc Include="GameController.h">
+      <Filter>controller</Filter>
+    </QtMoc>
+    <QtMoc Include="GemItem.h">
+      <Filter>view</Filter>
+    </QtMoc>
+    <QtMoc Include="SceneGame.h">
+      <Filter>view</Filter>
+    </QtMoc>
+    <QtMoc Include="MainWindow.h">
+      <Filter>view</Filter>
+    </QtMoc>
+    <QtMoc Include="PageSettings.h">
+      <Filter>view</Filter>
+    </QtMoc>
+    <QtMoc Include="SceneRank.h">
+      <Filter>view</Filter>
+    </QtMoc>
+    <QtMoc Include="SceneStart.h">
+      <Filter>view</Filter>
+    </QtMoc>
+    <QtMoc Include="PageLogin.h">
+      <Filter>view</Filter>
+    </QtMoc>
+    <QtMoc Include="PageAbout.h">
+      <Filter>view</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="GemMatch.qrc" />
@@ -70,20 +115,21 @@
     <ClInclude Include="PlayerSession.h">
       <Filter>model</Filter>
     </ClInclude>
-    <ClInclude Include="MainWindow.h">
-      <Filter>view</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneGame.h">
-      <Filter>view</Filter>
-    </ClInclude>
-    <ClInclude Include="GameController.h">
-      <Filter>controller</Filter>
-    </ClInclude>
     <ClInclude Include="Config.h">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="ResourceLoader.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="UserManager.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\images\bg_login.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="GemMatch.rc" />
   </ItemGroup>
 </Project>

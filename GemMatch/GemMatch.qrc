@@ -1,4 +1,14 @@
 <RCC>
-    <qresource prefix="GemMatch">
+    <qresource prefix="/GemMatch">
+        <file>assets/images/bg_login.jpg</file>
+        <file>assets/images/gem_1.png</file>
+        <file>assets/images/gem_2.png</file>
+        <file>assets/images/gem_3.png</file>
+        <file>assets/images/gem_4.png</file>
+        <file>assets/images/gem_5.png</file>
+        <file>assets/images/gem_6.png</file>
+        <file>assets/images/gem_7.png</file>
+        <file>assets/images/gem_8.png</file>
+        <file>assets/images/gem_9.png</file>
     </qresource>
 </RCC>

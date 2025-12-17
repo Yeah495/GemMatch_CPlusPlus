@@ -98,8 +98,13 @@
     <ClCompile Include="GravitySystem.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="MatchFinder.cpp" />
+    <ClCompile Include="PageAbout.cpp" />
+    <ClCompile Include="PageLogin.cpp" />
+    <ClCompile Include="PageSettings.cpp" />
     <ClCompile Include="PlayerSession.cpp" />
     <ClCompile Include="SceneGame.cpp" />
+    <ClCompile Include="SceneRank.cpp" />
+    <ClCompile Include="SceneStart.cpp" />
     <QtRcc Include="GemMatch.qrc" />
     <QtUic Include="GemMatch.ui" />
     <QtMoc Include="GemMatch.h" />
@@ -110,6 +115,13 @@
   <ItemGroup>
     <ClInclude Include="Board.h" />
     <ClInclude Include="Config.h" />
+    <QtMoc Include="PageLogin.h" />
+    <QtMoc Include="PageSettings.h" />
+    <QtMoc Include="SceneRank.h" />
+    <QtMoc Include="SceneStart.h" />
+    <QtMoc Include="PageAbout.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="UserManager.h" />
     <QtMoc Include="GameController.h" />
     <ClInclude Include="GameCore.h" />
     <ClInclude Include="Gem.h" />
@@ -120,6 +132,12 @@
     <ClInclude Include="PlayerSession.h" />
     <ClInclude Include="ResourceLoader.h" />
     <QtMoc Include="SceneGame.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\images\bg_login.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="GemMatch.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

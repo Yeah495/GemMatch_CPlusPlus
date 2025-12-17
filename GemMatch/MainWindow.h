@@ -1,25 +1,40 @@
-#pragma once
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QGraphicsView>
-#include "SceneGame.h"
+#include <QStackedWidget>
+
+// 前向声明所有子页面类，避免头文件互相包含
+class PageLogin;
+class SceneStart;
+class SceneGame;    // 这里改为 SceneGame
+class PageSettings;
+class PageAbout;
+class SceneRank;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget* parent = nullptr);
+    explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
-    SceneGame* getGameScene() { return m_sceneGame; }
+    // 切换页面接口：
+    // 0: 登录, 1: 主菜单, 2: 游戏, 3: 设置, 4: 关于, 5: 排行榜
+    void switchPage(int index);
+
+    // 获取游戏页面指针（供 Controller 连接信号槽使用）
+    SceneGame* getGamePage();
 
 private:
-    void setupUI();
+    QStackedWidget* m_stack;
 
-    QGraphicsView* m_view;
-    SceneGame* m_sceneGame;
+    PageLogin* m_pageLogin;
+    SceneStart* m_pageStart;
+    SceneGame* m_pageGame; // 类型修正为 SceneGame*
+    PageSettings* m_pageSettings;
+    PageAbout* m_pageAbout;
+    SceneRank* m_pageRank;
 };
 
 #endif // MAINWINDOW_H

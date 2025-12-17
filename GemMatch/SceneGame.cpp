@@ -1,57 +1,170 @@
-/*  a. ¼¼Êõ½¨Òé£ºÊ¹ÓÃ QGraphicsView ºÍ QGraphicsScene ¿ò¼Ü¡£¸üÊÊºÏ×öÓÎÏ·£¬ÄÜÖ§³ÖÆ½»¬µÄ±¦Ê¯½»»»¶¯»­¡£
-  b. ¶¯»­Âß¼­£ºµ± Model ²ã·¢Éú½»»»Ê±£¬View ²ã¸ºÔğ²¥·Å 0.3 ÃëµÄÒÆ¶¯¶¯»­£¬¶¯»­½áÊøÔÙ¸üĞÂÊı¾İ¡£*/
-
-
-
-
-#include "SceneGame.h"
+ï»¿#include "SceneGame.h"
+#include "MainWindow.h"
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QParallelAnimationGroup>
 #include <QPropertyAnimation>
 #include <QSequentialAnimationGroup>
-#include <QTimer>
+#include <QDebug>
 
-SceneGame::SceneGame(QObject* parent) : QGraphicsScene(parent) {
-    // ÉèÖÃ³¡¾°´óĞ¡ (¼ÙÉè´°¿Ú 800x600)
-    setSceneRect(0, 0, 800, 600);
-    // ³õÊ¼»¯Ö¸ÕëÊı×é
-    for (int i = 0; i < BOARD_ROWS; ++i)
-        for (int j = 0; j < BOARD_COLS; ++j)
+SceneGame::SceneGame(MainWindow* mainWin)
+    : QWidget(mainWin), m_mainWin(mainWin)
+{
+    // åˆå§‹åŒ–æŒ‡é’ˆæ•°ç»„ä¸ºç©º
+    for (int i = 0; i < 8; ++i)
+        for (int j = 0; j < 8; ++j)
             m_items[i][j] = nullptr;
+
+    setupUI();
 }
 
+SceneGame::~SceneGame() {
+    // Qt çš„å¯¹è±¡æ ‘æœºåˆ¶ä¼šè‡ªåŠ¨æ¸…ç† m_view, m_scene å’Œ UI æ§ä»¶
+}
+
+void SceneGame::setupUI() {
+    // 1. è®¾ç½®æ•´ä¸ªçª—å£çš„èƒŒæ™¯
+    this->setStyleSheet("SceneGame { border-image: url(:/assets/images/bg_game.png); } "
+        "QLabel { color: white; font-weight: bold; font-family: 'Microsoft YaHei'; }"
+        "QPushButton { background-color: rgba(255, 255, 255, 0.9); border: 2px solid #aaa; border-radius: 8px; padding: 5px; font-weight: bold; font-size: 14px; }"
+        "QPushButton:hover { background-color: white; border-color: gold; }");
+
+    QHBoxLayout* mainLayout = new QHBoxLayout(this);
+    mainLayout->setContentsMargins(30, 30, 30, 30);
+    mainLayout->setSpacing(20);
+
+    // --- å·¦ä¾§ï¼šå›¾å½¢è§†å›¾ (Graphics View) ---
+    m_scene = new QGraphicsScene(this);
+    m_scene->setSceneRect(0, 0, 580, 580); // è®¾ç½®åœºæ™¯é€»è¾‘å¤§å°
+
+    m_view = new QGraphicsView(m_scene);
+    m_view->setFixedSize(600, 600); // è§†å›¾å›ºå®šå¤§å°
+    // è§†å›¾æ ·å¼ï¼šé€æ˜èƒŒæ™¯ï¼Œæ— è¾¹æ¡†
+    m_view->setStyleSheet("background: transparent; border: 2px solid rgba(255,255,255,0.3); border-radius: 15px;");
+    m_view->setRenderHint(QPainter::Antialiasing);
+    m_view->setRenderHint(QPainter::SmoothPixmapTransform);
+    m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    mainLayout->addWidget(m_view);
+
+    // --- å³ä¾§ï¼šæ§åˆ¶é¢æ¿ (UI) ---
+    QVBoxLayout* sideLayout = new QVBoxLayout();
+
+    // 1. çŠ¶æ€åŒº
+    QGroupBox* statusBox = new QGroupBox("å½“å‰çŠ¶æ€");
+    statusBox->setStyleSheet("QGroupBox { color: gold; border: 1px solid rgba(255,255,255,0.5); border-radius: 5px; margin-top: 20px; font-size: 16px; font-weight: bold; } "
+        "QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 5px; }");
+    QVBoxLayout* statusLayout = new QVBoxLayout(statusBox);
+    statusLayout->setSpacing(10);
+
+    // åˆ†æ•°
+    QLabel* lblScoreTitle = new QLabel("å¾—åˆ† SCORE");
+    lblScoreTitle->setAlignment(Qt::AlignCenter);
+
+    m_scoreDisplay = new QLCDNumber();
+    m_scoreDisplay->setDigitCount(6);
+    m_scoreDisplay->setSegmentStyle(QLCDNumber::Flat);
+    m_scoreDisplay->setStyleSheet("border: none; color: gold; background-color: rgba(0,0,0,0.6); border-radius: 5px; height: 40px;");
+
+    // æ—¶é—´
+    m_timeLabel = new QLabel("å‰©ä½™æ—¶é—´: 60s");
+    m_timeLabel->setAlignment(Qt::AlignCenter);
+    m_timeLabel->setStyleSheet("font-size: 20px; color: cyan; margin-top: 10px;");
+
+    statusLayout->addWidget(lblScoreTitle);
+    statusLayout->addWidget(m_scoreDisplay);
+    statusLayout->addWidget(m_timeLabel);
+    sideLayout->addWidget(statusBox);
+
+    // 2. æŠ€èƒ½æ 
+    QGroupBox* skillBox = new QGroupBox("æŠ€èƒ½æ ");
+    QGridLayout* skillLayout = new QGridLayout(skillBox);
+
+    m_btnSkillBomb = new QPushButton("ç‚¸å¼¹é“å…·");
+    m_btnSkillShuffle = new QPushButton("æ´—ç‰Œé“å…·");
+    m_btnSkillTime = new QPushButton("æ—¶é—´å†»ç»“");
+
+    skillLayout->addWidget(m_btnSkillBomb, 0, 0);
+    skillLayout->addWidget(m_btnSkillShuffle, 0, 1);
+    skillLayout->addWidget(m_btnSkillTime, 1, 0, 1, 2);
+    sideLayout->addWidget(skillBox);
+
+    sideLayout->addStretch(); // å¼¹ç°§å ä½
+
+    // 3. ç³»ç»ŸæŒ‰é’®
+    m_btnPause = new QPushButton("æš‚åœæ¸¸æˆ");
+    m_btnExit = new QPushButton("è¿”å›ä¸»èœå•");
+    m_btnExit->setStyleSheet("QPushButton { background-color: rgba(255, 80, 80, 0.8); color: white; } QPushButton:hover { background-color: red; }");
+
+    sideLayout->addWidget(m_btnPause);
+    sideLayout->addWidget(m_btnExit);
+
+    mainLayout->addLayout(sideLayout);
+
+    // --- ä¿¡å·è¿æ¥ ---
+    connect(m_btnExit, &QPushButton::clicked, [this]() {
+        emit backToMenu(); // å‘é€ä¿¡å·ç»™ MainWindow
+        });
+}
+
+// è®¡ç®—å±å¹•åæ ‡ï¼šåŸºäº 8x8 ç½‘æ ¼å±…ä¸­
 QPointF SceneGame::getScreenPos(int row, int col) const {
-    return QPointF(MARGIN_LEFT + col * CELL_SIZE, MARGIN_TOP + row * CELL_SIZE);
+    // å‡è®¾åœºæ™¯ 580x580ï¼Œæ ¼å­ 65x65ï¼Œ8ä¸ªæ ¼å­å…± 520
+    // è¾¹è· = (580 - 520) / 2 = 30
+    int offsetX = 30;
+    int offsetY = 30;
+    return QPointF(offsetX + col * CELL_SIZE, offsetY + row * CELL_SIZE);
 }
 
 void SceneGame::renderBoard(const Board& board) {
-    // ÇåÀí¾ÉÍ¼Ôª
-    clear();
-    // ×¢Òâ£ºclear() »áÉ¾³ıËùÓĞ items£¬ËùÒÔ m_items Ö¸ÕëĞèÒªÖØÖÃ
-    // µ«ÎªÁË±³¾°Í¼µÈ²»±»ÎóÉ¾£¬Êµ¼Ê¹¤³ÌÖĞÍ¨³£Ö»É¾³ı GemItem »òÊ¹ÓÃÍ¼Ôª³Ø
-    // ÕâÀïÎª¼ò»¯Ö±½Ó clear ²¢ÖØĞÂÌí¼Ó±³¾°
+    m_scene->clear(); // æ¸…ç©ºæ—§å›¾å…ƒ
 
-    // Ìí¼Ó±³¾° (¼òµ¥Ê¾Àı)
-    // addPixmap(ResourceLoader::instance().getBackground());
+    // é‡ç½®æŒ‡é’ˆæ•°ç»„
+    for (int i = 0; i < 8; ++i)
+        for (int j = 0; j < 8; ++j)
+            m_items[i][j] = nullptr;
 
-    // Éú³ÉĞÂ±¦Ê¯
-    for (int i = 0; i < BOARD_ROWS; ++i) {
-        for (int j = 0; j < BOARD_COLS; ++j) {
-            Gem g = board.getGem(i, j);
-            GemItem* item = new GemItem(i, j, g.type);
-            item->setPos(getScreenPos(i, j));
-            addItem(item);
-            m_items[i][j] = item;
+    // éå†ç”Ÿæˆæ–°å®çŸ³
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            Gem g = board.getGem(r, c);
+            if (g.type == GemType::Empty) continue;
 
-            // Á¬½Óµã»÷ĞÅºÅ
+            GemItem* item = new GemItem(r, c, g.type);
+            item->setPos(getScreenPos(r, c));
+            m_scene->addItem(item);
+            m_items[r][c] = item;
+
+            // å…³é”®ï¼šè¿æ¥å®çŸ³çš„ç‚¹å‡»ä¿¡å·åˆ°æœ¬ç±»çš„ä¿¡å·
             connect(item, &GemItem::clicked, this, &SceneGame::gemClicked);
         }
     }
 }
 
+void SceneGame::updateScore(int score) {
+    m_scoreDisplay->display(score);
+}
+
+void SceneGame::updateTime(int seconds) {
+    m_timeLabel->setText(QString("å‰©ä½™æ—¶é—´: %1s").arg(seconds));
+    if (seconds <= 10) {
+        m_timeLabel->setStyleSheet("font-size: 20px; color: red; margin-top: 10px; font-weight: bold;");
+    }
+    else {
+        m_timeLabel->setStyleSheet("font-size: 20px; color: cyan; margin-top: 10px;");
+    }
+}
+
 void SceneGame::setGemSelected(int r, int c, bool selected) {
-    if (m_items[r][c]) {
+    if (r >= 0 && r < 8 && c >= 0 && c < 8 && m_items[r][c]) {
         m_items[r][c]->setSelected(selected);
     }
 }
+
+// --- åŠ¨ç”»å®ç°éƒ¨åˆ† ---
 
 void SceneGame::animateSwap(int r1, int c1, int r2, int c2, std::function<void()> finishedCallback) {
     GemItem* item1 = m_items[r1][c1];
@@ -62,35 +175,33 @@ void SceneGame::animateSwap(int r1, int c1, int r2, int c2, std::function<void()
         return;
     }
 
-    // ½»»»Ö¸Õë£¬±£Ö¤ grid Âß¼­Î»ÖÃÕıÈ·
+    // äº¤æ¢å†…å­˜ä¸­çš„æŒ‡é’ˆï¼Œä¿è¯é€»è¾‘ä¸€è‡´æ€§
     std::swap(m_items[r1][c1], m_items[r2][c2]);
-    // ¸üĞÂÄÚ²¿×ø±ê¼ÇÂ¼
     item1->setGridPos(r2, c2);
     item2->setGridPos(r1, c1);
 
-    // ´´½¨¶¯»­×é
+    // åŠ¨ç”»ç»„
     QParallelAnimationGroup* group = new QParallelAnimationGroup;
 
     QPropertyAnimation* anim1 = new QPropertyAnimation(item1, "pos");
-    anim1->setDuration(300); // 300ms
+    anim1->setDuration(250);
     anim1->setStartValue(item1->pos());
     anim1->setEndValue(getScreenPos(r2, c2));
+    anim1->setEasingCurve(QEasingCurve::InOutQuad);
 
     QPropertyAnimation* anim2 = new QPropertyAnimation(item2, "pos");
-    anim2->setDuration(300);
+    anim2->setDuration(250);
     anim2->setStartValue(item2->pos());
     anim2->setEndValue(getScreenPos(r1, c1));
+    anim2->setEasingCurve(QEasingCurve::InOutQuad);
 
     group->addAnimation(anim1);
     group->addAnimation(anim2);
 
-    // ¶¯»­½áÊøºó´¥·¢»Øµ÷
-    // ×¢Òâ£ºlambda ²¶»ñ group ÒÔ±ã×Ô¶¯É¾³ı
     connect(group, &QAbstractAnimation::finished, this, [group, finishedCallback]() {
         if (finishedCallback) finishedCallback();
         group->deleteLater();
         });
-
     group->start();
 }
 
@@ -98,95 +209,74 @@ void SceneGame::animateExplosion(const std::vector<QPoint>& points, std::functio
     QParallelAnimationGroup* group = new QParallelAnimationGroup;
 
     for (const auto& p : points) {
-        GemItem* item = m_items[p.x()][p.y()];
-        if (item) {
-            // ¼òµ¥µÄµ­³ö¶¯»­
-            QPropertyAnimation* anim = new QPropertyAnimation(item, "opacity");
-            anim->setDuration(200);
-            anim->setEndValue(0.0);
-            group->addAnimation(anim);
+        if (m_items[p.x()][p.y()]) {
+            GemItem* item = m_items[p.x()][p.y()];
+
+            // ç¼©æ”¾+é€æ˜åº¦æ·¡å‡º
+            QPropertyAnimation* animScale = new QPropertyAnimation(item, "scale");
+            animScale->setDuration(200);
+            animScale->setEndValue(0.1);
+
+            QPropertyAnimation* animOpacity = new QPropertyAnimation(item, "opacity");
+            animOpacity->setDuration(200);
+            animOpacity->setEndValue(0.0);
+
+            group->addAnimation(animScale);
+            group->addAnimation(animOpacity);
         }
     }
 
     connect(group, &QAbstractAnimation::finished, this, [this, points, group, finishedCallback]() {
-        // ¶¯»­½áÊø£¬ÎïÀíÉÏÒÆ³ıÕâĞ©Í¼Ôª
+        // åŠ¨ç”»ç»“æŸï¼Œç§»é™¤å›¾å…ƒ
         for (const auto& p : points) {
             GemItem* item = m_items[p.x()][p.y()];
             if (item) {
-                removeItem(item);
+                m_scene->removeItem(item);
                 delete item;
-                m_items[p.x()][p.y()] = nullptr; // ±ê¼ÇÎª¿Õ
+                m_items[p.x()][p.y()] = nullptr;
             }
         }
         if (finishedCallback) finishedCallback();
         group->deleteLater();
         });
-
     group->start();
 }
 
 void SceneGame::animateFall(const Board& newBoard, std::function<void()> finishedCallback) {
-    // ÏÂÂä¶¯»­±È½Ï¸´ÔÓ£¬²ßÂÔÊÇ£º
-    // 1. ¶ÁÈ¡ newBoard£¬ÕÒ³öÏÖÔÚµÄ (r,c) ºÍ¾É»­ÃæµÄ²îÒì
-    // 2. ´´½¨È±Ê§µÄ GemItem (ĞÂÉú³ÉµÄ) ·ÅÔÚ¶¥²¿Íâ
-    // 3. ¼ÆËãËùÓĞ±¦Ê¯µÄÄ¿±êÎ»ÖÃ£¬Ö´ĞĞÒÆ¶¯¶¯»­
+    // ç®€å•å®ç°ï¼šæ¸…ç©ºå¹¶æ ¹æ®æ–°çŠ¶æ€é‡ç»˜ï¼Œå¹¶å¯¹æ–°ç”Ÿæˆçš„/ä½ç½®å˜åŒ–çš„åšæ‰è½åŠ¨ç”»
+    // è¿™ç§æ–¹å¼æœ€ç¨³å¥ï¼Œä¸ä¼šå‡ºç°å›¾å…ƒé”™ä½
 
     QParallelAnimationGroup* group = new QParallelAnimationGroup;
     bool anyMove = false;
 
-    for (int c = 0; c < BOARD_COLS; ++c) {
-        // ´Óµ×²¿ÏòÉÏ±éÀú£¬ÈİÒ×´¦Àí
-        for (int r = BOARD_ROWS - 1; r >= 0; --r) {
-            Gem newGemData = newBoard.getGem(r, c);
+    // 1. å…ˆè®°å½•æ—§çš„å›¾å…ƒï¼Œå‡†å¤‡å¤ç”¨æˆ–ç§»é™¤
+    // ä¸ºäº†ç®€åŒ–ä»£ç ï¼ŒVCç¯å¢ƒä¸‹æˆ‘ä»¬ç›´æ¥é‡‡ç”¨â€œé‡å»ºæ³•â€é…åˆåŠ¨ç”»
+    m_scene->clear();
+    // é‡ç½®æ•°ç»„
+    for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) m_items[i][j] = nullptr;
 
-            // ¼ì²éµ±Ç°Î»ÖÃµÄ item ÊÇ·ñÆ¥Åä
-            GemItem* currentItem = m_items[r][c];
-
-            // Èç¹û¸ÃÎ»ÖÃÎª¿Õ£¬»òÕßÏÖÓĞµÄ±¦Ê¯ÀàĞÍ²»¶Ô£¨ËµÃ÷Ô­À´µÄ±¦Ê¯±»Ïû³ıÁË£¬»òÕßÊÇĞÂµôÏÂÀ´µÄ£©
-            // ÔÚ¼òµ¥µÄÊµÏÖÖĞ£¬ÎÒÃÇ¿ÉÒÔÖØĞÂ´´½¨ËùÓĞÍ¼Ôª²¢ÈÃËüÃÇ·É¹ıÀ´
-            // µ«ÎªÁËÆ½»¬£¬ÎÒÃÇÓ¦¸Ã¾¡Á¿¸´ÓÃÍ¼Ôª¡£
-            // ¼ò»¯²ßÂÔ£º
-            // Êµ¼ÊÉÏ£¬animateExplosion ºó m_items ÀïÓĞĞ©ÊÇ nullptr¡£
-            // ÎÒÃÇĞèÒªÖØĞÂÌî³äÕâĞ© nullptr¡£
-
-            // ÕâÀïµÄÍêÕûÂß¼­½Ï³¤£¬¼ò»¯Îª£º
-            // ÖØĞÂ¸ù¾İ Board ´´½¨ËùÓĞ Item£¬Èç¹û Item Ö®Ç°ÔÚÉÏÃæ£¬¾Í×öÏÂÂä¶¯»­
-            // Èç¹û Item ÊÇĞÂÉú³ÉµÄ£¨state == Falling£©£¬¾Í´ÓÆÁÄ»ÉÏ·½µôÏÂÀ´
-        }
-    }
-
-    // --- ¼ò»¯°æÊµÏÖ ---
-    // ÎªÑİÊ¾¼Ü¹¹£¬ÎÒÃÇÓÃÒ»ÖÖ¼òµ¥µÄ±©Á¦ÖØ»æ+¶¯»­·½·¨£º
-    // Çå¿Õµ±Ç° items£¬¸ù¾İ Board ÖØ½¨ËùÓĞ items
-    // Èç¹ûÊÇ Falling ×´Ì¬£¬ÆğÊ¼Î»ÖÃÉèÔÚÉÏ·½£¬Ä¿±êÎ»ÖÃÉèÔÚ¸ñ×Ó
-
-    // ×¢Òâ£ºÕâÖÖ·½·¨»á¶ªÊ§¡°ÄÄ¸ö±¦Ê¯ÊÇ´ÓÄÄµôÏÂÀ´¡±µÄÊÓ¾õÁ¬¹áĞÔ
-    // ÍêÃÀµÄÊµÏÖĞèÒª Model ²ã´«µİ¡°ÒÆ¶¯Â·¾¶¡±¡£
-
-    // ÕâÀïÎÒÃÇ½öÑİÊ¾ÈçºÎ¸ù¾İ Model ×´Ì¬²¥·ÅÈë³¡£º
-    clear();
-    for (int i = 0; i < BOARD_ROWS; ++i) {
-        for (int j = 0; j < BOARD_COLS; ++j) {
-            Gem g = newBoard.getGem(i, j);
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            Gem g = newBoard.getGem(r, c);
             if (g.type == GemType::Empty) continue;
 
-            GemItem* item = new GemItem(i, j, g.type);
-            m_items[i][j] = item;
-            addItem(item);
+            GemItem* item = new GemItem(r, c, g.type);
+            m_scene->addItem(item);
+            m_items[r][c] = item;
             connect(item, &GemItem::clicked, this, &SceneGame::gemClicked);
 
-            QPointF targetPos = getScreenPos(i, j);
+            QPointF targetPos = getScreenPos(r, c);
 
             if (g.state == GemState::Falling) {
-                // ĞÂÉú³ÉµÄ/ÏÂÂäµÄ£¬´ÓÉÏ·½·ÉÈë
-                QPointF startPos = targetPos - QPointF(0, 200); // Æ«ÒÆ200ÏñËØ
+                // å¦‚æœæ ‡è®°ä¸ºä¸‹è½ï¼Œä»ä¸Šé¢é£ä¸‹æ¥
+                QPointF startPos = targetPos - QPointF(0, 100);
                 item->setPos(startPos);
 
                 QPropertyAnimation* anim = new QPropertyAnimation(item, "pos");
                 anim->setDuration(400);
                 anim->setStartValue(startPos);
                 anim->setEndValue(targetPos);
-                anim->setEasingCurve(QEasingCurve::OutBounce); // µ¯ÌøĞ§¹û
+                anim->setEasingCurve(QEasingCurve::OutBounce); // å¼¹è·³æ•ˆæœ
                 group->addAnimation(anim);
                 anyMove = true;
             }

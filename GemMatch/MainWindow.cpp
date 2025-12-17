@@ -1,32 +1,59 @@
 #include "MainWindow.h"
-#include <QVBoxLayout>
+#include <QDebug>
+
+// 引入所有子页面的头文件
+#include "PageLogin.h"
+#include "SceneStart.h"
+#include "SceneGame.h"  // 引用正确的头文件
+#include "PageSettings.h"
+#include "PageAbout.h"
+#include "SceneRank.h"
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
 {
-    setupUI();
+    this->setFixedSize(1024, 768);
+    this->setWindowTitle("Gem Match - C++ Project");
+
+    m_stack = new QStackedWidget(this);
+    setCentralWidget(m_stack);
+
+    // 1. 实例化所有页面
+    m_pageLogin = new PageLogin(this);
+    m_pageStart = new SceneStart(this);
+    m_pageGame = new SceneGame(this); // 直接实例化 SceneGame
+    m_pageSettings = new PageSettings(this);
+    m_pageAbout = new PageAbout(this);
+    m_pageRank = new SceneRank(this);
+
+    // 2. 按索引顺序添加到 Stack
+    m_stack->addWidget(m_pageLogin);    // Index 0
+    m_stack->addWidget(m_pageStart);    // Index 1
+    m_stack->addWidget(m_pageGame);     // Index 2
+    m_stack->addWidget(m_pageSettings); // Index 3
+    m_stack->addWidget(m_pageAbout);    // Index 4
+    m_stack->addWidget(m_pageRank);     // Index 5
+
+    // 3. 处理游戏页面的“返回主菜单”信号
+    // (这需要 SceneGame 定义了 backToMenu 信号，参考上一条回答的代码)
+    connect(m_pageGame, &SceneGame::backToMenu, [this]() {
+        this->switchPage(1); // 切换回主菜单
+        });
+
+    // 默认显示登录页
+    m_stack->setCurrentIndex(0);
 }
 
-MainWindow::~MainWindow() {}
+MainWindow::~MainWindow() {
+    // Qt的对象树机制会自动清理子对象，无需手动delete
+}
 
-void MainWindow::setupUI() {
-    this->setWindowTitle("宝石迷阵 - C++ Qt 实训项目");
-    this->resize(1024, 768);
+void MainWindow::switchPage(int index) {
+    if (index >= 0 && index < m_stack->count()) {
+        m_stack->setCurrentIndex(index);
+    }
+}
 
-    // 创建 View 和 Scene
-    m_sceneGame = new SceneGame(this);
-    m_view = new QGraphicsView(m_sceneGame, this);
-
-    // 优化渲染属性
-    m_view->setRenderHint(QPainter::Antialiasing);
-    m_view->setRenderHint(QPainter::SmoothPixmapTransform);
-    m_view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-
-    // 设置为中心部件
-    setCentralWidget(m_view);
-
-    // 可以在这里添加菜单栏 (开始、撤销、关于)
-    // QMenu* gameMenu = menuBar()->addMenu("游戏");
-    // gameMenu->addAction("新游戏");
-    // gameMenu->addAction("撤销");
+SceneGame* MainWindow::getGamePage() {
+    return m_pageGame;
 }
