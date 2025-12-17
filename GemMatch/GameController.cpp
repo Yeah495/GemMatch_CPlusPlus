@@ -18,7 +18,7 @@ GameController::GameController(MainWindow* view, QObject* parent)
     m_gameCore = new GameCore();
 
     // 2. 获取 View 引用
-    m_scene = m_mainWindow->getGameScene();
+    m_scene = m_mainWindow->getGamePage();
 
     // 3. 连接 View 的信号
     // 注意：SceneGame 里的宝石点击会触发此信号

@@ -1,58 +1,75 @@
-#pragma once
-/*  a. 技术建议：使用 QGraphicsView 和 QGraphicsScene 框架。更适合做游戏，能支持平滑的宝石交换动画。
-  b. 动画逻辑：当 Model 层发生交换时，View 层负责播放 0.3 秒的移动动画，动画结束再更新数据。*/
-
-
-
-
-
 #ifndef SCENEGAME_H
 #define SCENEGAME_H
 
+#include <QWidget>
+#include <QGraphicsView>
 #include <QGraphicsScene>
-#include <QParallelAnimationGroup>
-#include "GemItem.h"
-#include "Board.h" // 仅用于初始化读取数据，不修改
+#include <QLCDNumber>
+#include <QLabel>
+#include <QPushButton>
+#include <functional>
+#include "Board.h" // 引用你的 Board 数据结构
+#include "GemItem.h" // 引用宝石图元
 
-class SceneGame : public QGraphicsScene {
+class MainWindow; // 前向声明
+
+class SceneGame : public QWidget {
     Q_OBJECT
-public:
-    explicit SceneGame(QObject* parent = nullptr);
 
-    // 根据 Model 数据完全重绘界面（初始化或悔棋时用）
+public:
+    explicit SceneGame(MainWindow* mainWin);
+    ~SceneGame();
+
+    // --- 供 Controller 调用的核心接口 ---
+
+    // 渲染棋盘：根据 Model 数据生成宝石图元
     void renderBoard(const Board& board);
 
-    // --- 动画接口 (供 Controller 调用) ---
-
-    // 1. 播放交换动画
-    // finishedCallback 是动画结束后的回调，通知 Controller 进行下一步逻辑
+    // 动画：交换
     void animateSwap(int r1, int c1, int r2, int c2, std::function<void()> finishedCallback);
-
-    // 2. 播放消除爆炸动画
+    // 动画：消除
     void animateExplosion(const std::vector<QPoint>& points, std::function<void()> finishedCallback);
-
-    // 3. 播放下落动画 (包含新生成宝石的入场)
-    // dropMoves: 记录每个位置的宝石是从哪一行掉下来的
+    // 动画：下落
     void animateFall(const Board& newBoard, std::function<void()> finishedCallback);
 
-    // 设置选中状态（高亮显示）
+    // 设置高亮选中
     void setGemSelected(int r, int c, bool selected);
 
+    // 更新 UI 显示
+    void updateScore(int score);
+    void updateTime(int seconds);
+
 signals:
-    // 转发宝石的点击信号给 Controller
+    // 转发宝石点击信号给 Controller (row, col)
     void gemClicked(int row, int col);
 
+    // 这里的信号供 MainWindow 切换页面使用
+    void backToMenu();
+
 private:
-    // 二维数组管理图元指针，方便查找
-    GemItem* m_items[BOARD_ROWS][BOARD_COLS];
+    MainWindow* m_mainWin;
 
-    // 屏幕布局常量
-    const int CELL_SIZE = 65; // 格子大小（略大于宝石，留空隙）
-    const int MARGIN_LEFT = 100;
-    const int MARGIN_TOP = 100;
+    // --- 图形视图核心 ---
+    QGraphicsView* m_view;   // 负责显示的窗口
+    QGraphicsScene* m_scene; // 负责管理的场景
 
-    // 辅助：计算屏幕坐标
-    QPointF getScreenPos(int row, int col) const;
+    // 宝石图元指针数组 (方便通过坐标找图元)
+    GemItem* m_items[8][8];
+
+    // --- 右侧 UI 控件 ---
+    QLCDNumber* m_scoreDisplay;
+    QLabel* m_timeLabel;
+    QPushButton* m_btnSkillBomb;
+    QPushButton* m_btnSkillShuffle;
+    QPushButton* m_btnSkillTime;
+    QPushButton* m_btnPause;
+    QPushButton* m_btnExit;
+
+    // --- 内部辅助 ---
+    void setupUI();
+    QPointF getScreenPos(int row, int col) const; // 计算宝石在 Scene 中的坐标
+
+    const int CELL_SIZE = 65; // 格子大小
 };
 
 #endif // SCENEGAME_H
