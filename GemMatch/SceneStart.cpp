@@ -18,7 +18,7 @@ void SceneStart::setupUI() {
     layout->setSpacing(20);
 
     // 标题
-    QLabel* title = new QLabel("GEM MATCH");
+    QLabel* title = new QLabel("宝石迷阵 ");
     title->setStyleSheet("font-size: 60px; font-weight: bold; color: white; margin-bottom: 50px;");
     title->setAlignment(Qt::AlignCenter);
     layout->addWidget(title);
@@ -28,19 +28,19 @@ void SceneStart::setupUI() {
         "border: 2px solid gold; border-radius: 25px; padding: 10px 40px; min-width: 200px; }"
         "QPushButton:hover { background-color: gold; color: black; }";
 
-    QPushButton* btnStart = new QPushButton("START GAME");
+    QPushButton* btnStart = new QPushButton("开始游戏");
     btnStart->setStyleSheet(btnStyle);
 
-    QPushButton* btnRank = new QPushButton("LEADERBOARD");
+    QPushButton* btnRank = new QPushButton("排行榜");
     btnRank->setStyleSheet(btnStyle);
 
-    QPushButton* btnSettings = new QPushButton("SETTINGS");
+    QPushButton* btnSettings = new QPushButton("设置");
     btnSettings->setStyleSheet(btnStyle);
 
-    QPushButton* btnAbout = new QPushButton("ABOUT");
+    QPushButton* btnAbout = new QPushButton("关于");
     btnAbout->setStyleSheet(btnStyle);
 
-    QPushButton* btnExit = new QPushButton("EXIT");
+    QPushButton* btnExit = new QPushButton("退出游戏");
     btnExit->setStyleSheet(btnStyle);
 
     layout->addWidget(btnStart);
