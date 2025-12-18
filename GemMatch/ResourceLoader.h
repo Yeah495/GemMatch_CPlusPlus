@@ -1,8 +1,5 @@
 #pragma once
-/*为了避免每次创建宝石都重新读取硬盘图片，使用单例模式缓存图片资源。000
-*/
-
-
+/* Resource loader: use Qt resources (.qrc) primarily; fallback to project-relative files if necessary. */
 
 #ifndef RESOURCELOADER_H
 #define RESOURCELOADER_H
@@ -11,6 +8,8 @@
 #include <QMap>
 #include <QString>
 #include "Config.h"
+#include <QFile>
+#include <QCoreApplication>
 
 class ResourceLoader {
 public:
@@ -19,19 +18,51 @@ public:
         return instance;
     }
 
-    // 根据宝石类型获取对应图片
     QPixmap getGemPixmap(GemType type) {
         if (!m_gemPixmaps.contains(type)) {
-            // 假设资源路径格式为 ":/assets/gem_1.png"
-            // 实际项目中需要确保 .qrc 资源文件已配置
-            QString path = QString(":/assets/gem_%1.png").arg(static_cast<int>(type));
-            m_gemPixmaps[type] = QPixmap(path);
+            QPixmap pix;
+            int idx = static_cast<int>(type);
+            if (idx <= 0) {
+                m_gemPixmaps[type] = pix;
+                return pix;
+            }
+
+            // Try qrc resource first
+            QString resPath = QString(":/assets/images/gem_%1.png").arg(idx);
+            if (QFile::exists(resPath)) pix.load(resPath);
+
+            // Fallback to project-relative path
+            if (pix.isNull()) {
+                QString rel = QString("assets/images/gem_%1.png").arg(idx);
+                if (QFile::exists(rel)) pix.load(rel);
+                else {
+                    QString appDir = QCoreApplication::applicationDirPath();
+                    QString up = appDir + "/../assets/images/gem_" + QString::number(idx) + ".png";
+                    if (QFile::exists(up)) pix.load(up);
+                }
+            }
+
+            m_gemPixmaps[type] = pix;
         }
         return m_gemPixmaps[type];
     }
 
     QPixmap getBackground() {
-        if (m_bg.isNull()) m_bg.load(":/assets/background.png");
+        if (m_bg.isNull()) {
+            // Prefer the qrc resource
+            QString resBg = ":/assets/images/bg_login.jpg";
+            if (QFile::exists(resBg)) m_bg.load(resBg);
+            else {
+                // fallback to project-relative
+                QString rel = QString("assets/images/bg_login.jpg");
+                if (QFile::exists(rel)) m_bg.load(rel);
+                else {
+                    QString appDir = QCoreApplication::applicationDirPath();
+                    QString up = appDir + "/../assets/images/bg_login.jpg";
+                    if (QFile::exists(up)) m_bg.load(up);
+                }
+            }
+        }
         return m_bg;
     }
 
