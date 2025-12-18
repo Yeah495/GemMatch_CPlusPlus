@@ -1,5 +1,5 @@
-#pragma once
-/*ÕâÊÇÔÚÆÁÄ»ÉÏÒÆ¶¯µÄÄÇ¸ö¡°±¦Ê¯¡±¡£¼Ì³Ð×Ô QGraphicsObject ÒÔ±ãÖ§³Ö Qt µÄÊôÐÔ¶¯»­ (QPropertyAnimation)¡£*/
+ï»¿#pragma once
+/*è¿™æ˜¯åœ¨å±å¹•ä¸Šç§»åŠ¨çš„é‚£ä¸ªâ€œå®çŸ³â€ã€‚ç»§æ‰¿è‡ª QGraphicsObject ä»¥ä¾¿æ”¯æŒ Qt çš„å±žæ€§åŠ¨ç”» (QPropertyAnimation)ã€‚*/
 
 
 #include "GemItem.h"
@@ -9,12 +9,12 @@
 GemItem::GemItem(int row, int col, GemType type, QGraphicsItem* parent)
     : QGraphicsObject(parent), m_row(row), m_col(col), m_type(type), m_isSelected(false)
 {
-    setAcceptHoverEvents(true); // ÔÊÐíÐüÍ£ÊÂ¼þ£¨¿ÉÑ¡£¬ÓÃÓÚ¸Ä±äÊó±êÑùÊ½£©
+    setAcceptHoverEvents(true); // å…è®¸æ‚¬åœäº‹ä»¶ï¼ˆå¯é€‰ï¼Œç”¨äºŽæ”¹å˜é¼ æ ‡æ ·å¼ï¼‰
 }
 
 void GemItem::setType(GemType type) {
     m_type = type;
-    update(); // ´¥·¢ÖØ»æ
+    update(); // è§¦å‘é‡ç»˜
 }
 
 QRectF GemItem::boundingRect() const {
@@ -27,12 +27,12 @@ void GemItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, Q
 
     if (m_type == GemType::Empty) return;
 
-    // 1. ³¢ÊÔ»ñÈ¡Í¼Æ¬
+    // 1. å°è¯•èŽ·å–å›¾ç‰‡
     QPixmap pixmap = ResourceLoader::instance().getGemPixmap(m_type);
 
-    // 2. ¡¾ºËÐÄÐÞ¸Ä¡¿¼ì²âÍ¼Æ¬ÊÇ·ñÎª¿Õ
+    // 2. ã€æ ¸å¿ƒä¿®æ”¹ã€‘æ£€æµ‹å›¾ç‰‡æ˜¯å¦ä¸ºç©º
     if (pixmap.isNull()) {
-        // Èç¹ûÍ¼Æ¬Ã»ÕÒµ½£¬»­Ò»¸ö´¿É«·½¿é´úÌæ£¡
+        // å¦‚æžœå›¾ç‰‡æ²¡æ‰¾åˆ°ï¼Œç”»ä¸€ä¸ªçº¯è‰²æ–¹å—ä»£æ›¿ï¼
         QColor debugColor;
         switch (m_type) {
         case GemType::Red: debugColor = Qt::red; break;
@@ -48,16 +48,16 @@ void GemItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, Q
         painter->setPen(Qt::white);
         painter->drawRect(0, 0, GEM_SIZE, GEM_SIZE);
 
-        // ¿ÉÑ¡£º»­¸öÎÄ×ÖÏÔÊ¾×ø±ê£¬·½±ãµ÷ÊÔ
+        // å¯é€‰ï¼šç”»ä¸ªæ–‡å­—æ˜¾ç¤ºåæ ‡ï¼Œæ–¹ä¾¿è°ƒè¯•
         painter->setPen(Qt::black);
         painter->drawText(boundingRect(), Qt::AlignCenter, QString("%1,%2").arg(m_row).arg(m_col));
     }
     else {
-        // Í¼Æ¬Õý³£²Å»­Í¼Æ¬
+        // å›¾ç‰‡æ­£å¸¸æ‰ç”»å›¾ç‰‡
         painter->drawPixmap(0, 0, GEM_SIZE, GEM_SIZE, pixmap);
     }
 
-    // »æÖÆÑ¡ÖÐ¿ò£¨±£³ÖÔ­Ñù£©
+    // ç»˜åˆ¶é€‰ä¸­æ¡†ï¼ˆä¿æŒåŽŸæ ·ï¼‰
     if (m_isSelected) {
         painter->setPen(QPen(Qt::white, 3));
         painter->setBrush(Qt::NoBrush);

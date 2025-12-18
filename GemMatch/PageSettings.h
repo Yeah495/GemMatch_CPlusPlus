@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef PAGESETTINGS_H
 #define PAGESETTINGS_H
 

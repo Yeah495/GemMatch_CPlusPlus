@@ -1,13 +1,13 @@
-#ifndef MAINWINDOW_H
+ï»¿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
 #include <QStackedWidget>
 
-// Ç°ÏòÉùÃ÷ËùÓĞ×ÓÒ³ÃæÀà£¬±ÜÃâÍ·ÎÄ¼ş»¥Ïà°üº¬
+// å‰å‘å£°æ˜æ‰€æœ‰å­é¡µé¢ç±»ï¼Œé¿å…å¤´æ–‡ä»¶äº’ç›¸åŒ…å«
 class PageLogin;
 class SceneStart;
-class SceneGame;    // ÕâÀï¸ÄÎª SceneGame
+class SceneGame;    // è¿™é‡Œæ”¹ä¸º SceneGame
 class PageSettings;
 class PageAbout;
 class SceneRank;
@@ -19,11 +19,11 @@ public:
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
-    // ÇĞ»»Ò³Ãæ½Ó¿Ú£º
-    // 0: µÇÂ¼, 1: Ö÷²Ëµ¥, 2: ÓÎÏ·, 3: ÉèÖÃ, 4: ¹ØÓÚ, 5: ÅÅĞĞ°ñ
+    // åˆ‡æ¢é¡µé¢æ¥å£ï¼š
+    // 0: ç™»å½•, 1: ä¸»èœå•, 2: æ¸¸æˆ, 3: è®¾ç½®, 4: å…³äº, 5: æ’è¡Œæ¦œ
     void switchPage(int index);
 
-    // »ñÈ¡ÓÎÏ·Ò³ÃæÖ¸Õë£¨¹© Controller Á¬½ÓĞÅºÅ²ÛÊ¹ÓÃ£©
+    // è·å–æ¸¸æˆé¡µé¢æŒ‡é’ˆï¼ˆä¾› Controller è¿æ¥ä¿¡å·æ§½ä½¿ç”¨ï¼‰
     SceneGame* getGamePage();
 
 private:
@@ -31,7 +31,7 @@ private:
 
     PageLogin* m_pageLogin;
     SceneStart* m_pageStart;
-    SceneGame* m_pageGame; // ÀàĞÍĞŞÕıÎª SceneGame*
+    SceneGame* m_pageGame; // ç±»å‹ä¿®æ­£ä¸º SceneGame*
     PageSettings* m_pageSettings;
     PageAbout* m_pageAbout;
     SceneRank* m_pageRank;

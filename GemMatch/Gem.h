@@ -1,7 +1,7 @@
-#pragma once
-/*¡ñ Gem.h (½á¹¹Ìå/Àà)
-  ¡ğ ÃèÊö£ºµ¥¸ö±¦Ê¯¡£
-  ¡ğ ÊôĞÔ£º ¶¨Òå±¦Ê¯µÄÑÕÉ«  type, state (Õı³£/Ïû³ıÖĞ/ÏÂÂäÖĞ)¡£*/
+ï»¿#pragma once
+/*â— Gem.h (ç»“æ„ä½“/ç±»)
+  â—‹ æè¿°ï¼šå•ä¸ªå®çŸ³ã€‚
+  â—‹ å±æ€§ï¼š å®šä¹‰å®çŸ³çš„é¢œè‰²  type, state (æ­£å¸¸/æ¶ˆé™¤ä¸­/ä¸‹è½ä¸­)ã€‚*/
 
 
 #ifndef GEM_H
@@ -12,14 +12,14 @@
 struct Gem {
     GemType type;
     GemState state;
-    bool markedForDeletion; // ±ê¼ÇÊÇ·ñ´ıÏû³ı
+    bool markedForDeletion; // æ ‡è®°æ˜¯å¦å¾…æ¶ˆé™¤
     
-    //¹¹Ôìº¯ÊıÄ¬ÈÏ type=Empty¡¢state=Static¡¢markedForDeletion=false¡£
+    //æ„é€ å‡½æ•°é»˜è®¤ type=Emptyã€state=Staticã€markedForDeletion=falseã€‚
     Gem(GemType t = GemType::Empty)
         : type(t), state(GemState::Static), markedForDeletion(false) {
     }
 
-    // ÖØÔØÏàµÈÔËËã·û£¬·½±ã±È½Ï
+    // é‡è½½ç›¸ç­‰è¿ç®—ç¬¦ï¼Œæ–¹ä¾¿æ¯”è¾ƒ
     bool operator==(const Gem& other) const {
         return type == other.type;
     }

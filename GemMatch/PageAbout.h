@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef PAGEABOUT_H
 #define PAGEABOUT_H
 

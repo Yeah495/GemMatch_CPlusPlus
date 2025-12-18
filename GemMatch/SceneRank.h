@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #ifndef SCENERANK_H
 #define SCENERANK_H
 
@@ -13,7 +13,7 @@ public:
     explicit SceneRank(MainWindow* mainWin);
 
 protected:
-    // Ã¿´ÎÏÔÊ¾Ê±Ë¢ĞÂÊı¾İ
+    // æ¯æ¬¡æ˜¾ç¤ºæ—¶åˆ·æ–°æ•°æ®
     void showEvent(QShowEvent* event) override;
 
 private:
