@@ -30,7 +30,7 @@ void PageLogin::setupUI() {
     formLayout->setSpacing(15);
 
     // 标题
-    QLabel* title = new QLabel("GEM MATCH");
+    QLabel* title = new QLabel("宝石迷阵");
     title->setAlignment(Qt::AlignCenter);
     title->setStyleSheet("color: gold; font-size: 28px; font-weight: bold; margin-bottom: 20px;");
 
@@ -52,11 +52,11 @@ void PageLogin::setupUI() {
     m_editEmail->setStyleSheet(editStyle);
 
     // 按钮
-    QPushButton* btnLogin = new QPushButton("LOGIN");
+    QPushButton* btnLogin = new QPushButton("登录");
     btnLogin->setStyleSheet("QPushButton { background-color: gold; color: black; font-weight: bold; padding: 10px; border-radius: 5px; }"
         "QPushButton:hover { background-color: #ffec8b; }");
 
-    QPushButton* btnReg = new QPushButton("REGISTER");
+    QPushButton* btnReg = new QPushButton("注册");
     btnReg->setStyleSheet("QPushButton { background-color: transparent; color: white; border: 1px solid white; padding: 8px; border-radius: 5px; }"
         "QPushButton:hover { background-color: rgba(255,255,255,0.2); }");
 
@@ -95,14 +95,14 @@ void PageLogin::onRegisterClicked() {
     QString email = m_editEmail->text();
 
     if (user.isEmpty() || pass.isEmpty()) {
-        QMessageBox::warning(this, "Error", "Username and Password cannot be empty.");
+        QMessageBox::warning(this, "错误", "用户名和密码不能为空");
         return;
     }
 
     if (UserManager::instance().registerUser(user, pass, email)) {
-        QMessageBox::information(this, "Success", "Registration successful! Please login.");
+        QMessageBox::information(this, "注册成功", "注册成功，请登录");
     }
     else {
-        QMessageBox::warning(this, "Error", "Username already exists.");
+        QMessageBox::warning(this, "错误", "该用户名已存在，请更换");
     }
 }

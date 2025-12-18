@@ -31,7 +31,7 @@ void SceneGame::setupUI() {
     // 1. 设置整个窗口的背景：优先使用 qrc 资源路径
     QString qrcBg = ":/assets/images/bg_login.jpg";
     if (QFile::exists(qrcBg)) {
-        this->setStyleSheet(QString("SceneGame { border-image: url(%1); } QLabel { color: white; font-weight: bold; font-family: 'Microsoft YaHei'; } QPushButton { background-color: rgba(255, 255, 255, 0.9); border: 2px solid #aaa; border-radius: 8px; padding: 5px; font-weight: bold; font-size: 14px; } QPushButton:hover { background-color: white; border-color: gold; }") .arg(qrcBg));
+        this->setStyleSheet(QString("SceneGame { border-image: url(%1); } QLabel { color: blue; font-weight: bold; font-family: 'Microsoft YaHei'; } QPushButton { background-color: rgba(255, 255, 255, 0.9); border: 2px solid #aaa; border-radius: 8px; padding: 5px; font-weight: bold; font-size: 14px; } QPushButton:hover { background-color: white; border-color: gold; }") .arg(qrcBg));
     }
     else {
         // fallback to ResourceLoader pixmap
@@ -92,7 +92,7 @@ void SceneGame::setupUI() {
     statusLayout->setSpacing(10);
 
     // 分数
-    QLabel* lblScoreTitle = new QLabel("得分 SCORE");
+    QLabel* lblScoreTitle = new QLabel("得分 ");
     lblScoreTitle->setAlignment(Qt::AlignCenter);
 
     m_scoreDisplay = new QLCDNumber();
@@ -128,7 +128,7 @@ void SceneGame::setupUI() {
     // 3. 系统按钮
     m_btnPause = new QPushButton("暂停游戏");
     m_btnExit = new QPushButton("返回主菜单");
-    m_btnExit->setStyleSheet("QPushButton { background-color: rgba(255, 80, 80, 0.8); color: white; } QPushButton:hover { background-color: red; }");
+    m_btnExit->setStyleSheet("QPushButton { background-color: rgba(255, 80, 80, 0.8); color: red; } QPushButton:hover { background-color: red; }");
 
     sideLayout->addWidget(m_btnPause);
     sideLayout->addWidget(m_btnExit);

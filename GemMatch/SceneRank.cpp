@@ -17,7 +17,7 @@ void SceneRank::setupUI() {
     layout->setContentsMargins(100, 50, 100, 50);
 
     // 标题
-    QLabel* title = new QLabel("TOP PLAYERS");
+    QLabel* title = new QLabel("排行榜");
     title->setAlignment(Qt::AlignCenter);
     title->setStyleSheet("font-size: 40px; color: gold; font-weight: bold; margin-bottom: 20px;");
     layout->addWidget(title);
@@ -25,7 +25,7 @@ void SceneRank::setupUI() {
     // 表格
     m_table = new QTableWidget();
     m_table->setColumnCount(3);
-    m_table->setHorizontalHeaderLabels({ "Rank", "Player", "High Score" });
+    m_table->setHorizontalHeaderLabels({ "排名", "用户", "得分" });
     m_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_table->verticalHeader()->setVisible(false);
     m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -38,7 +38,7 @@ void SceneRank::setupUI() {
     layout->addWidget(m_table);
 
     // 返回按钮
-    QPushButton* btnBack = new QPushButton("BACK");
+    QPushButton* btnBack = new QPushButton("返回");
     btnBack->setStyleSheet("QPushButton { font-size: 18px; color: white; background: #444; padding: 10px; border-radius: 5px; }"
         "QPushButton:hover { background: #666; }");
     connect(btnBack, &QPushButton::clicked, [this]() { m_mainWin->switchPage(1); }); // 回主菜单
