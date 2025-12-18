@@ -1,4 +1,4 @@
-#include "PageSettings.h"
+ï»¿#include "PageSettings.h"
 #include "MainWindow.h"
 #include <QVBoxLayout>
 #include <QLabel>
@@ -27,14 +27,14 @@ void PageSettings::setupUI() {
 
     form->addWidget(new QLabel("SETTINGS"), 0, Qt::AlignCenter);
 
-    // ÒôÁ¿
+    // éŸ³é‡
     form->addWidget(new QLabel("Music Volume:"));
     QSlider* slider = new QSlider(Qt::Horizontal);
     slider->setRange(0, 100);
     slider->setValue(50);
     form->addWidget(slider);
 
-    // ÄÑ¶È
+    // éš¾åº¦
     form->addWidget(new QLabel("Difficulty:"));
     QComboBox* combo = new QComboBox();
     combo->addItems({ "Easy", "Hard", "Extreme" });

@@ -1,10 +1,10 @@
-#include "MainWindow.h"
+ï»¿#include "MainWindow.h"
 #include <QDebug>
 
-// ÒıÈëËùÓĞ×ÓÒ³ÃæµÄÍ·ÎÄ¼ş
+// å¼•å…¥æ‰€æœ‰å­é¡µé¢çš„å¤´æ–‡ä»¶
 #include "PageLogin.h"
 #include "SceneStart.h"
-#include "SceneGame.h"  // ÒıÓÃÕıÈ·µÄÍ·ÎÄ¼ş
+#include "SceneGame.h"  // å¼•ç”¨æ­£ç¡®çš„å¤´æ–‡ä»¶
 #include "PageSettings.h"
 #include "PageAbout.h"
 #include "SceneRank.h"
@@ -18,15 +18,15 @@ MainWindow::MainWindow(QWidget* parent)
     m_stack = new QStackedWidget(this);
     setCentralWidget(m_stack);
 
-    // 1. ÊµÀı»¯ËùÓĞÒ³Ãæ
+    // 1. å®ä¾‹åŒ–æ‰€æœ‰é¡µé¢
     m_pageLogin = new PageLogin(this);
     m_pageStart = new SceneStart(this);
-    m_pageGame = new SceneGame(this); // Ö±½ÓÊµÀı»¯ SceneGame
+    m_pageGame = new SceneGame(this); // ç›´æ¥å®ä¾‹åŒ– SceneGame
     m_pageSettings = new PageSettings(this);
     m_pageAbout = new PageAbout(this);
     m_pageRank = new SceneRank(this);
 
-    // 2. °´Ë÷ÒıË³ĞòÌí¼Óµ½ Stack
+    // 2. æŒ‰ç´¢å¼•é¡ºåºæ·»åŠ åˆ° Stack
     m_stack->addWidget(m_pageLogin);    // Index 0
     m_stack->addWidget(m_pageStart);    // Index 1
     m_stack->addWidget(m_pageGame);     // Index 2
@@ -34,18 +34,18 @@ MainWindow::MainWindow(QWidget* parent)
     m_stack->addWidget(m_pageAbout);    // Index 4
     m_stack->addWidget(m_pageRank);     // Index 5
 
-    // 3. ´¦ÀíÓÎÏ·Ò³ÃæµÄ¡°·µ»ØÖ÷²Ëµ¥¡±ĞÅºÅ
-    // (ÕâĞèÒª SceneGame ¶¨ÒåÁË backToMenu ĞÅºÅ£¬²Î¿¼ÉÏÒ»Ìõ»Ø´ğµÄ´úÂë)
+    // 3. å¤„ç†æ¸¸æˆé¡µé¢çš„â€œè¿”å›ä¸»èœå•â€ä¿¡å·
+    // (è¿™éœ€è¦ SceneGame å®šä¹‰äº† backToMenu ä¿¡å·ï¼Œå‚è€ƒä¸Šä¸€æ¡å›ç­”çš„ä»£ç )
     connect(m_pageGame, &SceneGame::backToMenu, [this]() {
-        this->switchPage(1); // ÇĞ»»»ØÖ÷²Ëµ¥
+        this->switchPage(1); // åˆ‡æ¢å›ä¸»èœå•
         });
 
-    // Ä¬ÈÏÏÔÊ¾µÇÂ¼Ò³
+    // é»˜è®¤æ˜¾ç¤ºç™»å½•é¡µ
     m_stack->setCurrentIndex(0);
 }
 
 MainWindow::~MainWindow() {
-    // QtµÄ¶ÔÏóÊ÷»úÖÆ»á×Ô¶¯ÇåÀí×Ó¶ÔÏó£¬ÎŞĞèÊÖ¶¯delete
+    // Qtçš„å¯¹è±¡æ ‘æœºåˆ¶ä¼šè‡ªåŠ¨æ¸…ç†å­å¯¹è±¡ï¼Œæ— éœ€æ‰‹åŠ¨delete
 }
 
 void MainWindow::switchPage(int index) {

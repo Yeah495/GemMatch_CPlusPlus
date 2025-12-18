@@ -1,5 +1,5 @@
-#pragma once
-/*ÕâÊÇÔÚÆÁÄ»ÉÏÒÆ¶¯µÄÄÇ¸ö¡°±¦Ê¯¡±¡£¼Ì³Ğ×Ô QGraphicsObject ÒÔ±ãÖ§³Ö Qt µÄÊôĞÔ¶¯»­ (QPropertyAnimation)¡£*/
+ï»¿#pragma once
+/*è¿™æ˜¯åœ¨å±å¹•ä¸Šç§»åŠ¨çš„é‚£ä¸ªâ€œå®çŸ³â€ã€‚ç»§æ‰¿è‡ª QGraphicsObject ä»¥ä¾¿æ”¯æŒ Qt çš„å±æ€§åŠ¨ç”» (QPropertyAnimation)ã€‚*/
 
 
 
@@ -12,30 +12,30 @@
 #include <QPainter>
 #include "Config.h"
 
-// ¼Ì³Ğ QGraphicsObject ´Ó¶øÖ§³ÖĞÅºÅ²ÛºÍÊôĞÔ¶¯»­
+// ç»§æ‰¿ QGraphicsObject ä»è€Œæ”¯æŒä¿¡å·æ§½å’Œå±æ€§åŠ¨ç”»
 class GemItem : public QGraphicsObject {
     Q_OBJECT
 public:
     GemItem(int row, int col, GemType type, QGraphicsItem* parent = nullptr);
 
-    // ¸üĞÂ±¦Ê¯ÀàĞÍ£¨ÓÃÓÚ¸´ÓÃÍ¼Ôª£©
+    // æ›´æ–°å®çŸ³ç±»å‹ï¼ˆç”¨äºå¤ç”¨å›¾å…ƒï¼‰
     void setType(GemType type);
     GemType getType() const { return m_type; }
 
-    // »ñÈ¡ÔÚÍø¸ñÖĞµÄÂß¼­×ø±ê
+    // è·å–åœ¨ç½‘æ ¼ä¸­çš„é€»è¾‘åæ ‡
     int getRow() const { return m_row; }
     int getCol() const { return m_col; }
     void setGridPos(int row, int col) { m_row = row; m_col = col; }
 
-    // ±ØĞëÊµÏÖµÄ´¿Ğéº¯Êı
+    // å¿…é¡»å®ç°çš„çº¯è™šå‡½æ•°
     QRectF boundingRect() const override;
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
-    // Ñ¡ÖĞ×´Ì¬¿ØÖÆ
+    // é€‰ä¸­çŠ¶æ€æ§åˆ¶
     void setSelected(bool selected);
 
 signals:
-    // µ±±»µã»÷Ê±·¢ËÍĞÅºÅ£¬²ÎÊıÊÇ×Ô¼ºµÄÂß¼­×ø±ê
+    // å½“è¢«ç‚¹å‡»æ—¶å‘é€ä¿¡å·ï¼Œå‚æ•°æ˜¯è‡ªå·±çš„é€»è¾‘åæ ‡
     void clicked(int row, int col);
 
 protected:
@@ -45,7 +45,7 @@ private:
     int m_row, m_col;
     GemType m_type;
     bool m_isSelected;
-    const int GEM_SIZE = 60; // ¼ÙÉèÃ¿¸ö±¦Ê¯ 60x60 ÏñËØ
+    const int GEM_SIZE = 60; // å‡è®¾æ¯ä¸ªå®çŸ³ 60x60 åƒç´ 
 };
 
 #endif // GEMITEM_H

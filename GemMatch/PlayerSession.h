@@ -1,9 +1,9 @@
-#pragma once
-/*¡ñ PlayerSession£¨Íæ¼Ò×´Ì¬£©
-  ¡ğ ÃèÊö£ºÍæ¼Ò×´Ì¬¡£
-  ¡ğ ÊôĞÔ£ºµ±Ç°·ÖÊı¡¢Ê£Óà²½Êı/Ê±¼ä¡¢µ±Ç°¹Ø¿¨¡£
-  ¡ğ Êı¾İ½á¹¹Ó¦ÓÃ - Õ» (Stack)£º
-    ¡ö À©Õ¹¹¦ÄÜ£ºÊµÏÖ¡°»ÚÆå¡± (Undo) ¹¦ÄÜ¡£Ã¿´Î²Ù×÷Ç°£¬°Ñµ±Ç°µØÍ¼×´Ì¬¿ìÕÕÑ¹ÈëÕ»ÖĞ¡£*/
+ï»¿#pragma once
+/*â— PlayerSessionï¼ˆç©å®¶çŠ¶æ€ï¼‰
+  â—‹ æè¿°ï¼šç©å®¶çŠ¶æ€ã€‚
+  â—‹ å±æ€§ï¼šå½“å‰åˆ†æ•°ã€å‰©ä½™æ­¥æ•°/æ—¶é—´ã€å½“å‰å…³å¡ã€‚
+  â—‹ æ•°æ®ç»“æ„åº”ç”¨ - æ ˆ (Stack)ï¼š
+    â–  æ‰©å±•åŠŸèƒ½ï¼šå®ç°â€œæ‚”æ£‹â€ (Undo) åŠŸèƒ½ã€‚æ¯æ¬¡æ“ä½œå‰ï¼ŒæŠŠå½“å‰åœ°å›¾çŠ¶æ€å¿«ç…§å‹å…¥æ ˆä¸­ã€‚*/
 
 
 #ifndef PLAYERSESSION_H
@@ -13,7 +13,7 @@
 #include <stack>
 #include <vector>
 
-    // ´æ´¢¿ìÕÕ£¬ÓÃÓÚ³·Ïú
+    // å­˜å‚¨å¿«ç…§ï¼Œç”¨äºæ’¤é”€
 struct GameSnapshot {
     std::vector<std::vector<Gem>> grid;
     int score;
@@ -23,19 +23,19 @@ class PlayerSession {
 public:
     PlayerSession();
 
-    // ·ÖÊı¹ÜÀí [cite: 15]
+    // åˆ†æ•°ç®¡ç† [cite: 15]
     void addScore(int points);
     int getScore() const;
     void resetScore();
 
-    // ÀúÊ·¼ÇÂ¼¹ÜÀí (Stack)
-    void pushHistory(const Board& board); // ²Ù×÷Ç°±£´æ×´Ì¬
+    // å†å²è®°å½•ç®¡ç† (Stack)
+    void pushHistory(const Board& board); // æ“ä½œå‰ä¿å­˜çŠ¶æ€
     bool canUndo() const;
-    void undo(Board& currentBoard);       // »Ö¸´×´Ì¬
+    void undo(Board& currentBoard);       // æ¢å¤çŠ¶æ€
 
 private:
     int m_score;
-    // Êı¾İ½á¹¹Ó¦ÓÃ£ºÕ»£¬ÓÃÓÚ´æ´¢ÀúÊ·×´Ì¬ [cite: 7]
+    // æ•°æ®ç»“æ„åº”ç”¨ï¼šæ ˆï¼Œç”¨äºå­˜å‚¨å†å²çŠ¶æ€ [cite: 7]
     std::stack<GameSnapshot> m_historyStack;
 };
 

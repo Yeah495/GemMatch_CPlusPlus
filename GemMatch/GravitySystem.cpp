@@ -1,6 +1,6 @@
-/*¡ñ GravitySystem.h (ÎïÀí¹æÔò)  
-  ¡ğ Êı¾İ½á¹¹Ó¦ÓÃ - ¶ÓÁĞ (Queue)£º
-    ¡ö ÓÃÍ¾£ºÏû³ıºóÉÏ·½±¦Ê¯ÏÂÂä¡£¶ÔÓÚÃ¿Ò»ÁĞ£¬¿ÉÒÔ°Ñ·Ç¿Õ¸ñ×ÓÈë¶Ó£¬È»ºóÖØĞÂ´Óµ×²¿ÏòÉÏÌîÈëÊı×é£¬¿Õ³öµÄ¶¥²¿Éú³ÉĞÂ±¦Ê¯¡£*/
+ï»¿/*â— GravitySystem.h (ç‰©ç†è§„åˆ™)  
+  â—‹ æ•°æ®ç»“æ„åº”ç”¨ - é˜Ÿåˆ— (Queue)ï¼š
+    â–  ç”¨é€”ï¼šæ¶ˆé™¤åä¸Šæ–¹å®çŸ³ä¸‹è½ã€‚å¯¹äºæ¯ä¸€åˆ—ï¼Œå¯ä»¥æŠŠéç©ºæ ¼å­å…¥é˜Ÿï¼Œç„¶åé‡æ–°ä»åº•éƒ¨å‘ä¸Šå¡«å…¥æ•°ç»„ï¼Œç©ºå‡ºçš„é¡¶éƒ¨ç”Ÿæˆæ–°å®çŸ³ã€‚*/
 
 
 
@@ -11,10 +11,10 @@ bool GravitySystem::applyGravity(Board& board) {
     std::uniform_int_distribution<int> dist(1, GEM_TYPE_COUNT);
     std::mt19937 rng(std::time(nullptr));
 
-    // ¶ÔÃ¿Ò»ÁĞµ¥¶À´¦Àí
+    // å¯¹æ¯ä¸€åˆ—å•ç‹¬å¤„ç†
     for (int c = 0; c < BOARD_COLS; ++c) {
-        // Êı¾İ½á¹¹Ó¦ÓÃ£º¶ÓÁĞ 
-        // Âß¼­£º½«¸ÃÁĞËùÓĞ·Ç¿Õ±¦Ê¯°´Ë³ĞòÈë¶Ó
+        // æ•°æ®ç»“æ„åº”ç”¨ï¼šé˜Ÿåˆ— 
+        // é€»è¾‘ï¼šå°†è¯¥åˆ—æ‰€æœ‰éç©ºå®çŸ³æŒ‰é¡ºåºå…¥é˜Ÿ
         std::queue<Gem> columnQueue;
 
         for (int r = 0; r < BOARD_ROWS; ++r) {
@@ -24,29 +24,29 @@ bool GravitySystem::applyGravity(Board& board) {
             }
         }
 
-        // Èç¹û¶ÓÁĞ´óĞ¡µÈÓÚĞĞÊı£¬ËµÃ÷ÕâÁĞÂúÁË£¬Ã»ÓĞÏû³ı£¬²»ĞèÒªÏÂÂä
+        // å¦‚æœé˜Ÿåˆ—å¤§å°ç­‰äºè¡Œæ•°ï¼Œè¯´æ˜è¿™åˆ—æ»¡äº†ï¼Œæ²¡æœ‰æ¶ˆé™¤ï¼Œä¸éœ€è¦ä¸‹è½
         if (columnQueue.size() == BOARD_ROWS) {
             continue;
         }
 
         moved = true;
 
-        // ¼ÆËãĞèÒªÌî³äµÄ¿ÕÎ»ÊıÁ¿£¨¶¥²¿£©
+        // è®¡ç®—éœ€è¦å¡«å……çš„ç©ºä½æ•°é‡ï¼ˆé¡¶éƒ¨ï¼‰
         int emptySlots = BOARD_ROWS - columnQueue.size();
 
-        // 1. ÏÈÔÚ¶¥²¿Ìî³äĞÂµÄËæ»ú±¦Ê¯
+        // 1. å…ˆåœ¨é¡¶éƒ¨å¡«å……æ–°çš„éšæœºå®çŸ³
         for (int r = 0; r < emptySlots; ++r) {
             Gem newGem(static_cast<GemType>(dist(rng)));
-            newGem.state = GemState::Falling; // ±ê¼Ç×´Ì¬¹©View²ã×öÈë³¡¶¯»­
+            newGem.state = GemState::Falling; // æ ‡è®°çŠ¶æ€ä¾›Viewå±‚åšå…¥åœºåŠ¨ç”»
             board.setGem(r, c, newGem);
         }
 
-        // 2. ÔÙ½«¶ÓÁĞÖĞµÄ¾É±¦Ê¯Ìî»ØÈ¥£¨Ïàµ±ÓÚÏÂÂäµ½ÁËµ×²¿£©
+        // 2. å†å°†é˜Ÿåˆ—ä¸­çš„æ—§å®çŸ³å¡«å›å»ï¼ˆç›¸å½“äºä¸‹è½åˆ°äº†åº•éƒ¨ï¼‰
         int currentRow = emptySlots;
         while (!columnQueue.empty()) {
             Gem g = columnQueue.front();
             columnQueue.pop();
-            // ÖØÖÃ×´Ì¬
+            // é‡ç½®çŠ¶æ€
             if (g.state == GemState::Exploding) g.state = GemState::Static;
             board.setGem(currentRow, c, g);
             currentRow++;

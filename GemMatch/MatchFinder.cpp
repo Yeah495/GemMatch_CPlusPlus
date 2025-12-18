@@ -1,21 +1,21 @@
-/*¡ñ MatchFinder.h (Ëã·¨ÒıÇæ)
-  ¡ğ Êı¾İ½á¹¹Ó¦ÓÃ - Í¼ (Graph)£º
-    ¡ö ÄÑµã£ºÅĞ¶ÏÏû³ıÊ±£¬°ÑÍ¬É«ÏàÁÚ±¦Ê¯¿´×÷¡°Á¬Í¨·ÖÁ¿¡±¡£
-    ¡ö Ëã·¨£ºÊµÏÖ BFS (¹ã¶ÈÓÅÏÈËÑË÷) »ò DFS ²éÕÒÏàÁ¬µÄÍ¬É«¿é¡£ÈôÁ¬Í¨ÊıÁ¿ ¡İ3\geq 3¡İ3£¬Ôò±ê¼ÇÎªÏû³ı¡£*/
+ï»¿/*â— MatchFinder.h (ç®—æ³•å¼•æ“)
+  â—‹ æ•°æ®ç»“æ„åº”ç”¨ - å›¾ (Graph)ï¼š
+    â–  éš¾ç‚¹ï¼šåˆ¤æ–­æ¶ˆé™¤æ—¶ï¼ŒæŠŠåŒè‰²ç›¸é‚»å®çŸ³çœ‹ä½œâ€œè¿é€šåˆ†é‡â€ã€‚
+    â–  ç®—æ³•ï¼šå®ç° BFS (å¹¿åº¦ä¼˜å…ˆæœç´¢) æˆ– DFS æŸ¥æ‰¾ç›¸è¿çš„åŒè‰²å—ã€‚è‹¥è¿é€šæ•°é‡ â‰¥3\geq 3â‰¥3ï¼Œåˆ™æ ‡è®°ä¸ºæ¶ˆé™¤ã€‚*/
 
 
 #include "MatchFinder.h"
 
 std::vector<Point> MatchFinder::findMatches(const Board& board) {
-    std::set<Point> uniqueMatches; // Ê¹ÓÃSetÈ¥ÖØ£¬ÒòÎªÒ»¸ö±¦Ê¯¿ÉÄÜÍ¬Ê±ÔÚºáÊúÁ½¸ö·½Ïò±»Ïû³ı
+    std::set<Point> uniqueMatches; // ä½¿ç”¨Setå»é‡ï¼Œå› ä¸ºä¸€ä¸ªå®çŸ³å¯èƒ½åŒæ—¶åœ¨æ¨ªç«–ä¸¤ä¸ªæ–¹å‘è¢«æ¶ˆé™¤
     checkLines(board, uniqueMatches);
 
-    // ×ª»»ÎªVector·µ»Ø
+    // è½¬æ¢ä¸ºVectorè¿”å›
     return std::vector<Point>(uniqueMatches.begin(), uniqueMatches.end());
 }
 
 void MatchFinder::checkLines(const Board& board, std::set<Point>& matches) {
-    // 1. ºáÏòÉ¨Ãè (Row by Row)
+    // 1. æ¨ªå‘æ‰«æ (Row by Row)
     for (int r = 0; r < BOARD_ROWS; ++r) {
         for (int c = 0; c < BOARD_COLS - 2; ++c) {
             GemType currentType = board.getGem(r, c).type;
@@ -23,12 +23,12 @@ void MatchFinder::checkLines(const Board& board, std::set<Point>& matches) {
 
             if (board.getGem(r, c + 1).type == currentType &&
                 board.getGem(r, c + 2).type == currentType) {
-                // ·¢ÏÖÖÁÉÙ3¸öÏàÁ¬
+                // å‘ç°è‡³å°‘3ä¸ªç›¸è¿
                 matches.insert({ r, c });
                 matches.insert({ r, c + 1 });
                 matches.insert({ r, c + 2 });
 
-                // ¼ÌĞøÏòºó¼ì²éÊÇ·ñ³¬¹ı3¸ö
+                // ç»§ç»­å‘åæ£€æŸ¥æ˜¯å¦è¶…è¿‡3ä¸ª
                 int k = c + 3;
                 while (k < BOARD_COLS && board.getGem(r, k).type == currentType) {
                     matches.insert({ r, k });
@@ -38,7 +38,7 @@ void MatchFinder::checkLines(const Board& board, std::set<Point>& matches) {
         }
     }
 
-    // 2. ×İÏòÉ¨Ãè (Col by Col)
+    // 2. çºµå‘æ‰«æ (Col by Col)
     for (int c = 0; c < BOARD_COLS; ++c) {
         for (int r = 0; r < BOARD_ROWS - 2; ++r) {
             GemType currentType = board.getGem(r, c).type;

@@ -1,4 +1,4 @@
-#ifndef SCENEGAME_H
+ï»¿#ifndef SCENEGAME_H
 #define SCENEGAME_H
 
 #include <QWidget>
@@ -8,10 +8,10 @@
 #include <QLabel>
 #include <QPushButton>
 #include <functional>
-#include "Board.h" // ÒıÓÃÄãµÄ Board Êı¾İ½á¹¹
-#include "GemItem.h" // ÒıÓÃ±¦Ê¯Í¼Ôª
+#include "Board.h" // å¼•ç”¨ä½ çš„ Board æ•°æ®ç»“æ„
+#include "GemItem.h" // å¼•ç”¨å®çŸ³å›¾å…ƒ
 
-class MainWindow; // Ç°ÏòÉùÃ÷
+class MainWindow; // å‰å‘å£°æ˜
 
 class SceneGame : public QWidget {
     Q_OBJECT
@@ -20,43 +20,43 @@ public:
     explicit SceneGame(MainWindow* mainWin);
     ~SceneGame();
 
-    // --- ¹© Controller µ÷ÓÃµÄºËĞÄ½Ó¿Ú ---
+    // --- ä¾› Controller è°ƒç”¨çš„æ ¸å¿ƒæ¥å£ ---
 
-    // äÖÈ¾ÆåÅÌ£º¸ù¾İ Model Êı¾İÉú³É±¦Ê¯Í¼Ôª
+    // æ¸²æŸ“æ£‹ç›˜ï¼šæ ¹æ® Model æ•°æ®ç”Ÿæˆå®çŸ³å›¾å…ƒ
     void renderBoard(const Board& board);
 
-    // ¶¯»­£º½»»»
+    // åŠ¨ç”»ï¼šäº¤æ¢
     void animateSwap(int r1, int c1, int r2, int c2, std::function<void()> finishedCallback);
-    // ¶¯»­£ºÏû³ı
+    // åŠ¨ç”»ï¼šæ¶ˆé™¤
     void animateExplosion(const std::vector<QPoint>& points, std::function<void()> finishedCallback);
-    // ¶¯»­£ºÏÂÂä
+    // åŠ¨ç”»ï¼šä¸‹è½
     void animateFall(const Board& newBoard, std::function<void()> finishedCallback);
 
-    // ÉèÖÃ¸ßÁÁÑ¡ÖĞ
+    // è®¾ç½®é«˜äº®é€‰ä¸­
     void setGemSelected(int r, int c, bool selected);
 
-    // ¸üĞÂ UI ÏÔÊ¾
+    // æ›´æ–° UI æ˜¾ç¤º
     void updateScore(int score);
     void updateTime(int seconds);
 
 signals:
-    // ×ª·¢±¦Ê¯µã»÷ĞÅºÅ¸ø Controller (row, col)
+    // è½¬å‘å®çŸ³ç‚¹å‡»ä¿¡å·ç»™ Controller (row, col)
     void gemClicked(int row, int col);
 
-    // ÕâÀïµÄĞÅºÅ¹© MainWindow ÇĞ»»Ò³ÃæÊ¹ÓÃ
+    // è¿™é‡Œçš„ä¿¡å·ä¾› MainWindow åˆ‡æ¢é¡µé¢ä½¿ç”¨
     void backToMenu();
 
 private:
     MainWindow* m_mainWin;
 
-    // --- Í¼ĞÎÊÓÍ¼ºËĞÄ ---
-    QGraphicsView* m_view;   // ¸ºÔğÏÔÊ¾µÄ´°¿Ú
-    QGraphicsScene* m_scene; // ¸ºÔğ¹ÜÀíµÄ³¡¾°
+    // --- å›¾å½¢è§†å›¾æ ¸å¿ƒ ---
+    QGraphicsView* m_view;   // è´Ÿè´£æ˜¾ç¤ºçš„çª—å£
+    QGraphicsScene* m_scene; // è´Ÿè´£ç®¡ç†çš„åœºæ™¯
 
-    // ±¦Ê¯Í¼ÔªÖ¸ÕëÊı×é (·½±ãÍ¨¹ı×ø±êÕÒÍ¼Ôª)
+    // å®çŸ³å›¾å…ƒæŒ‡é’ˆæ•°ç»„ (æ–¹ä¾¿é€šè¿‡åæ ‡æ‰¾å›¾å…ƒ)
     GemItem* m_items[8][8];
 
-    // --- ÓÒ²à UI ¿Ø¼ş ---
+    // --- å³ä¾§ UI æ§ä»¶ ---
     QLCDNumber* m_scoreDisplay;
     QLabel* m_timeLabel;
     QPushButton* m_btnSkillBomb;
@@ -65,11 +65,11 @@ private:
     QPushButton* m_btnPause;
     QPushButton* m_btnExit;
 
-    // --- ÄÚ²¿¸¨Öú ---
+    // --- å†…éƒ¨è¾…åŠ© ---
     void setupUI();
-    QPointF getScreenPos(int row, int col) const; // ¼ÆËã±¦Ê¯ÔÚ Scene ÖĞµÄ×ø±ê
+    QPointF getScreenPos(int row, int col) const; // è®¡ç®—å®çŸ³åœ¨ Scene ä¸­çš„åæ ‡
 
-    const int CELL_SIZE = 65; // ¸ñ×Ó´óĞ¡
+    const int CELL_SIZE = 65; // æ ¼å­å¤§å°
 };
 
 #endif // SCENEGAME_H

@@ -1,8 +1,8 @@
-/*�� PlayerSession�����״̬��
-  �� ���������״̬��
-  �� ���ԣ���ǰ������ʣ�ಽ��/ʱ�䡢��ǰ�ؿ���
-  �� ���ݽṹӦ�� - ջ (Stack)��
-    �� ��չ���ܣ�ʵ�֡����塱 (Undo) ���ܡ�ÿ�β���ǰ���ѵ�ǰ��ͼ״̬����ѹ��ջ�С�*/
+﻿/*● PlayerSession（玩家状态）
+  ○ 描述：玩家状态。
+  ○ 属性：当前分数、剩余步数/时间、当前关卡。
+  ○ 数据结构应用 - 栈 (Stack)：
+    ■ 扩展功能：实现“悔棋” (Undo) 功能。每次操作前，把当前地图状态快照压入栈中。*/
 
 
 
@@ -41,7 +41,7 @@ void PlayerSession::undo(Board& currentBoard) {
         GameSnapshot snapshot = m_historyStack.top();
         m_historyStack.pop();
 
-        // �ָ�����
+        // 恢复数据
         currentBoard.setGrid(snapshot.grid);
         m_score = snapshot.score;
     }
