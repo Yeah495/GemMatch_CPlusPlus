@@ -54,6 +54,8 @@ private:
 
     QPoint m_selectedPos;   // 当前选中的宝石坐标 (-1, -1 表示未选)
     bool m_isProcessing;    // 锁：是否正在播放动画（禁止玩家点击）
+
+    int m_comboLevel; // 记录当前的连击层数
 };
 
 #endif // GAMECONTROLLER_H

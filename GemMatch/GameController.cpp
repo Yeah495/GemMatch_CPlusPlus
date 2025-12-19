@@ -105,7 +105,7 @@ void GameController::attemptSwap(const QPoint& p1, const QPoint& p2) {
 
         if (result == SwapResult::Success) {
             // A. 交换成功且消除了
-
+            m_comboLevel = 1;  //初始化为1连击
 
             // 这里演示通用做法：获取需要爆炸的坐标
             std::vector<QPoint> explodePoints;
@@ -149,9 +149,13 @@ void GameController::processFallAndMatch() {
         m_gameCore->resetGemStates();//全部重置为Static状态,防止保留falling状态进入下一次消去,导致出现莫名其妙的下落动画
 
         // 4. 【检测】扫描新盘面
-        bool hasNewMatches = m_gameCore->findAndMarkMatches();
+        int comboSize = 0;
+        bool hasNewMatches = m_gameCore->findAndMarkMatches(&comboSize);
 
         if (hasNewMatches) {
+            m_comboLevel++;  //也可以是*=2,按照每次翻两倍,连击得分增强
+            int score = comboSize * 10 * m_comboLevel;  //连击翻倍
+            m_gameCore->addScoreSession(score);
             // 5. 【准备数据】搜集新的爆炸点
             std::vector<QPoint> explodePoints;
             const Board& board = m_gameCore->getBoard();

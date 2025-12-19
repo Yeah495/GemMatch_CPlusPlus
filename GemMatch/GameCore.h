@@ -45,11 +45,8 @@ public:
 
     // 供 View 获取数据用于渲染
     const Board& getBoard() const;
+    
     int getScore() const;
-
-    // 每一轮消除后的自动处理（消除->下落->再检查消除）
-    // 返回是否还有连锁反应在进行（用于连续动画）
-    bool processNextState();
 
     bool findAndMarkMatches(int* size = nullptr);
     void clearMatches();
@@ -57,13 +54,11 @@ public:
     // 在类声明中添加
     void resetGemStates();
 
+    void addScoreSession(int score);
 private:
     // 组合模式：持有各子模块
     std::unique_ptr<Board> m_board;
     std::unique_ptr<PlayerSession> m_session;
-
-    // 内部处理消除逻辑
-    int executeElimination(); // 返回消除的个数
 };
 
 #endif // GAMECORE_H

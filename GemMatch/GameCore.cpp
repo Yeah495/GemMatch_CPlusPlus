@@ -22,8 +22,14 @@ void GameCore::initGame() {
 
     bool stable = false;
     while (!stable) {
-        int count = executeElimination();
-        if (count > 0) {
+        // 使用 MatchFinder 找但不标记状态，直接清空
+        auto matches = MatchFinder::findMatches(*m_board);
+        if (!matches.empty()) {
+            for (auto& p : matches) {
+                Gem g = m_board->getGem(p.r, p.c);
+                g.type = GemType::Empty;
+                m_board->setGem(p.r, p.c, g);
+            }
             GravitySystem::applyGravity(*m_board);
         }
         else {
@@ -89,40 +95,17 @@ bool GameCore::undo() {
     return false;
 }
 
-int GameCore::executeElimination() {
-    auto matches = MatchFinder::findMatches(*m_board);
-    for (const auto& p : matches) {
-        Gem g = m_board->getGem(p.r, p.c);
-        g.type = GemType::Empty;
-        m_board->setGem(p.r, p.c, g);
-    }
-    return matches.size();
-}
-
 void GameCore::applyGravityOnly() {
     // 调用之前的队列逻辑，实现宝石下沉和顶部补全
     GravitySystem::applyGravity(*m_board);
 }
 
-bool GameCore::processNextState() {
-    // 1. 先应用重力（下落）
-    bool gravityMoved = GravitySystem::applyGravity(*m_board);
-
-    // 2. 下落后检查是否有新的消除（连锁反应）
-    int eliminated = executeElimination();
-    if (eliminated > 0) {
-        m_session->addScore(eliminated * 20); // 连击得分更高
-        // 如果有消除，说明状态还没稳，需要UI继续播放消除动画，然后再次回调这里
-        return true;
-    }
-
-    // 如果仅仅是重力下落了，但没有新消除，也需要返回true让UI播放下落动画
-    // 只有当既没有下落也没有消除时，回合才算彻底结束
-    return !gravityMoved;
-}
-
 const Board& GameCore::getBoard() const {
     return *m_board;
+}
+
+void GameCore::addScoreSession(int score){
+   m_session->addScore(score);
 }
 
 int GameCore::getScore() const {
