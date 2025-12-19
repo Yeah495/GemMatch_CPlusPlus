@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RCC>
-    <qresource prefix="/assets/images">
+    <qresource prefix="/">
         <file>assets/images/bg_login.jpg</file>
         <file>assets/images/gem_1.png</file>
         <file>assets/images/gem_2.png</file>
@@ -11,5 +10,8 @@
         <file>assets/images/gem_7.png</file>
         <file>assets/images/gem_8.png</file>
         <file>assets/images/gem_9.png</file>
+        <file>assets/images/game.jpg</file>
+        <file>assets/images/login.jpg</file>
+        <file>assets/images/menu.jpg</file>
     </qresource>
 </RCC>

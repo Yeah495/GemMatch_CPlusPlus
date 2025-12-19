@@ -14,6 +14,9 @@ public:
 private:
     MainWindow* m_mainWin;
     void setupUI();
+
+protected:
+    void paintEvent(QPaintEvent* event) override;
 };
 
 #endif // SCENESTART_H

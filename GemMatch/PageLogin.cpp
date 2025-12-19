@@ -6,8 +6,20 @@
 #include <QLabel>
 #include <QMessageBox>
 
+#include <QPainter>
+#include <QStyleOption>
+
 PageLogin::PageLogin(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWin) {
     setupUI();
+}
+
+void PageLogin::paintEvent(QPaintEvent* event) {
+    QStyleOption opt;
+    // 如果 init 报错，请使用 initFrom
+    opt.initFrom(this);
+
+    QPainter p(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
 void PageLogin::setupUI() {
@@ -15,7 +27,8 @@ void PageLogin::setupUI() {
     this->setObjectName("LoginBackground");
 
     // 2.
-    this->setStyleSheet("#LoginBackground { border-image: url(assets/images/bg_login.jpg); }");
+    // 增加冒号前缀，并匹配 qrc 生成的冗余路径
+    this->setStyleSheet("#LoginBackground { border-image: url(:/assets/images/login.jpg); }");
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setAlignment(Qt::AlignCenter);

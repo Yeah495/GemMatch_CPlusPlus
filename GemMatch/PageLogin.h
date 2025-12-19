@@ -20,6 +20,8 @@ private:
     void setupUI();
     void onLoginClicked();
     void onRegisterClicked();
+protected:
+    void paintEvent(QPaintEvent* event) override;
 };
 
 #endif // PAGELOGIN_H
