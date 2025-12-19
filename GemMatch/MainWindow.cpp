@@ -35,7 +35,6 @@ MainWindow::MainWindow(QWidget* parent)
     m_stack->addWidget(m_pageRank);     // Index 5
 
     // 3. 处理游戏页面的“返回主菜单”信号
-    // (这需要 SceneGame 定义了 backToMenu 信号，参考上一条回答的代码)
     connect(m_pageGame, &SceneGame::backToMenu, [this]() {
         this->switchPage(1); // 切换回主菜单
         });

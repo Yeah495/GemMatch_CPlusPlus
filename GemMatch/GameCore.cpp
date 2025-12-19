@@ -12,12 +12,12 @@ GameCore::GameCore() {
     m_session = std::unique_ptr<PlayerSession>(new PlayerSession());
 }
 
-//初始化棋盘并清除所有自动产生的初始连消（保证稳定开局）
+//初始化棋盘并清除所有自动产生的初始消除
 void GameCore::initGame() {
     m_board->initRandomBoard();
     m_session->resetScore();
 
-    // 初始盘面可能自带消除，先静默处理掉，保证开局是静止的
+    // 初始盘面可能自带消除，先静默处理掉，保证开局正常
     bool stable = false;
     while (!stable) {
         int count = executeElimination();

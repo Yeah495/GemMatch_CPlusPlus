@@ -105,11 +105,7 @@ void GameController::attemptSwap(const QPoint& p1, const QPoint& p2) {
 
         if (result == SwapResult::Success) {
             // A. 交换成功且消除了
-            // 此时 Model 里的数据已经是消除后的状态（GemType::Empty）
-            // 我们需要找出哪些位置爆炸了，通知 View 播放爆炸
 
-            // 为了简单，我们让 View 遍历一遍 Model 找出 Exploding 状态的宝石
-            // 或者更优化的做法是 trySwap 返回消除列表
 
             // 这里演示通用做法：获取需要爆炸的坐标
             std::vector<QPoint> explodePoints;
