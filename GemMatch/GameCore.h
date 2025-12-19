@@ -36,7 +36,7 @@ public:
 
     void initGame(); // 开始新游戏
 
-    // 核心交互 API 
+ 
     // 尝试交换两个宝石。如果成功消除，Model内部会自动处理消除和得分
     SwapResult trySwap(int r1, int c1, int r2, int c2);
 
