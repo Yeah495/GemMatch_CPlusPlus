@@ -4,14 +4,26 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QApplication>
+#include <QPainter>
+#include <QStyleOption>
 
 SceneStart::SceneStart(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWin) {
     setupUI();
 }
 
+void SceneStart::paintEvent(QPaintEvent* event) {
+    QStyleOption opt;
+    // 如果 init 报错，请使用 initFrom
+    opt.initFrom(this);
+
+    QPainter p(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
+
 void SceneStart::setupUI() {
+    this->setObjectName("SceneStart");
     // 背景
-    this->setStyleSheet("SceneStart { border-image: url(:/assets/images/bg_menu.png); }");
+    this->setStyleSheet("#SceneStart { border-image: url(:/assets/images/menu.jpg); }");
 
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->setAlignment(Qt::AlignCenter);

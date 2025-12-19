@@ -103,7 +103,7 @@ bool GameCore::processNextState() {
 
     // 如果仅仅是重力下落了，但没有新消除，也需要返回true让UI播放下落动画
     // 只有当既没有下落也没有消除时，回合才算彻底结束
-    return gravityMoved;
+    return !gravityMoved;
 }
 
 const Board& GameCore::getBoard() const {

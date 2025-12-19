@@ -12,6 +12,9 @@
 #include <QStandardPaths>
 #include <QBuffer>
 
+#include <QPainter>
+#include <QStyleOption>
+
 SceneGame::SceneGame(MainWindow* mainWin)
     : QWidget(mainWin), m_mainWin(mainWin)
 {
@@ -27,11 +30,21 @@ SceneGame::~SceneGame() {
     // Qt 的对象树机制会自动清理 m_view, m_scene 和 UI 控件
 }
 
+void SceneGame::paintEvent(QPaintEvent* event) {
+    QStyleOption opt;
+    // 如果 init 报错，请使用 initFrom
+    opt.initFrom(this);
+
+    QPainter p(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
+
 void SceneGame::setupUI() {
+    this->setObjectName("SceneGame");
     // 1. 设置整个窗口的背景：优先使用 qrc 资源路径
     QString qrcBg = ":/assets/images/bg_login.jpg";
     if (QFile::exists(qrcBg)) {
-        this->setStyleSheet(QString("SceneGame { border-image: url(%1); } QLabel { color: blue; font-weight: bold; font-family: 'Microsoft YaHei'; } QPushButton { background-color: rgba(255, 255, 255, 0.9); border: 2px solid #aaa; border-radius: 8px; padding: 5px; font-weight: bold; font-size: 14px; } QPushButton:hover { background-color: white; border-color: gold; }") .arg(qrcBg));
+        this->setStyleSheet("#SceneGame { border-image: url(:/assets/images/bg_login.jpg); }");
     }
     else {
         // fallback to ResourceLoader pixmap
@@ -41,10 +54,10 @@ void SceneGame::setupUI() {
             if (cacheDir.isEmpty()) cacheDir = QCoreApplication::applicationDirPath();
             QString outPath = cacheDir + "/bg_game_temp.png";
             bg.save(outPath);
-            this->setStyleSheet(QString("SceneGame { border-image: url(%1); } QLabel { color: white; font-weight: bold; font-family: 'Microsoft YaHei'; } QPushButton { background-color: rgba(255, 255, 255, 0.9); border: 2px solid #aaa; border-radius: 8px; padding: 5px; font-weight: bold; font-size: 14px; } QPushButton:hover { background-color: white; border-color: gold; }") .arg(outPath));
+            this->setStyleSheet("#SceneGame { border-image: url(:/assets/images/bg_login.jpg); }");
         }
         else {
-            this->setStyleSheet("SceneGame { border-image: url(:/assets/images/bg_game.png); } QLabel { color: white; font-weight: bold; font-family: 'Microsoft YaHei'; } QPushButton { background-color: rgba(255, 255, 255, 0.9); border: 2px solid #aaa; border-radius: 8px; padding: 5px; font-weight: bold; font-size: 14px; } QPushButton:hover { background-color: white; border-color: gold; }");
+            this->setStyleSheet("#SceneGame { border-image: url(:/assets/images/bg_login.jpg); }");
         }
     }
 
@@ -56,18 +69,18 @@ void SceneGame::setupUI() {
     m_scene = new QGraphicsScene(this);
     m_scene->setSceneRect(0, 0, 580, 580); // 设置场景逻辑大小
 
-    // 使用资源背景作为场景背景
-    QString sceneQrc = ":/assets/images/bg_login.jpg";
-    if (QFile::exists(sceneQrc)) {
-        QPixmap sceneBg(sceneQrc);
-        m_scene->setBackgroundBrush(QBrush(sceneBg.scaled(580, 580, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation)));
-    }
-    else {
-        QPixmap sceneBg = ResourceLoader::instance().getBackground();
-        if (!sceneBg.isNull()) {
-            m_scene->setBackgroundBrush(QBrush(sceneBg.scaled(580, 580, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation)));
-        }
-    }
+    //// 使用资源背景作为场景背景
+    //QString sceneQrc = ":/assets/images/bg_login.jpg";
+    //if (QFile::exists(sceneQrc)) {
+    //    QPixmap sceneBg(sceneQrc);
+    //    m_scene->setBackgroundBrush(QBrush(sceneBg.scaled(580, 580, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation)));
+    //}
+    //else {
+    //    QPixmap sceneBg = ResourceLoader::instance().getBackground();
+    //    if (!sceneBg.isNull()) {
+    //        m_scene->setBackgroundBrush(QBrush(sceneBg.scaled(580, 580, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation)));
+    //    }
+    //}
 
     m_view = new QGraphicsView(m_scene);
     m_view->setFixedSize(600, 600); // 视图固定大小

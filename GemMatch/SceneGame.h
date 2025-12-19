@@ -39,6 +39,9 @@ public:
     void updateScore(int score);
     void updateTime(int seconds);
 
+protected:
+    void paintEvent(QPaintEvent* event) override;
+
 signals:
     // 转发宝石点击信号给 Controller (row, col)
     void gemClicked(int row, int col);
