@@ -51,6 +51,12 @@ public:
     // 返回是否还有连锁反应在进行（用于连续动画）
     bool processNextState();
 
+    bool findAndMarkMatches(int* size = nullptr);
+    void clearMatches();
+    void applyGravityOnly();
+    // 在类声明中添加
+    void resetGemStates();
+
 private:
     // 组合模式：持有各子模块
     std::unique_ptr<Board> m_board;

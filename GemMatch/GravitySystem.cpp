@@ -8,50 +8,55 @@
 
 bool GravitySystem::applyGravity(Board& board) {
     bool moved = false;
+    static std::mt19937 rng(std::time(nullptr));
     std::uniform_int_distribution<int> dist(1, GEM_TYPE_COUNT);
-    std::mt19937 rng(std::time(nullptr));
 
-    // 对每一列单独处理
     for (int c = 0; c < BOARD_COLS; ++c) {
-        // 数据结构应用：队列 
-        // 逻辑：将该列所有非空宝石按顺序入队
-        std::queue<Gem> columnQueue;
+        std::vector<std::pair<int, Gem>> existingGems;
 
+        // 1. 收集非空宝石
         for (int r = 0; r < BOARD_ROWS; ++r) {
             Gem g = board.getGem(r, c);
             if (g.type != GemType::Empty) {
-                columnQueue.push(g);
+                // 存入 {行号, 宝石}
+                existingGems.push_back({ r, g });
             }
         }
 
-        // 如果队列大小等于行数，说明这列满了，没有消除，不需要下落
-        if (columnQueue.size() == BOARD_ROWS) {
-            continue;
-        }
+        if (existingGems.size() < BOARD_ROWS) {
+            moved = true;
+            int emptySlots = BOARD_ROWS - existingGems.size();
 
-        moved = true;
+            // 2. 填充顶部（新生成的宝石）
+            for (int r = 0; r < emptySlots; ++r) {
+                Gem newGem(static_cast<GemType>(dist(rng)));
+                // 新生成的肯定是从天上下来的，必须 Falling
+                newGem.state = GemState::Falling;
+                board.setGem(r, c, newGem);
+            }
 
-        // 计算需要填充的空位数量（顶部）
-        int emptySlots = BOARD_ROWS - columnQueue.size();
+            // 3. 填充底部（旧宝石）
+            for (int i = 0; i < existingGems.size(); ++i) {
+                // 取出原行号和宝石数据
+                int originalRow = existingGems[i].first;
+                Gem g = existingGems[i].second;
 
-        // 1. 先在顶部填充新的随机宝石
-        for (int r = 0; r < emptySlots; ++r) {
-            Gem newGem(static_cast<GemType>(dist(rng)));
-            newGem.state = GemState::Falling; // 标记状态供View层做入场动画
-            board.setGem(r, c, newGem);
-        }
+                // 计算新行号
+                int newRow = i + emptySlots;
 
-        // 2. 再将队列中的旧宝石填回去（相当于下落到了底部）
-        int currentRow = emptySlots;
-        while (!columnQueue.empty()) {
-            Gem g = columnQueue.front();
-            columnQueue.pop();
-            // 重置状态
-            if (g.state == GemState::Exploding) g.state = GemState::Static;
-            board.setGem(currentRow, c, g);
-            currentRow++;
+                // 只有当 新位置 != 旧位置 时，才标记为 Falling
+                if (newRow != originalRow) {
+                    g.state = GemState::Falling;
+                }
+                else {
+                    // 如果位置没变（比如消除行下方的宝石），强制设为 Static
+                    // 这样 UI 就不会去动它了
+                    g.state = GemState::Static;
+                }
+
+                board.setGem(newRow, c, g);
+            }
         }
     }
-
     return moved;
 }

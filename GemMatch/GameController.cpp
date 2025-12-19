@@ -141,23 +141,22 @@ void GameController::attemptSwap(const QPoint& p1, const QPoint& p2) {
 }
 
 void GameController::processFallAndMatch() {
-    // 这是一个递归函数，用于处理 "下落 -> 消除 -> 下落 -> 消除" 的连锁反应
+    // 1. 【清理】把上一轮炸掉的宝石在数据层变为空
+    m_gameCore->clearMatches();
 
-    // 【步骤 4】通知 Model 计算物理下落和新生成
-    // processNextState 会执行 applyGravity，如果有新消除返回 true
-    // 注意：Model 内部会将刚才的 Exploding 状态清理掉，并填充新宝石
-    bool needMoreAnimation = m_gameCore->processNextState();
+    // 2. 【填充】执行下落和生成新宝石，此时 Board 是满的，状态是 Falling 或 Static
+    m_gameCore->applyGravityOnly();
 
-    // 获取最新的盘面数据传给 View
-    // View 需要根据这些数据计算哪些是从上面掉下来的，哪些是新生成的
+    // 3. 【动画】播放下落动画
+    // 注意：这里传给 View 的 Board 是下落后的最终状态
     m_scene->animateFall(m_gameCore->getBoard(), [=]() {
+        m_gameCore->resetGemStates();//全部重置为Static状态,防止保留falling状态进入下一次消去,导致出现莫名其妙的下落动画
 
-        // 【步骤 5】下落动画结束
+        // 4. 【检测】扫描新盘面
+        bool hasNewMatches = m_gameCore->findAndMarkMatches();
 
-        if (needMoreAnimation) {
-            // 如果 Model 说还有消除发生（连击），我们需要再次播放爆炸
-            // 此时 Model 里的某些宝石状态又是 Exploding 了
-
+        if (hasNewMatches) {
+            // 5. 【准备数据】搜集新的爆炸点
             std::vector<QPoint> explodePoints;
             const Board& board = m_gameCore->getBoard();
             for (int r = 0; r < BOARD_ROWS; ++r) {
@@ -168,19 +167,13 @@ void GameController::processFallAndMatch() {
                 }
             }
 
-            if (!explodePoints.empty()) {
-                // 播放连击的爆炸，然后递归调用自己
-                m_scene->animateExplosion(explodePoints, [=]() {
-                    processFallAndMatch();
-                    });
-            }
-            else {
-                // 理论上不会走到这，除非 processNextState 返回 true 但没标记爆炸
-                m_isProcessing = false;
-            }
+            // 6. 【动画】播放新一轮爆炸，炸完再递归
+            m_scene->animateExplosion(explodePoints, [=]() {
+                processFallAndMatch(); // 递归进入下一轮：清理->下落->再检测
+                });
         }
         else {
-            // 没有更多消除了，回合完全结束
+            // 没有新连击了，彻底稳了
             m_isProcessing = false;
         }
         });

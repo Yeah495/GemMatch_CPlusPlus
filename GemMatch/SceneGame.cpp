@@ -312,15 +312,24 @@ void SceneGame::animateFall(const Board& newBoard, std::function<void()> finishe
             QPointF targetPos = getScreenPos(r, c);
 
             if (g.state == GemState::Falling) {
-                // 如果标记为下落，从上面飞下来
-                QPointF startPos = targetPos - QPointF(0, 100);
+                // 【核心优化】：计算一个看起来合理的起点
+                // 假设掉落了一格距离 (CELL_SIZE)，或者为了视觉统统从上方一点点掉下来
+                // 如果想要更真实，可以让上面的掉得少，下面的掉得多，但这需要额外数据
+                // 这里我们使用统一的“入场动画”，比之前写死的 -100 要好
+
+                // 方案A：从上一格位置掉下来（看起来像连续掉落）
+                QPointF startPos = targetPos - QPointF(0, CELL_SIZE);
+
+                // 如果是第0行(刚生成的)，可以从屏幕外进来
+                if (r == 0) startPos = targetPos - QPointF(0, CELL_SIZE * 1.5);
+
                 item->setPos(startPos);
 
                 QPropertyAnimation* anim = new QPropertyAnimation(item, "pos");
-                anim->setDuration(400);
+                anim->setDuration(400); // 稍微调快一点，更有打击感
                 anim->setStartValue(startPos);
                 anim->setEndValue(targetPos);
-                anim->setEasingCurve(QEasingCurve::OutBounce); // 弹跳效果
+                anim->setEasingCurve(QEasingCurve::OutBounce);
                 group->addAnimation(anim);
                 anyMove = true;
             }
