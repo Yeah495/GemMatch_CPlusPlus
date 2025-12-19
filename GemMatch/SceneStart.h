@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef SCENESTART_H
 #define SCENESTART_H
 

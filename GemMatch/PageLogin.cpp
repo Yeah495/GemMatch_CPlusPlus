@@ -1,4 +1,4 @@
-#include "PageLogin.h"
+ï»¿#include "PageLogin.h"
 #include "MainWindow.h"
 #include "UserManager.h"
 #include <QVBoxLayout>
@@ -11,17 +11,16 @@ PageLogin::PageLogin(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWin)
 }
 
 void PageLogin::setupUI() {
-    // 1. ¸øµ±Ç°´°¿ÚÆğÒ»¸öÎ¨Ò»µÄ ID Ãû×Ö
+    // 1. ç»™å½“å‰çª—å£èµ·ä¸€ä¸ªå”¯ä¸€çš„ ID åå­—
     this->setObjectName("LoginBackground");
 
-    // 2. Ê¹ÓÃ "#ID" µÄ·½Ê½ÉèÖÃÑùÊ½ (×¢ÒâÇ°ÃæµÄ # ºÅ)
-    // ÕâÑùÄÜÈ·±£ÑùÊ½Ö»Ó¦ÓÃÔÚÕâ¸ö´°¿ÚÉÏ£¬ÇÒÓÅÏÈ¼¶×î¸ß
+    // 2.
     this->setStyleSheet("#LoginBackground { border-image: url(assets/images/bg_login.jpg); }");
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setAlignment(Qt::AlignCenter);
 
-    // °ëÍ¸Ã÷ÈİÆ÷
+    // åŠé€æ˜å®¹å™¨
     QWidget* container = new QWidget(this);
     container->setFixedSize(320, 450);
     container->setStyleSheet("background-color: rgba(0, 0, 0, 180); border-radius: 15px;");
@@ -30,38 +29,38 @@ void PageLogin::setupUI() {
     formLayout->setContentsMargins(30, 40, 30, 40);
     formLayout->setSpacing(15);
 
-    // ±êÌâ
-    QLabel* title = new QLabel("GEM MATCH");
+    // æ ‡é¢˜
+    QLabel* title = new QLabel("å®çŸ³è¿·é˜µ");
     title->setAlignment(Qt::AlignCenter);
     title->setStyleSheet("color: gold; font-size: 28px; font-weight: bold; margin-bottom: 20px;");
 
-    // ÊäÈë¿òÑùÊ½
+    // è¾“å…¥æ¡†æ ·å¼
     QString editStyle = "QLineEdit { padding: 8px; border-radius: 5px; border: 1px solid #555; background: #333; color: white; } "
         "QLineEdit:focus { border: 1px solid gold; }";
 
     m_editUser = new QLineEdit();
-    m_editUser->setPlaceholderText("Username");
+    m_editUser->setPlaceholderText("ç”¨æˆ·å");
     m_editUser->setStyleSheet(editStyle);
 
     m_editPass = new QLineEdit();
-    m_editPass->setPlaceholderText("Password");
+    m_editPass->setPlaceholderText("å¯†ç ");
     m_editPass->setEchoMode(QLineEdit::Password);
     m_editPass->setStyleSheet(editStyle);
 
     m_editEmail = new QLineEdit();
-    m_editEmail->setPlaceholderText("Email (For Register)");
+    m_editEmail->setPlaceholderText("é‚®ç®±");
     m_editEmail->setStyleSheet(editStyle);
 
-    // °´Å¥
-    QPushButton* btnLogin = new QPushButton("LOGIN");
+    // æŒ‰é’®
+    QPushButton* btnLogin = new QPushButton("ç™»å½•");
     btnLogin->setStyleSheet("QPushButton { background-color: gold; color: black; font-weight: bold; padding: 10px; border-radius: 5px; }"
         "QPushButton:hover { background-color: #ffec8b; }");
 
-    QPushButton* btnReg = new QPushButton("REGISTER");
+    QPushButton* btnReg = new QPushButton("æ³¨å†Œ");
     btnReg->setStyleSheet("QPushButton { background-color: transparent; color: white; border: 1px solid white; padding: 8px; border-radius: 5px; }"
         "QPushButton:hover { background-color: rgba(255,255,255,0.2); }");
 
-    // Ìí¼Óµ½²¼¾Ö
+    // æ·»åŠ åˆ°å¸ƒå±€
     formLayout->addWidget(title);
     formLayout->addWidget(m_editUser);
     formLayout->addWidget(m_editPass);
@@ -72,7 +71,7 @@ void PageLogin::setupUI() {
 
     mainLayout->addWidget(container);
 
-    // Á¬½ÓĞÅºÅ
+    // è¿æ¥ä¿¡å·
     connect(btnLogin, &QPushButton::clicked, this, &PageLogin::onLoginClicked);
     connect(btnReg, &QPushButton::clicked, this, &PageLogin::onRegisterClicked);
 }
@@ -82,11 +81,11 @@ void PageLogin::onLoginClicked() {
     QString pass = m_editPass->text();
 
     if (UserManager::instance().login(user, pass)) {
-        // µÇÂ¼³É¹¦£¬Ìø×ªµ½Ö÷²Ëµ¥
+        // ç™»å½•æˆåŠŸï¼Œè·³è½¬åˆ°ä¸»èœå•
         m_mainWin->switchPage(1);
     }
     else {
-        QMessageBox::warning(this, "Login Failed", "Invalid username or password.");
+        QMessageBox::warning(this, "ç™»å½•å¤±è´¥", "ç”¨æˆ·åæˆ–å¯†ç é”™è¯¯.");
     }
 }
 
@@ -96,14 +95,14 @@ void PageLogin::onRegisterClicked() {
     QString email = m_editEmail->text();
 
     if (user.isEmpty() || pass.isEmpty()) {
-        QMessageBox::warning(this, "Error", "Username and Password cannot be empty.");
+        QMessageBox::warning(this, "é”™è¯¯", "ç”¨æˆ·åå’Œå¯†ç ä¸èƒ½ä¸ºç©º");
         return;
     }
 
     if (UserManager::instance().registerUser(user, pass, email)) {
-        QMessageBox::information(this, "Success", "Registration successful! Please login.");
+        QMessageBox::information(this, "æ³¨å†ŒæˆåŠŸ", "æ³¨å†ŒæˆåŠŸï¼Œè¯·ç™»å½•");
     }
     else {
-        QMessageBox::warning(this, "Error", "Username already exists.");
+        QMessageBox::warning(this, "é”™è¯¯", "è¯¥ç”¨æˆ·åå·²å­˜åœ¨ï¼Œè¯·æ›´æ¢");
     }
 }

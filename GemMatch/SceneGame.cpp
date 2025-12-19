@@ -8,6 +8,9 @@
 #include <QPropertyAnimation>
 #include <QSequentialAnimationGroup>
 #include <QDebug>
+#include "ResourceLoader.h"
+#include <QStandardPaths>
+#include <QBuffer>
 
 SceneGame::SceneGame(MainWindow* mainWin)
     : QWidget(mainWin), m_mainWin(mainWin)
@@ -25,11 +28,25 @@ SceneGame::~SceneGame() {
 }
 
 void SceneGame::setupUI() {
-    // 1. 设置整个窗口的背景
-    this->setStyleSheet("SceneGame { border-image: url(:/assets/images/bg_game.png); } "
-        "QLabel { color: white; font-weight: bold; font-family: 'Microsoft YaHei'; }"
-        "QPushButton { background-color: rgba(255, 255, 255, 0.9); border: 2px solid #aaa; border-radius: 8px; padding: 5px; font-weight: bold; font-size: 14px; }"
-        "QPushButton:hover { background-color: white; border-color: gold; }");
+    // 1. 设置整个窗口的背景：优先使用 qrc 资源路径
+    QString qrcBg = ":/assets/images/bg_login.jpg";
+    if (QFile::exists(qrcBg)) {
+        this->setStyleSheet(QString("SceneGame { border-image: url(%1); } QLabel { color: blue; font-weight: bold; font-family: 'Microsoft YaHei'; } QPushButton { background-color: rgba(255, 255, 255, 0.9); border: 2px solid #aaa; border-radius: 8px; padding: 5px; font-weight: bold; font-size: 14px; } QPushButton:hover { background-color: white; border-color: gold; }") .arg(qrcBg));
+    }
+    else {
+        // fallback to ResourceLoader pixmap
+        QPixmap bg = ResourceLoader::instance().getBackground();
+        if (!bg.isNull()) {
+            QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+            if (cacheDir.isEmpty()) cacheDir = QCoreApplication::applicationDirPath();
+            QString outPath = cacheDir + "/bg_game_temp.png";
+            bg.save(outPath);
+            this->setStyleSheet(QString("SceneGame { border-image: url(%1); } QLabel { color: white; font-weight: bold; font-family: 'Microsoft YaHei'; } QPushButton { background-color: rgba(255, 255, 255, 0.9); border: 2px solid #aaa; border-radius: 8px; padding: 5px; font-weight: bold; font-size: 14px; } QPushButton:hover { background-color: white; border-color: gold; }") .arg(outPath));
+        }
+        else {
+            this->setStyleSheet("SceneGame { border-image: url(:/assets/images/bg_game.png); } QLabel { color: white; font-weight: bold; font-family: 'Microsoft YaHei'; } QPushButton { background-color: rgba(255, 255, 255, 0.9); border: 2px solid #aaa; border-radius: 8px; padding: 5px; font-weight: bold; font-size: 14px; } QPushButton:hover { background-color: white; border-color: gold; }");
+        }
+    }
 
     QHBoxLayout* mainLayout = new QHBoxLayout(this);
     mainLayout->setContentsMargins(30, 30, 30, 30);
@@ -39,6 +56,19 @@ void SceneGame::setupUI() {
     m_scene = new QGraphicsScene(this);
     m_scene->setSceneRect(0, 0, 580, 580); // 设置场景逻辑大小
 
+    // 使用资源背景作为场景背景
+    QString sceneQrc = ":/assets/images/bg_login.jpg";
+    if (QFile::exists(sceneQrc)) {
+        QPixmap sceneBg(sceneQrc);
+        m_scene->setBackgroundBrush(QBrush(sceneBg.scaled(580, 580, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation)));
+    }
+    else {
+        QPixmap sceneBg = ResourceLoader::instance().getBackground();
+        if (!sceneBg.isNull()) {
+            m_scene->setBackgroundBrush(QBrush(sceneBg.scaled(580, 580, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation)));
+        }
+    }
+
     m_view = new QGraphicsView(m_scene);
     m_view->setFixedSize(600, 600); // 视图固定大小
     // 视图样式：透明背景，无边框
@@ -47,6 +77,7 @@ void SceneGame::setupUI() {
     m_view->setRenderHint(QPainter::SmoothPixmapTransform);
     m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
     mainLayout->addWidget(m_view);
 
@@ -61,7 +92,7 @@ void SceneGame::setupUI() {
     statusLayout->setSpacing(10);
 
     // 分数
-    QLabel* lblScoreTitle = new QLabel("得分 SCORE");
+    QLabel* lblScoreTitle = new QLabel("得分 ");
     lblScoreTitle->setAlignment(Qt::AlignCenter);
 
     m_scoreDisplay = new QLCDNumber();
@@ -97,7 +128,7 @@ void SceneGame::setupUI() {
     // 3. 系统按钮
     m_btnPause = new QPushButton("暂停游戏");
     m_btnExit = new QPushButton("返回主菜单");
-    m_btnExit->setStyleSheet("QPushButton { background-color: rgba(255, 80, 80, 0.8); color: white; } QPushButton:hover { background-color: red; }");
+    m_btnExit->setStyleSheet("QPushButton { background-color: rgba(255, 80, 80, 0.8); color: red; } QPushButton:hover { background-color: red; }");
 
     sideLayout->addWidget(m_btnPause);
     sideLayout->addWidget(m_btnExit);

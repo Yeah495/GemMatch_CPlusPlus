@@ -16,15 +16,14 @@ void PageAbout::setupUI() {
 
     QTextBrowser* browser = new QTextBrowser();
     browser->setHtml(
-        "<h1 style='color:gold; text-align:center;'>GEM MATCH</h1>"
+        "<h1 style='color:gold; text-align:center;'>宝石迷阵</h1>"
         "<h3 style='color:white; text-align:center;'>Version 1.0</h3>"
         "<br>"
         "<p style='color:#ccc; font-size:16px; text-align:center;'>"
-        "Developed by: Your Name & Team<br>"
-        "Technology: C++ / Qt 6.0<br>"
-        "Course: Comprehensive Software Experiment<br>"
+        "开发者：张涵玮、刘智童、周秉龙、闵世宇<br>"
+
         "<br>"
-        "Copyright © 2025 All Rights Reserved."
+      
         "</p>"
     );
     browser->setStyleSheet("background: rgba(0,0,0,0.8); border: 2px solid #555; border-radius: 10px; padding: 20px;");

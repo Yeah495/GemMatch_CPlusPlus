@@ -1,4 +1,4 @@
-#ifndef USERMANAGER_H
+ï»¿#ifndef USERMANAGER_H
 #define USERMANAGER_H
 
 #include <QString>
@@ -12,7 +12,7 @@
 #include <QStandardPaths>
 #include <QDir>
 
-// ÓÃ»§Êı¾İ½á¹¹Ìå
+// ç”¨æˆ·æ•°æ®ç»“æ„ä½“
 struct UserData {
     QString username;
     QString password;
@@ -27,16 +27,16 @@ public:
         return i;
     }
 
-    // ×¢²á£º·µ»ØÊÇ·ñ³É¹¦
+    // æ³¨å†Œï¼šè¿”å›æ˜¯å¦æˆåŠŸ
     bool registerUser(const QString& user, const QString& pass, const QString& email) {
-        if (m_users.contains(user)) return false; // ÓÃ»§ÃûÒÑ´æÔÚ
+        if (m_users.contains(user)) return false; // ç”¨æˆ·åå·²å­˜åœ¨
         UserData newData = { user, pass, email, 0 };
         m_users[user] = newData;
         saveData();
         return true;
     }
 
-    // µÇÂ¼£ºÑéÖ¤ÃÜÂë
+    // ç™»å½•ï¼šéªŒè¯å¯†ç 
     bool login(const QString& user, const QString& pass) {
         if (!m_users.contains(user)) return false;
         if (m_users[user].password == pass) {
@@ -46,7 +46,7 @@ public:
         return false;
     }
 
-    // ¸üĞÂµ±Ç°ÓÃ»§·ÖÊı
+    // æ›´æ–°å½“å‰ç”¨æˆ·åˆ†æ•°
     void updateScore(int score) {
         if (m_users.contains(m_currentUser)) {
             if (score > m_users[m_currentUser].highScore) {
@@ -56,13 +56,13 @@ public:
         }
     }
 
-    // »ñÈ¡Ç°10ÃûÊı¾İ
+    // è·å–å‰10åæ•°æ®
     QList<UserData> getTop10() {
         QList<UserData> list;
         for (auto it = m_users.begin(); it != m_users.end(); ++it) {
             list.append(it.value());
         }
-        // ½µĞòÅÅĞò
+        // é™åºæ’åº
         std::sort(list.begin(), list.end(), [](const UserData& a, const UserData& b) {
             return a.highScore > b.highScore;
             });
@@ -79,7 +79,7 @@ private:
     QMap<QString, UserData> m_users;
 
     QString getDataPath() {
-        // ±£´æµ½µ±Ç°³ÌĞòÔËĞĞÄ¿Â¼£¬·½±ã²éÕÒ
+        // ä¿å­˜åˆ°å½“å‰ç¨‹åºè¿è¡Œç›®å½•ï¼Œæ–¹ä¾¿æŸ¥æ‰¾
         return "user_data.json";
     }
 

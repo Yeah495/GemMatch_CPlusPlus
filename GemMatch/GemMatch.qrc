@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RCC>
-    <qresource prefix="/GemMatch">
+    <qresource prefix="/assets/images">
         <file>assets/images/bg_login.jpg</file>
         <file>assets/images/gem_1.png</file>
         <file>assets/images/gem_2.png</file>

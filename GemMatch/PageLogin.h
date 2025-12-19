@@ -1,4 +1,4 @@
-#ifndef PAGELOGIN_H
+﻿#ifndef PAGELOGIN_H
 #define PAGELOGIN_H
 
 #include <QWidget>

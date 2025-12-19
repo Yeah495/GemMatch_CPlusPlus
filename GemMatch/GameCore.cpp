@@ -1,6 +1,6 @@
-/*¡ñ GameCore.h (Íâ¹Û×Ü¹Ü)
-  ¡ð Ëã·¨ºËÐÄ£º´¦ÀíÏû³ýºóµÄÏÂÂäÌî³ä¡£  
-  ¡ð Ö°Ôð£ºController ²ãµÄÎ¨Ò»½»»¥¶ÔÏó¡£ËüÄÚ²¿³ÖÓÐ Board¡¢MatchFinder ºÍ GravitySystem£¬Ð­µ÷ÈýÕß¹¤×÷¡£*/
+ï»¿/*â— GameCore.h (å¤–è§‚æ€»ç®¡)
+  â—‹ ç®—æ³•æ ¸å¿ƒï¼šå¤„ç†æ¶ˆé™¤åŽçš„ä¸‹è½å¡«å……ã€‚  
+  â—‹ èŒè´£ï¼šController å±‚çš„å”¯ä¸€äº¤äº’å¯¹è±¡ã€‚å®ƒå†…éƒ¨æŒæœ‰ Boardã€MatchFinder å’Œ GravitySystemï¼Œåè°ƒä¸‰è€…å·¥ä½œã€‚*/
 
 
 
@@ -12,12 +12,12 @@ GameCore::GameCore() {
     m_session = std::unique_ptr<PlayerSession>(new PlayerSession());
 }
 
-//³õÊ¼»¯ÆåÅÌ²¢Çå³ýËùÓÐ×Ô¶¯²úÉúµÄ³õÊ¼Á¬Ïû£¨±£Ö¤ÎÈ¶¨¿ª¾Ö£©
+//åˆå§‹åŒ–æ£‹ç›˜å¹¶æ¸…é™¤æ‰€æœ‰è‡ªåŠ¨äº§ç”Ÿçš„åˆå§‹è¿žæ¶ˆï¼ˆä¿è¯ç¨³å®šå¼€å±€ï¼‰
 void GameCore::initGame() {
     m_board->initRandomBoard();
     m_session->resetScore();
 
-    // ³õÊ¼ÅÌÃæ¿ÉÄÜ×Ô´øÏû³ý£¬ÏÈ¾²Ä¬´¦Àíµô£¬±£Ö¤¿ª¾ÖÊÇ¾²Ö¹µÄ
+    // åˆå§‹ç›˜é¢å¯èƒ½è‡ªå¸¦æ¶ˆé™¤ï¼Œå…ˆé™é»˜å¤„ç†æŽ‰ï¼Œä¿è¯å¼€å±€æ˜¯é™æ­¢çš„
     bool stable = false;
     while (!stable) {
         int count = executeElimination();
@@ -31,41 +31,41 @@ void GameCore::initGame() {
 }
 
 SwapResult GameCore::trySwap(int r1, int c1, int r2, int c2) {
-    // 1. ÑéÖ¤×ø±ê
+    // 1. éªŒè¯åæ ‡
     if (!m_board->isValid(r1, c1) || !m_board->isValid(r2, c2)) return SwapResult::Fail;
 
-    // 2. ±ØÐëÊÇÏàÁÚµÄ
+    // 2. å¿…é¡»æ˜¯ç›¸é‚»çš„
     if (std::abs(r1 - r2) + std::abs(c1 - c2) != 1) return SwapResult::Fail;
 
-    // 3. ¼ÇÂ¼ÀúÊ·£¨Ñ¹Õ»£©£¬×¼±¸»ÚÆåÓÃ 
+    // 3. è®°å½•åŽ†å²ï¼ˆåŽ‹æ ˆï¼‰ï¼Œå‡†å¤‡æ‚”æ£‹ç”¨ 
     m_session->pushHistory(*m_board);
 
-    // 4. Âß¼­½»»»
+    // 4. é€»è¾‘äº¤æ¢
     m_board->swapGem(r1, c1, r2, c2);
 
-    // 5. ¼ì²éÊÇ·ñ²úÉúÏû³ý 
+    // 5. æ£€æŸ¥æ˜¯å¦äº§ç”Ÿæ¶ˆé™¤ 
     auto matches = MatchFinder::findMatches(*m_board);
     if (matches.empty()) {
-        // ½»»»Ê§°Ü£ºÊý¾Ý»Ø¹ö£¨²»´æÈëÀúÊ·Õ»£¬»òÕßµ¯³ö¸Õ²ÅÑ¹ÈëµÄ£©
-        // ÕâÀï¼òµ¥´¦Àí£ºÔÙ»»»ØÀ´
+        // äº¤æ¢å¤±è´¥ï¼šæ•°æ®å›žæ»šï¼ˆä¸å­˜å…¥åŽ†å²æ ˆï¼Œæˆ–è€…å¼¹å‡ºåˆšæ‰åŽ‹å…¥çš„ï¼‰
+        // è¿™é‡Œç®€å•å¤„ç†ï¼šå†æ¢å›žæ¥
         m_board->swapGem(r1, c1, r2, c2);
-        // ¼ÈÈ»ÎÞÐ§£¬¾Í°Ñ¸Õ²ÅÑ¹ÈëµÄÎÞÐ§ÀúÊ·µ¯³öÀ´£¬±ÜÃâ»ÚÆå»Øµ½Õâ¸ö´íÎó×´Ì¬
+        // æ—¢ç„¶æ— æ•ˆï¼Œå°±æŠŠåˆšæ‰åŽ‹å…¥çš„æ— æ•ˆåŽ†å²å¼¹å‡ºæ¥ï¼Œé¿å…æ‚”æ£‹å›žåˆ°è¿™ä¸ªé”™è¯¯çŠ¶æ€
         Board tempBoard;
         m_session->undo(tempBoard);
         return SwapResult::Fail;
     }
 
-    // 6. ½»»»³É¹¦£ºÖ´ÐÐÏû³ýÂß¼­
-    // ×¢Òâ£ºÕâÀï²»Á¢¼´Ö´ÐÐ Gravity£¬¶øÊÇ±ê¼ÇÏû³ý£¬ÈÃController²¥·Å¡°±¬Õ¨¶¯»­¡±
-    // ±¬Õ¨¶¯»­½áÊøºó£¬Controller »áÔÙ´Îµ÷ÓÃ processNextState À´´¦ÀíÏÂÂä
+    // 6. äº¤æ¢æˆåŠŸï¼šæ‰§è¡Œæ¶ˆé™¤é€»è¾‘
+    // æ³¨æ„ï¼šè¿™é‡Œä¸ç«‹å³æ‰§è¡Œ Gravityï¼Œè€Œæ˜¯æ ‡è®°æ¶ˆé™¤ï¼Œè®©Controlleræ’­æ”¾â€œçˆ†ç‚¸åŠ¨ç”»â€
+    // çˆ†ç‚¸åŠ¨ç”»ç»“æŸåŽï¼ŒController ä¼šå†æ¬¡è°ƒç”¨ processNextState æ¥å¤„ç†ä¸‹è½
     for (const auto& p : matches) {
         Gem g = m_board->getGem(p.r, p.c);
-        g.type = GemType::Empty; // Âß¼­ÉÏ±ä¿Õ
-        g.state = GemState::Exploding; // ×´Ì¬ÉèÎª±¬Õ¨£¬¹©UIÏÔÊ¾
+        g.type = GemType::Empty; // é€»è¾‘ä¸Šå˜ç©º
+        g.state = GemState::Exploding; // çŠ¶æ€è®¾ä¸ºçˆ†ç‚¸ï¼Œä¾›UIæ˜¾ç¤º
         m_board->setGem(p.r, p.c, g);
     }
 
-    // ¼ÆËãµÃ·Ö 
+    // è®¡ç®—å¾—åˆ† 
     m_session->addScore(matches.size() * 10);
 
     return SwapResult::Success;
@@ -90,19 +90,19 @@ int GameCore::executeElimination() {
 }
 
 bool GameCore::processNextState() {
-    // 1. ÏÈÓ¦ÓÃÖØÁ¦£¨ÏÂÂä£©
+    // 1. å…ˆåº”ç”¨é‡åŠ›ï¼ˆä¸‹è½ï¼‰
     bool gravityMoved = GravitySystem::applyGravity(*m_board);
 
-    // 2. ÏÂÂäºó¼ì²éÊÇ·ñÓÐÐÂµÄÏû³ý£¨Á¬Ëø·´Ó¦£©
+    // 2. ä¸‹è½åŽæ£€æŸ¥æ˜¯å¦æœ‰æ–°çš„æ¶ˆé™¤ï¼ˆè¿žé”ååº”ï¼‰
     int eliminated = executeElimination();
     if (eliminated > 0) {
-        m_session->addScore(eliminated * 20); // Á¬»÷µÃ·Ö¸ü¸ß
-        // Èç¹ûÓÐÏû³ý£¬ËµÃ÷×´Ì¬»¹Ã»ÎÈ£¬ÐèÒªUI¼ÌÐø²¥·ÅÏû³ý¶¯»­£¬È»ºóÔÙ´Î»Øµ÷ÕâÀï
+        m_session->addScore(eliminated * 20); // è¿žå‡»å¾—åˆ†æ›´é«˜
+        // å¦‚æžœæœ‰æ¶ˆé™¤ï¼Œè¯´æ˜ŽçŠ¶æ€è¿˜æ²¡ç¨³ï¼Œéœ€è¦UIç»§ç»­æ’­æ”¾æ¶ˆé™¤åŠ¨ç”»ï¼Œç„¶åŽå†æ¬¡å›žè°ƒè¿™é‡Œ
         return true;
     }
 
-    // Èç¹û½ö½öÊÇÖØÁ¦ÏÂÂäÁË£¬µ«Ã»ÓÐÐÂÏû³ý£¬Ò²ÐèÒª·µ»ØtrueÈÃUI²¥·ÅÏÂÂä¶¯»­
-    // Ö»ÓÐµ±¼ÈÃ»ÓÐÏÂÂäÒ²Ã»ÓÐÏû³ýÊ±£¬»ØºÏ²ÅËã³¹µ×½áÊø
+    // å¦‚æžœä»…ä»…æ˜¯é‡åŠ›ä¸‹è½äº†ï¼Œä½†æ²¡æœ‰æ–°æ¶ˆé™¤ï¼Œä¹Ÿéœ€è¦è¿”å›žtrueè®©UIæ’­æ”¾ä¸‹è½åŠ¨ç”»
+    // åªæœ‰å½“æ—¢æ²¡æœ‰ä¸‹è½ä¹Ÿæ²¡æœ‰æ¶ˆé™¤æ—¶ï¼Œå›žåˆæ‰ç®—å½»åº•ç»“æŸ
     return gravityMoved;
 }
 
