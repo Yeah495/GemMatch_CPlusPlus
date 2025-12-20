@@ -7,7 +7,7 @@
 #include "SceneRank.h"
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
-    this->setFixedSize(1024, 768);
+    this->setFixedSize(1280,800);
 
     m_stack = new QStackedWidget(this);
     setCentralWidget(m_stack);
@@ -43,7 +43,7 @@ void MainWindow::setupAllPages() {
 void MainWindow::setupGlobalUI() {
     // 亮度遮罩：初始化
     m_brightnessOverlay = new QWidget(this);
-    m_brightnessOverlay->setGeometry(0, 0, 1024, 768);
+    m_brightnessOverlay->setGeometry(0, 0, 1280, 800);
     // 移除 WA_TransparentForInput 报错代码
     // 通过 updateBrightness 中的 hide() 逻辑来防止拦截鼠标信号
     m_brightnessOverlay->setStyleSheet("background-color: rgba(0,0,0,0);");

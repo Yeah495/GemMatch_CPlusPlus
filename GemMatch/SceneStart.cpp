@@ -6,6 +6,8 @@
 #include <QApplication>
 #include <QPainter>
 #include <QStyleOption>
+#include <QGraphicsProxyWidget>  // ✅ 新增
+#include <QUrl>                  // ✅ 新增
 
 SceneStart::SceneStart(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWin) {
     setupUI();
@@ -13,24 +15,53 @@ SceneStart::SceneStart(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWi
 
 void SceneStart::paintEvent(QPaintEvent* event) {
     QStyleOption opt;
-    // 如果 init 报错，请使用 initFrom
     opt.initFrom(this);
-
     QPainter p(this);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
 void SceneStart::setupUI() {
-    this->setObjectName("SceneStart");
-    // 背景
-    this->setStyleSheet("#SceneStart { border-image: url(:/assets/images/menu.jpg); }");
+    // ========== 步骤 1: 创建主布局 ==========
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    QVBoxLayout* layout = new QVBoxLayout(this);
+    // ========== 步骤 2: 创建 Graphics View ==========
+    m_view = new QGraphicsView(this);
+    m_view->setStyleSheet("border: none; background: transparent;");
+    m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    QGraphicsScene* scene = new QGraphicsScene(this);
+    m_view->setScene(scene);
+
+    // ========== 步骤 3: 添加视频层（底层，Z=0）==========
+    m_player = new QMediaPlayer(this);
+    m_audioOutput = new QAudioOutput(this);
+    m_player->setAudioOutput(m_audioOutput);
+    m_audioOutput->setVolume(0.0f);
+
+    m_videoItem = new QGraphicsVideoItem();
+    m_videoItem->setSize(QSizeF(2560, 1600));
+    m_videoItem->setZValue(0);  // 底层
+    scene->addItem(m_videoItem);
+
+    m_player->setVideoOutput(m_videoItem);
+    m_player->setSource(QUrl::fromLocalFile("assets/videos/6.mp4"));
+    m_player->setLoops(QMediaPlayer::Infinite);
+    m_player->play();
+
+    // ========== 步骤 4: 创建 UI 容器（顶层）==========
+    QWidget* container = new QWidget();
+    container->setFixedSize(600, 700);
+    container->setStyleSheet("background: rgba(0,0,0,0.3); border-radius: 20px;");
+
+    QVBoxLayout* layout = new QVBoxLayout(container);
     layout->setAlignment(Qt::AlignCenter);
     layout->setSpacing(20);
+    layout->setContentsMargins(40, 40, 40, 40);
 
     // 标题
-    QLabel* title = new QLabel("宝石迷阵 ");
+    QLabel* title = new QLabel("宝石迷阵");
     title->setStyleSheet("font-size: 60px; font-weight: bold; color: white; margin-bottom: 50px;");
     title->setAlignment(Qt::AlignCenter);
     layout->addWidget(title);
@@ -67,4 +98,32 @@ void SceneStart::setupUI() {
     connect(btnSettings, &QPushButton::clicked, [this]() { m_mainWin->switchPage(3); });
     connect(btnAbout, &QPushButton::clicked, [this]() { m_mainWin->switchPage(4); });
     connect(btnExit, &QPushButton::clicked, []() { QApplication::quit(); });
+
+    // ========== 步骤 5: 将容器添加到场景（Z=1，在视频上方）==========
+    QGraphicsProxyWidget* proxy = scene->addWidget(container);
+    proxy->setZValue(1);  // 顶层
+    proxy->setPos((2560 - 600) / 2, (1600 - 700) / 2);  // 居中
+
+    // ========== 步骤 6: 添加到主布局 ==========
+    mainLayout->addWidget(m_view);
+}
+
+void SceneStart::resizeEvent(QResizeEvent* event) {
+    QWidget::resizeEvent(event);
+
+    if (m_videoItem && m_view) {
+        m_videoItem->setSize(QSizeF(this->size()));
+        m_view->setSceneRect(0, 0, this->width(), this->height());
+
+        QList<QGraphicsItem*> items = m_view->scene()->items();
+        for (auto* item : items) {
+            if (QGraphicsProxyWidget* proxy = qgraphicsitem_cast<QGraphicsProxyWidget*>(item)) {
+                QWidget* widget = proxy->widget();
+                if (widget) {
+                    proxy->setPos((this->width() - widget->width()) / 2,
+                        (this->height() - widget->height()) / 2);
+                }
+            }
+        }
+    }
 }
