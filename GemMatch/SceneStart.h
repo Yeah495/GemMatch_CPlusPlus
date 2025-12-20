@@ -24,11 +24,17 @@ private:
     QGraphicsVideoItem* m_videoItem;
     QMediaPlayer* m_player;
     QAudioOutput* m_audioOutput;
+
+    QString m_videoPath;
     // =================================
 
 protected:
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
+
+    void showEvent(QShowEvent* event) override;
+    void hideEvent(QHideEvent* event) override;
+
 };
 
 #endif // SCENESTART_H

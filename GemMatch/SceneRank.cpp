@@ -38,9 +38,8 @@ void SceneRank::setupUI() {
     scene->addItem(m_videoItem);
 
     m_player->setVideoOutput(m_videoItem);
-    m_player->setSource(QUrl::fromLocalFile("assets/videos/7.mp4"));
+    m_videoPath = "assets/videos/7.mp4";
     m_player->setLoops(QMediaPlayer::Infinite);
-    m_player->play();
 
     // ========== 步骤 4: 创建 UI 容器 ==========
     QWidget* container = new QWidget();
@@ -96,10 +95,7 @@ void SceneRank::setupUI() {
     mainLayout->addWidget(m_view);
 }
 
-void SceneRank::showEvent(QShowEvent* event) {
-    QWidget::showEvent(event);
-    loadRankData();
-}
+
 
 void SceneRank::loadRankData() {
     QList<UserData> list = UserManager::instance().getTop10();
@@ -141,5 +137,32 @@ void SceneRank::resizeEvent(QResizeEvent* event) {
                 }
             }
         }
+    }
+}
+
+
+
+
+
+// 修改 showEvent
+void SceneRank::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+    loadRankData(); //原本的逻辑
+
+    // 【新增】懒加载视频
+    if (m_player) {
+        m_player->setSource(QUrl::fromLocalFile(m_videoPath));
+        m_player->play();
+    }
+}
+
+// 【新增】hideEvent
+void SceneRank::hideEvent(QHideEvent* event) {
+    QWidget::hideEvent(event);
+
+    // 【新增】卸载视频
+    if (m_player) {
+        m_player->stop();
+        m_player->setSource(QUrl()); // ✅ 释放内存的关键
     }
 }

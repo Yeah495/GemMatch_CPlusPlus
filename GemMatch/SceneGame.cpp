@@ -72,9 +72,13 @@ void SceneGame::setupUI() {
 
     m_player->setVideoOutput(m_videoItem);
     // 使用统一的视频资源，也可更换为 game_bg.mp4 等
-    m_player->setSource(QUrl::fromLocalFile("assets/videos/4.mp4"));
+
+    m_videoPath = "assets/videos/4.mp4"; 
+
     m_player->setLoops(QMediaPlayer::Infinite);
-    m_player->play();
+
+    m_player->setLoops(QMediaPlayer::Infinite);
+ 
 
     // ========== 步骤 4: 创建 UI 内容容器（顶层）==========
     QWidget* container = new QWidget();
@@ -392,5 +396,27 @@ void SceneGame::animateFall(const Board& newBoard, std::function<void()> finishe
     else {
         delete group;
         if (finishedCallback) finishedCallback();
+    }
+}
+
+
+
+
+void SceneGame::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+    // 页面显示时，开始播放
+    if (m_player) {
+        m_player->setSource(QUrl::fromLocalFile(m_videoPath)); // ✅ 此时才加载进内存
+        m_player->play();
+    }
+}
+
+void SceneGame::hideEvent(QHideEvent* event) {
+    QWidget::hideEvent(event);
+    // 页面隐藏时，暂停播放以释放CPU/GPU资源
+    if (m_player) {
+        m_player->stop();
+        m_player->setSource(QUrl()); // ✅ 关键！设为空，强制释放视频占用的内存
+
     }
 }

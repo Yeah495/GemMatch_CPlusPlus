@@ -41,14 +41,18 @@ void SceneStart::setupUI() {
     m_audioOutput->setVolume(0.0f);
 
     m_videoItem = new QGraphicsVideoItem();
-    m_videoItem->setSize(QSizeF(2560, 1600));
+    m_videoItem->setSize(QSizeF(1280, 800));
     m_videoItem->setZValue(0);  // 底层
     scene->addItem(m_videoItem);
 
     m_player->setVideoOutput(m_videoItem);
-    m_player->setSource(QUrl::fromLocalFile("assets/videos/6.mp4"));
+    
+    m_videoPath = "assets/videos/6.mp4"; // 注意：PageLogin用1.mp4, SceneGame用4.mp4
     m_player->setLoops(QMediaPlayer::Infinite);
-    m_player->play();
+
+
+    m_player->setLoops(QMediaPlayer::Infinite);
+ 
 
     // ========== 步骤 4: 创建 UI 容器（顶层）==========
     QWidget* container = new QWidget();
@@ -125,5 +129,24 @@ void SceneStart::resizeEvent(QResizeEvent* event) {
                 }
             }
         }
+    }
+}
+
+void SceneStart::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+    // 页面显示时，开始播放
+    if (m_player) {
+        m_player->setSource(QUrl::fromLocalFile(m_videoPath)); // ✅ 此时才加载进内存
+        m_player->play();
+    }
+}
+
+void SceneStart::hideEvent(QHideEvent* event) {
+    QWidget::hideEvent(event);
+    // 页面隐藏时，暂停播放以释放CPU/GPU资源
+    if (m_player) {
+        m_player->stop();
+        m_player->setSource(QUrl()); // ✅ 关键！设为空，强制释放视频占用的内存
+
     }
 }

@@ -31,8 +31,13 @@ private:
     QMediaPlayer* m_player;
     QAudioOutput* m_audioOutput;
 
+    QString m_videoPath; // ✅ 新增
+
 protected:
     void resizeEvent(QResizeEvent* event) override;
+
+    void showEvent(QShowEvent* event) override; // ✅ 新增
+    void hideEvent(QHideEvent* event) override; // ✅ 新增
 };
 
 #endif
