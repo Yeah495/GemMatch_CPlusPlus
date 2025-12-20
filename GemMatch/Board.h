@@ -1,7 +1,7 @@
-#pragma once
-/*¡ñ Board.h (´¿Êı¾İÈİÆ÷)  
-  ¡ğ ÃèÊö£ºÕû¸öÆåÅÌµÄÊı¾İ³éÏó¡£
-  ¡ğ Êı¾İ½á¹¹Ó¦ÓÃ - ¶şÎ¬Êı×é£ºGem grid[8][8]*/
+ï»¿#pragma once
+/*â— Board.h (çº¯æ•°æ®å®¹å™¨)  
+  â—‹ æè¿°ï¼šæ•´ä¸ªæ£‹ç›˜çš„æ•°æ®æŠ½è±¡ã€‚
+  â—‹ æ•°æ®ç»“æ„åº”ç”¨ - äºŒç»´æ•°ç»„ï¼šGem grid[8][8]*/
 
 
 #ifndef BOARD_H
@@ -16,28 +16,28 @@ class Board {
 public:
     Board();
 
-    // ³õÊ¼»¯µØÍ¼£¨Ëæ»úÉú³ÉÎŞÏû³ı×´Ì¬µÄ³õÊ¼Í¼£© 
+    // åˆå§‹åŒ–åœ°å›¾ï¼ˆéšæœºç”Ÿæˆæ— æ¶ˆé™¤çŠ¶æ€çš„åˆå§‹å›¾ï¼‰ 
     void initRandomBoard();
 
-    // »ñÈ¡/ÉèÖÃ±¦Ê¯
+    // è·å–/è®¾ç½®å®çŸ³
     Gem getGem(int row, int col) const;
     void setGem(int row, int col, const Gem& gem);
 
-    // ½»»»Á½¸öÎ»ÖÃµÄ±¦Ê¯
+    // äº¤æ¢ä¸¤ä¸ªä½ç½®çš„å®çŸ³
     void swapGem(int r1, int c1, int r2, int c2);
 
-    // ¼ì²é×ø±êÊÇ·ñÓĞĞ§
+    // æ£€æŸ¥åæ ‡æ˜¯å¦æœ‰æ•ˆ
     bool isValid(int r, int c) const;
 
-    // »ñÈ¡Ô­Ê¼¶şÎ¬Êı×éÊı¾İ£¨¹©´æµµ»ò¿ìÕÕÊ¹ÓÃ£©
+    // è·å–åŸå§‹äºŒç»´æ•°ç»„æ•°æ®ï¼ˆä¾›å­˜æ¡£æˆ–å¿«ç…§ä½¿ç”¨ï¼‰
     const std::vector<std::vector<Gem>>& getGrid() const;
     void setGrid(const std::vector<std::vector<Gem>>& newGrid);
 
 private:
-    // Êı¾İ½á¹¹£º¶şÎ¬Êı×é 
+    // æ•°æ®ç»“æ„ï¼šäºŒç»´æ•°ç»„ 
     std::vector<std::vector<Gem>> m_grid;
 
-    // Ëæ»úÊıÉú³ÉÆ÷
+    // éšæœºæ•°ç”Ÿæˆå™¨
     std::mt19937 m_rng;
 };
 

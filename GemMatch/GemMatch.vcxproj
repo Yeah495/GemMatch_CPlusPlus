@@ -37,7 +37,7 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>6.9.2_msvc2022_64</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
+    <QtModules>core;gui;widgets;multimedia;multimediawidgets</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
@@ -63,6 +63,17 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
   </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtMultimedia;$(QTDIR)\include\QtMultimediaWidgets </AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+	<AdditionalLibraryDirectories>
+$(QTDIR)\lib;%(AdditionalLibraryDirectories)
+	</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Qt6Multimediad.lib;Qt6MultimediaWidgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;Qt6Widgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -105,6 +116,7 @@
     <ClCompile Include="SceneGame.cpp" />
     <ClCompile Include="SceneRank.cpp" />
     <ClCompile Include="SceneStart.cpp" />
+    <ClCompile Include="VideoBackground.cpp" />
     <QtRcc Include="GemMatch.qrc" />
     <QtUic Include="GemMatch.ui" />
     <QtMoc Include="GemMatch.h" />
@@ -115,6 +127,7 @@
   <ItemGroup>
     <ClInclude Include="Board.h" />
     <ClInclude Include="Config.h" />
+    <QtMoc Include="VideoBackground.h" />
     <QtMoc Include="PageLogin.h" />
     <QtMoc Include="PageSettings.h" />
     <QtMoc Include="SceneRank.h" />

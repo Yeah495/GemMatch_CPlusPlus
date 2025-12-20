@@ -3,6 +3,10 @@
 
 #include <QWidget>
 #include <QLineEdit>
+#include <QGraphicsView>
+#include <QGraphicsVideoItem>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
 class MainWindow;
 
@@ -17,11 +21,18 @@ private:
     QLineEdit* m_editPass;
     QLineEdit* m_editEmail;
 
+    // 使用 Graphics View 框架
+    QGraphicsView* m_view;
+    QGraphicsVideoItem* m_videoItem;
+    QMediaPlayer* m_player;
+    QAudioOutput* m_audioOutput;
+
     void setupUI();
     void onLoginClicked();
     void onRegisterClicked();
+
 protected:
-    void paintEvent(QPaintEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
 };
 
-#endif // PAGELOGIN_H
+#endif

@@ -14,6 +14,8 @@
 
 #include <QPainter>
 #include <QStyleOption>
+#include <QGraphicsProxyWidget> // 新增
+#include <QUrl>                 // 新增
 
 SceneGame::SceneGame(MainWindow* mainWin)
     : QWidget(mainWin), m_mainWin(mainWin)
@@ -41,46 +43,54 @@ void SceneGame::paintEvent(QPaintEvent* event) {
 
 void SceneGame::setupUI() {
     this->setObjectName("SceneGame");
-    // 1. 设置整个窗口的背景：优先使用 qrc 资源路径
-    QString qrcBg = ":/assets/images/bg_login.jpg";
-    if (QFile::exists(qrcBg)) {
-        this->setStyleSheet("#SceneGame { border-image: url(:/assets/images/bg_login.jpg); }");
-    }
-    else {
-        // fallback to ResourceLoader pixmap
-        QPixmap bg = ResourceLoader::instance().getBackground();
-        if (!bg.isNull()) {
-            QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
-            if (cacheDir.isEmpty()) cacheDir = QCoreApplication::applicationDirPath();
-            QString outPath = cacheDir + "/bg_game_temp.png";
-            bg.save(outPath);
-            this->setStyleSheet("#SceneGame { border-image: url(:/assets/images/bg_login.jpg); }");
-        }
-        else {
-            this->setStyleSheet("#SceneGame { border-image: url(:/assets/images/bg_login.jpg); }");
-        }
-    }
 
-    QHBoxLayout* mainLayout = new QHBoxLayout(this);
+    // ========== 步骤 1: 创建主布局 (用于承载背景 View) ==========
+    QVBoxLayout* rootLayout = new QVBoxLayout(this);
+    rootLayout->setContentsMargins(0, 0, 0, 0);
+
+    // ========== 步骤 2: 创建背景 Graphics View ==========
+    m_bgView = new QGraphicsView(this);
+    m_bgView->setStyleSheet("border: none; background: transparent;");
+    m_bgView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_bgView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    m_bgScene = new QGraphicsScene(this);
+    m_bgView->setScene(m_bgScene);
+
+    rootLayout->addWidget(m_bgView);
+
+    // ========== 步骤 3: 添加视频层（底层，Z=0）==========
+    m_player = new QMediaPlayer(this);
+    m_audioOutput = new QAudioOutput(this);
+    m_player->setAudioOutput(m_audioOutput);
+    m_audioOutput->setVolume(0.0f); // 游戏背景音乐通常单独控制，这里静音视频原声
+
+    m_videoItem = new QGraphicsVideoItem();
+    m_videoItem->setSize(QSizeF(1280, 800));
+    m_videoItem->setZValue(0);  // 底层
+    m_bgScene->addItem(m_videoItem);
+
+    m_player->setVideoOutput(m_videoItem);
+    // 使用统一的视频资源，也可更换为 game_bg.mp4 等
+    m_player->setSource(QUrl::fromLocalFile("assets/videos/4.mp4"));
+    m_player->setLoops(QMediaPlayer::Infinite);
+    m_player->play();
+
+    // ========== 步骤 4: 创建 UI 内容容器（顶层）==========
+    QWidget* container = new QWidget();
+    // 设置半透明背景，确保右侧文字在视频上清晰可见
+    container->setStyleSheet("background-color: rgba(0, 0, 0, 100); border-radius: 20px;");
+    // 给定一个固定大小以方便居中 (棋盘600 + 侧边栏约300 + 边距)
+    container->setFixedSize(950, 700);
+
+    // 原有的主布局逻辑现在应用到 container 上
+    QHBoxLayout* mainLayout = new QHBoxLayout(container);
     mainLayout->setContentsMargins(30, 30, 30, 30);
     mainLayout->setSpacing(20);
 
     // --- 左侧：图形视图 (Graphics View) ---
     m_scene = new QGraphicsScene(this);
     m_scene->setSceneRect(0, 0, 580, 580); // 设置场景逻辑大小
-
-    //// 使用资源背景作为场景背景
-    //QString sceneQrc = ":/assets/images/bg_login.jpg";
-    //if (QFile::exists(sceneQrc)) {
-    //    QPixmap sceneBg(sceneQrc);
-    //    m_scene->setBackgroundBrush(QBrush(sceneBg.scaled(580, 580, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation)));
-    //}
-    //else {
-    //    QPixmap sceneBg = ResourceLoader::instance().getBackground();
-    //    if (!sceneBg.isNull()) {
-    //        m_scene->setBackgroundBrush(QBrush(sceneBg.scaled(580, 580, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation)));
-    //    }
-    //}
 
     m_view = new QGraphicsView(m_scene);
     m_view->setFixedSize(600, 600); // 视图固定大小
@@ -107,6 +117,7 @@ void SceneGame::setupUI() {
     // 分数
     QLabel* lblScoreTitle = new QLabel("得分 ");
     lblScoreTitle->setAlignment(Qt::AlignCenter);
+    lblScoreTitle->setStyleSheet("color: white;"); // 确保在深色背景上可见
 
     m_scoreDisplay = new QLCDNumber();
     m_scoreDisplay->setDigitCount(6);
@@ -125,11 +136,18 @@ void SceneGame::setupUI() {
 
     // 2. 技能栏
     QGroupBox* skillBox = new QGroupBox("技能栏");
+    skillBox->setStyleSheet("QGroupBox { color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 5px; margin-top: 10px; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 5px; }");
     QGridLayout* skillLayout = new QGridLayout(skillBox);
 
     m_btnSkillBomb = new QPushButton("炸弹道具");
     m_btnSkillShuffle = new QPushButton("洗牌道具");
     m_btnSkillTime = new QPushButton("时间冻结");
+
+    // 简单的按钮样式，使其在视频背景上更好看
+    QString btnStyle = "QPushButton { background-color: rgba(255,255,255,0.2); color: white; border: 1px solid #aaa; padding: 5px; border-radius: 3px; } QPushButton:hover { background-color: rgba(255,255,255,0.4); }";
+    m_btnSkillBomb->setStyleSheet(btnStyle);
+    m_btnSkillShuffle->setStyleSheet(btnStyle);
+    m_btnSkillTime->setStyleSheet(btnStyle);
 
     skillLayout->addWidget(m_btnSkillBomb, 0, 0);
     skillLayout->addWidget(m_btnSkillShuffle, 0, 1);
@@ -140,18 +158,48 @@ void SceneGame::setupUI() {
 
     // 3. 系统按钮
     m_btnPause = new QPushButton("暂停游戏");
+    m_btnPause->setStyleSheet(btnStyle);
+
     m_btnExit = new QPushButton("返回主菜单");
-    m_btnExit->setStyleSheet("QPushButton { background-color: rgba(255, 80, 80, 0.8); color: red; } QPushButton:hover { background-color: red; }");
+    m_btnExit->setStyleSheet("QPushButton { background-color: rgba(255, 80, 80, 0.8); color: white; border: none; padding: 8px; border-radius: 5px; } QPushButton:hover { background-color: red; }");
 
     sideLayout->addWidget(m_btnPause);
     sideLayout->addWidget(m_btnExit);
 
     mainLayout->addLayout(sideLayout);
 
+    // ========== 步骤 5: 将容器添加到背景场景（Z=1，在视频上方）==========
+    QGraphicsProxyWidget* proxy = m_bgScene->addWidget(container);
+    proxy->setZValue(1);  // 顶层
+
+    // 初始位置设置，后续在 resizeEvent 中修正
+    proxy->setPos(100, 100);
+
     // --- 信号连接 ---
     connect(m_btnExit, &QPushButton::clicked, [this]() {
         emit backToMenu(); // 发送信号给 MainWindow
         });
+}
+
+void SceneGame::resizeEvent(QResizeEvent* event) {
+    QWidget::resizeEvent(event);
+
+    if (m_videoItem && m_bgView) {
+        m_videoItem->setSize(QSizeF(this->size()));
+        m_bgView->setSceneRect(0, 0, this->width(), this->height());
+
+        // 重新居中内容容器
+        QList<QGraphicsItem*> items = m_bgView->scene()->items();
+        for (auto* item : items) {
+            if (QGraphicsProxyWidget* proxy = qgraphicsitem_cast<QGraphicsProxyWidget*>(item)) {
+                QWidget* widget = proxy->widget();
+                if (widget) {
+                    proxy->setPos((this->width() - widget->width()) / 2,
+                        (this->height() - widget->height()) / 2);
+                }
+            }
+        }
+    }
 }
 
 // 计算屏幕坐标：基于 8x8 网格居中
@@ -313,11 +361,6 @@ void SceneGame::animateFall(const Board& newBoard, std::function<void()> finishe
 
             if (g.state == GemState::Falling) {
                 // 【核心优化】：计算一个看起来合理的起点
-                // 假设掉落了一格距离 (CELL_SIZE)，或者为了视觉统统从上方一点点掉下来
-                // 如果想要更真实，可以让上面的掉得少，下面的掉得多，但这需要额外数据
-                // 这里我们使用统一的“入场动画”，比之前写死的 -100 要好
-
-                // 方案A：从上一格位置掉下来（看起来像连续掉落）
                 QPointF startPos = targetPos - QPointF(0, CELL_SIZE);
 
                 // 如果是第0行(刚生成的)，可以从屏幕外进来

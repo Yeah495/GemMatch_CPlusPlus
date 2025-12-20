@@ -1,15 +1,15 @@
-#pragma once
+ï»¿#pragma once
 #ifndef CONFIG_H
 #define CONFIG_H
 
-// ÓÎÏ·ÅäÖÃ 
+// æ¸¸æˆé…ç½® 
 const int BOARD_ROWS = 8;
 const int BOARD_COLS = 8;
-const int GEM_TYPE_COUNT = 7; // 7ÖÖ²»Í¬ÑÕÉ«µÄ±¦Ê¯
+const int GEM_TYPE_COUNT = 7; // 7ç§ä¸åŒé¢œè‰²çš„å®çŸ³
 
-// ±¦Ê¯ÀàĞÍÃ¶¾Ù
+// å®çŸ³ç±»å‹æšä¸¾
 enum class GemType {
-    Empty = 0, // ¿Õ£¨Ïû³ıºó£©
+    Empty = 0, // ç©ºï¼ˆæ¶ˆé™¤åï¼‰
     Red,
     Blue,
     Green,
@@ -19,12 +19,12 @@ enum class GemType {
     White
 };
 
-// ±¦Ê¯×´Ì¬£¨ÓÃÓÚUI¶¯»­ÅĞ¶Ï£¬Model²ãÖ÷Òª¸ºÔğ±ê¼Ç£©
+// å®çŸ³çŠ¶æ€ï¼ˆç”¨äºUIåŠ¨ç”»åˆ¤æ–­ï¼ŒModelå±‚ä¸»è¦è´Ÿè´£æ ‡è®°ï¼‰
 enum class GemState {
-    Static,     // ¾²Ö¹
-    Swapping,   // ½»»»ÖĞ
-    Exploding,  // Ïû³ı±¬Õ¨ÖĞ
-    Falling     // ÏÂÂäÖĞ
+    Static,     // é™æ­¢
+    Swapping,   // äº¤æ¢ä¸­
+    Exploding,  // æ¶ˆé™¤çˆ†ç‚¸ä¸­
+    Falling     // ä¸‹è½ä¸­
 };
 
 #endif // CONFIG_H
