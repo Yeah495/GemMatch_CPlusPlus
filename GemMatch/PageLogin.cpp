@@ -38,9 +38,12 @@ void PageLogin::setupUI() {
     scene->addItem(m_videoItem);
 
     m_player->setVideoOutput(m_videoItem);
-    m_player->setSource(QUrl::fromLocalFile("assets/videos/1.mp4"));
+
+    m_videoPath = "assets/videos/1.mp4"; // 注意：PageLogin用1.mp4, SceneGame用4.mp4
     m_player->setLoops(QMediaPlayer::Infinite);
-    m_player->play();
+
+    m_player->setLoops(QMediaPlayer::Infinite);
+
 
     // ========== 步骤 3: 创建 UI 容器（顶层）==========
     QWidget* container = new QWidget();
@@ -162,5 +165,25 @@ void PageLogin::onRegisterClicked() {
     }
     else {
         QMessageBox::warning(this, "错误", "该用户名已存在");
+    }
+}
+
+
+void PageLogin::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+    // 页面显示时，开始播放
+    if (m_player) {
+        m_player->setSource(QUrl::fromLocalFile(m_videoPath)); // ✅ 此时才加载进内存
+        m_player->play();
+    }
+}
+
+void PageLogin::hideEvent(QHideEvent* event) {
+    QWidget::hideEvent(event);
+    // 页面隐藏时，暂停播放以释放CPU/GPU资源
+    if (m_player) {
+        m_player->stop();
+        m_player->setSource(QUrl()); // ✅ 关键！设为空，强制释放视频占用的内存
+
     }
 }

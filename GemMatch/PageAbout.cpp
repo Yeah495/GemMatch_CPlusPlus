@@ -31,14 +31,13 @@ void PageAbout::setupUI() {
     m_audioOutput->setVolume(0.0f);
 
     m_videoItem = new QGraphicsVideoItem();
-    m_videoItem->setSize(QSizeF(2560, 1600));
+    m_videoItem->setSize(QSizeF(1280, 800));
     m_videoItem->setZValue(0);  // 底层
     scene->addItem(m_videoItem);
 
     m_player->setVideoOutput(m_videoItem);
-    m_player->setSource(QUrl::fromLocalFile("assets/videos/2.mp4"));
+    m_videoPath = "assets/videos/2.mp4";
     m_player->setLoops(QMediaPlayer::Infinite);
-    m_player->play();
 
     // ========== 步骤 4: 创建 UI 容器（顶层）==========
     // ❌ 删除原来的 this->setStyleSheet(...) 背景设置
@@ -121,5 +120,24 @@ void PageAbout::resizeEvent(QResizeEvent* event) {
                 }
             }
         }
+    }
+}
+
+
+// 【新增】实现 showEvent
+void PageAbout::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+    if (m_player) {
+        m_player->setSource(QUrl::fromLocalFile(m_videoPath));
+        m_player->play();
+    }
+}
+
+// 【新增】实现 hideEvent
+void PageAbout::hideEvent(QHideEvent* event) {
+    QWidget::hideEvent(event);
+    if (m_player) {
+        m_player->stop();
+        m_player->setSource(QUrl()); // ✅ 释放内存
     }
 }

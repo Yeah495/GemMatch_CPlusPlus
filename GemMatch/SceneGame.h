@@ -46,12 +46,17 @@ protected:
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override; // 新增：窗口大小改变事件
 
+
+    void showEvent(QShowEvent* event) override;
+    void hideEvent(QHideEvent* event) override;
 signals:
     // 转发宝石点击信号给 Controller (row, col)
     void gemClicked(int row, int col);
 
     // 这里的信号供 MainWindow 切换页面使用
     void backToMenu();
+
+
 
 private:
     MainWindow* m_mainWin;
@@ -78,6 +83,8 @@ private:
     QPushButton* m_btnSkillTime;
     QPushButton* m_btnPause;
     QPushButton* m_btnExit;
+
+    QString m_videoPath;
 
     // --- 内部辅助 ---
     void setupUI();

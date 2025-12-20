@@ -19,6 +19,8 @@ public:
 
 protected:
     void showEvent(QShowEvent* event) override;
+
+    void hideEvent(QHideEvent* event) override; // ✅ 新增
     void resizeEvent(QResizeEvent* event) override;
 
 private:
@@ -30,6 +32,8 @@ private:
     QGraphicsVideoItem* m_videoItem;
     QMediaPlayer* m_player;
     QAudioOutput* m_audioOutput;
+
+    QString m_videoPath; // ✅ 新增
     // =================================
 
     void setupUI();

@@ -27,12 +27,19 @@ private:
     QMediaPlayer* m_player;
     QAudioOutput* m_audioOutput;
 
+    QString m_videoPath;
+
+
+
     void setupUI();
     void onLoginClicked();
     void onRegisterClicked();
 
 protected:
     void resizeEvent(QResizeEvent* event) override;
+
+    void showEvent(QShowEvent* event) override;
+    void hideEvent(QHideEvent* event) override;
 };
 
 #endif
