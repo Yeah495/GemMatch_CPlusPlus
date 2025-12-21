@@ -5,6 +5,9 @@
 #include <QStackedWidget>
 #include <QPushButton>
 
+#include "GameController.h"
+
+// 前向声明所有子页面类，避免头文件互相包含
 class PageLogin;
 class SceneStart;
 class SceneGame;
@@ -12,17 +15,23 @@ class PageSettings;
 class PageAbout;
 class SceneRank;
 
+
+class GameController; // 前置声明
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
+    SceneGame* getGamePage();
+
     // 页面跳转
     void switchPage(int index);
 
     // 提供给其他页面的接口
     SceneGame* getGamePage() const { return m_pageGame; }
+
+    void startNewGame();
 
     // 设置接口
     void setGlobalBrightness(int value);
@@ -42,6 +51,8 @@ private:
     PageSettings* m_pageSettings;
     PageAbout* m_pageAbout;
     SceneRank* m_pageRank;
+
+    GameController* m_controller;
 
     // 悬浮/覆盖控件
     QWidget* m_brightnessOverlay;

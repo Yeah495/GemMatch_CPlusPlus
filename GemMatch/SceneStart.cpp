@@ -97,7 +97,9 @@ void SceneStart::setupUI() {
     layout->addWidget(btnExit);
 
     // 导航连接
-    connect(btnStart, &QPushButton::clicked, [this]() { m_mainWin->switchPage(2); });
+    connect(btnStart, &QPushButton::clicked, [this]() { 
+        m_mainWin->startNewGame(); 
+    });
     connect(btnRank, &QPushButton::clicked, [this]() { m_mainWin->switchPage(5); });
     connect(btnSettings, &QPushButton::clicked, [this]() { m_mainWin->switchPage(3); });
     connect(btnAbout, &QPushButton::clicked, [this]() { m_mainWin->switchPage(4); });

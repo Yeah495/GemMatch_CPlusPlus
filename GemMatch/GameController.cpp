@@ -1,91 +1,124 @@
-/*¡ñ GameController.h/cpp
-  ¡ğ Ö°Ôğ£º¼àÌı View µÄµã»÷ĞÅºÅ£¬µ÷ÓÃ Model µÄº¯Êı¡£
-  ¡ğ Á÷³Ì£º
-    ¢¡. ÓÃ»§ÔÚ SceneGame µã»÷±¦Ê¯ A ºÍ B¡£
-    ¢¢. SceneGame ¸æËß GameController£º¡°ÓÃ»§Ïë½»»» (x1, y1) ºÍ (x2, y2)¡±¡£
-    ¢£. GameController µ÷ÓÃ GameMap::trySwap(...)¡£
-    ¢¤. Èç¹û³É¹¦£¬GameMap ·µ»ØÏû³ıÊı¾İ£¬GameController Í¨Öª SceneGame ²¥·Å¶¯»­²¢¸üĞÂ·ÖÊı¡£*/
+ï»¿/*â— GameController.h/cpp
+  â—‹ èŒè´£ï¼šç›‘å¬ View çš„ç‚¹å‡»ä¿¡å·ï¼Œè°ƒç”¨ Model çš„å‡½æ•°ã€‚
+  â—‹ æµç¨‹ï¼š
+    â…°. ç”¨æˆ·åœ¨ SceneGame ç‚¹å‡»å®çŸ³ A å’Œ Bã€‚
+    â…±. SceneGame å‘Šè¯‰ GameControllerï¼šâ€œç”¨æˆ·æƒ³äº¤æ¢ (x1, y1) å’Œ (x2, y2)â€ã€‚
+    â…². GameController è°ƒç”¨ GameMap::trySwap(...)ã€‚
+    â…³. å¦‚æœæˆåŠŸï¼ŒGameMap è¿”å›æ¶ˆé™¤æ•°æ®ï¼ŒGameController é€šçŸ¥ SceneGame æ’­æ”¾åŠ¨ç”»å¹¶æ›´æ–°åˆ†æ•°ã€‚*/
 
 
 
 #include "GameController.h"
 #include <QDebug>
+#include <QMessageBox>
 
 GameController::GameController(MainWindow* view, QObject* parent)
     : QObject(parent), m_mainWindow(view), m_isProcessing(false)
 {
-    // 1. ³õÊ¼»¯ Model
+    // 1. åˆå§‹åŒ– Model
     m_gameCore = new GameCore();
 
-    // 2. »ñÈ¡ View ÒıÓÃ
+    // 2. è·å– View å¼•ç”¨
     m_scene = m_mainWindow->getGamePage();
 
-    // 3. Á¬½Ó View µÄĞÅºÅ
-    // ×¢Òâ£ºSceneGame ÀïµÄ±¦Ê¯µã»÷»á´¥·¢´ËĞÅºÅ
+    // 3. è¿æ¥ View çš„ä¿¡å·
+    // æ³¨æ„ï¼šSceneGame é‡Œçš„å®çŸ³ç‚¹å‡»ä¼šè§¦å‘æ­¤ä¿¡å·
     connect(m_scene, &SceneGame::gemClicked, this, &GameController::onGemClicked);
 
-    // ³õÊ¼»¯Ñ¡ÖĞ×´Ì¬
+    //è¿æ¥é“å…·ç‚¹å‡»å’Œæš‚åœæ¸¸æˆçš„ä¿¡å·,å¹¶åšå‡ºç›¸åº”çš„ç‚¹å‡»å¤„ç†(åœ¨å…·ä½“å‡½æ•°ä¸­)
+
+    // åˆå§‹åŒ–é€‰ä¸­çŠ¶æ€
     m_selectedPos = QPoint(-1, -1);
+
+    m_gameTimer = new QTimer(this);
+    connect(m_gameTimer, &QTimer::timeout, this, &GameController::onGameTick);
 }
 
 void GameController::startGame() {
-    // Model ³õÊ¼»¯Êı¾İ
+    // Model åˆå§‹åŒ–æ•°æ®
     m_gameCore->initGame();
 
-    // View äÖÈ¾³õÊ¼»­Ãæ
+    // View æ¸²æŸ“åˆå§‹ç”»é¢
     m_scene->renderBoard(m_gameCore->getBoard());
 
-    // ÖØÖÃ×´Ì¬
+    // é‡ç½®çŠ¶æ€
     m_selectedPos = QPoint(-1, -1);
     m_isProcessing = false;
+    m_comboLevel = 1;
+
+    m_scene->updateScore(0); // åˆå§‹åˆ†æ•° 0
+
+    m_remainingTime = GAME_DURATION;
+    m_scene->updateTime(m_remainingTime);
+    m_gameTimer->start(1000); // æ¯ 1000ms (1ç§’) è§¦å‘ä¸€æ¬¡
+}
+
+void GameController::onGameTick() {
+    m_remainingTime--;
+    m_scene->updateTime(m_remainingTime);
+
+    if (m_remainingTime <= 0) {
+        m_gameTimer->stop();
+        m_isProcessing = true; // é”å®šè¾“å…¥ï¼Œé˜²æ­¢æ—¶é—´åˆ°äº†è¿˜èƒ½è¿›è¡Œå…¶ä»–æ“ä½œ
+
+        // å¯é€‰ï¼šå¼¹å‡ºæ¸¸æˆç»“æŸæç¤º
+        QString msg = QString("æ—¶é—´åˆ°ï¼\n\næœ¬å±€æœ€ç»ˆå¾—åˆ†: %1").arg(m_gameCore->getScore());
+        QMessageBox::information(m_mainWindow, "æ¸¸æˆç»“æŸ", msg);
+
+        m_mainWindow->switchPage(1);
+    }
 }
 
 void GameController::undo() {
-    if (m_isProcessing) return; // ¶¯»­ÖĞ½ûÖ¹³·Ïú
+    if (m_isProcessing) return; // åŠ¨ç”»ä¸­ç¦æ­¢æ’¤é”€
 
     if (m_gameCore->undo()) {
-        // ³·Ïú³É¹¦£¬ÖØĞÂäÖÈ¾½çÃæ
-        // ¼òµ¥´Ö±©£ºÖ±½ÓÖØ»æÕû¸öÅÌÃæ£¬ÒòÎª³·Ïú²»³£·¢Éú
+        // æ’¤é”€æˆåŠŸï¼Œé‡æ–°æ¸²æŸ“ç•Œé¢
+        // ç®€å•ç²—æš´ï¼šç›´æ¥é‡ç»˜æ•´ä¸ªç›˜é¢ï¼Œå› ä¸ºæ’¤é”€ä¸å¸¸å‘ç”Ÿ
         m_scene->renderBoard(m_gameCore->getBoard());
         m_selectedPos = QPoint(-1, -1);
     }
 }
 
+void GameController::endGame() {
+    m_gameTimer->stop();
+}
+
 void GameController::onGemClicked(int row, int col) {
-    // 1. ÊØÎÀ£ºÈç¹ûÕıÔÚ´¦Àí¶¯»­£¬ºöÂÔËùÓĞµã»÷
+    // 1. å®ˆå«ï¼šå¦‚æœæ­£åœ¨å¤„ç†åŠ¨ç”»ï¼Œå¿½ç•¥æ‰€æœ‰ç‚¹å‡»
     if (m_isProcessing) return;
 
     QPoint currentClick(row, col);
 
-    // 2. Çé¿öA£ºµ±Ç°Ã»ÓĞÑ¡ÖĞÈÎºÎ±¦Ê¯
+    // 2. æƒ…å†µAï¼šå½“å‰æ²¡æœ‰é€‰ä¸­ä»»ä½•å®çŸ³
     if (m_selectedPos.x() == -1) {
         m_selectedPos = currentClick;
-        m_scene->setGemSelected(row, col, true); // Í¨Öª View ¸ßÁÁ
+        m_scene->setGemSelected(row, col, true); // é€šçŸ¥ View é«˜äº®
         return;
     }
 
-    // 3. Çé¿öB£ºµã»÷ÁËÍ¬Ò»¸ö±¦Ê¯ -> È¡ÏûÑ¡ÖĞ
+    // 3. æƒ…å†µBï¼šç‚¹å‡»äº†åŒä¸€ä¸ªå®çŸ³ -> å–æ¶ˆé€‰ä¸­
     if (m_selectedPos == currentClick) {
         m_scene->setGemSelected(m_selectedPos.x(), m_selectedPos.y(), false);
         m_selectedPos = QPoint(-1, -1);
         return;
     }
 
-    // 4. Çé¿öC£ºµã»÷ÁËÏàÁÚµÄ±¦Ê¯ -> ³¢ÊÔ½»»»
+    // 4. æƒ…å†µCï¼šç‚¹å‡»äº†ç›¸é‚»çš„å®çŸ³ -> å°è¯•äº¤æ¢
     if (abs(m_selectedPos.x() - row) + abs(m_selectedPos.y() - col) == 1) {
-        // È¡Ïû¸ßÁÁ
+        // å–æ¶ˆé«˜äº®
         m_scene->setGemSelected(m_selectedPos.x(), m_selectedPos.y(), false);
 
-        // Ëø¶¨ÊäÈë
+        // é”å®šè¾“å…¥
         m_isProcessing = true;
 
-        // Ö´ĞĞ½»»»Âß¼­
+        // æ‰§è¡Œäº¤æ¢é€»è¾‘
         attemptSwap(m_selectedPos, currentClick);
 
-        // ÖØÖÃÑ¡ÖĞ
+        // é‡ç½®é€‰ä¸­
         m_selectedPos = QPoint(-1, -1);
     }
-    // 5. Çé¿öD£ºµã»÷ÁË²»ÏàÁÚµÄ±¦Ê¯ -> ÇĞ»»Ñ¡ÖĞÄ¿±ê
+    // 5. æƒ…å†µDï¼šç‚¹å‡»äº†ä¸ç›¸é‚»çš„å®çŸ³ -> åˆ‡æ¢é€‰ä¸­ç›®æ ‡
     else {
         m_scene->setGemSelected(m_selectedPos.x(), m_selectedPos.y(), false);
         m_selectedPos = currentClick;
@@ -94,20 +127,20 @@ void GameController::onGemClicked(int row, int col) {
 }
 
 void GameController::attemptSwap(const QPoint& p1, const QPoint& p2) {
-    // ¡¾²½Öè 1¡¿ÏÈÈÃ View ²¥·Å½»»»¶¯»­£¨´ËÊ± Model »¹Ã»¶¯£©
-    // ¶¯»­Ò²ÊÇÒ»ÖÖÓÃ»§·´À¡£¬ÎŞÂÛ³É²»³É¹¦¶¼ÒªÏÈ¶¯Ò»ÏÂ
+    // ã€æ­¥éª¤ 1ã€‘å…ˆè®© View æ’­æ”¾äº¤æ¢åŠ¨ç”»ï¼ˆæ­¤æ—¶ Model è¿˜æ²¡åŠ¨ï¼‰
+    // åŠ¨ç”»ä¹Ÿæ˜¯ä¸€ç§ç”¨æˆ·åé¦ˆï¼Œæ— è®ºæˆä¸æˆåŠŸéƒ½è¦å…ˆåŠ¨ä¸€ä¸‹
     m_scene->animateSwap(p1.x(), p1.y(), p2.x(), p2.y(), [=]() {
 
-        // --- ¶¯»­½áÊøºóµÄ»Øµ÷ (Callback) ---
+        // --- åŠ¨ç”»ç»“æŸåçš„å›è°ƒ (Callback) ---
 
-        // ¡¾²½Öè 2¡¿µ÷ÓÃ Model ½øĞĞÂß¼­ÅĞ¶Ï
+        // ã€æ­¥éª¤ 2ã€‘è°ƒç”¨ Model è¿›è¡Œé€»è¾‘åˆ¤æ–­
         SwapResult result = m_gameCore->trySwap(p1.x(), p1.y(), p2.x(), p2.y());
 
         if (result == SwapResult::Success) {
-            // A. ½»»»³É¹¦ÇÒÏû³ıÁË
-            m_comboLevel = 1;  //³õÊ¼»¯Îª1Á¬»÷
-
-            // ÕâÀïÑİÊ¾Í¨ÓÃ×ö·¨£º»ñÈ¡ĞèÒª±¬Õ¨µÄ×ø±ê
+            // A. äº¤æ¢æˆåŠŸä¸”æ¶ˆé™¤äº†
+            m_comboLevel = 1;  //åˆå§‹åŒ–ä¸º1è¿å‡»
+            m_scene->updateScore(m_gameCore->getScore());
+            // è¿™é‡Œæ¼”ç¤ºé€šç”¨åšæ³•ï¼šè·å–éœ€è¦çˆ†ç‚¸çš„åæ ‡
             std::vector<QPoint> explodePoints;
             const Board& board = m_gameCore->getBoard();
             for (int r = 0; r < BOARD_ROWS; ++r) {
@@ -118,18 +151,18 @@ void GameController::attemptSwap(const QPoint& p1, const QPoint& p2) {
                 }
             }
 
-            // ¡¾²½Öè 3¡¿²¥·ÅÏû³ı¶¯»­
+            // ã€æ­¥éª¤ 3ã€‘æ’­æ”¾æ¶ˆé™¤åŠ¨ç”»
             m_scene->animateExplosion(explodePoints, [=]() {
-                // Ïû³ı¶¯»­½áÊø£¬¿ªÊ¼´¦ÀíÏÂÂä
+                // æ¶ˆé™¤åŠ¨ç”»ç»“æŸï¼Œå¼€å§‹å¤„ç†ä¸‹è½
                 processFallAndMatch();
                 });
 
         }
         else {
-            // B. ½»»»ÎŞĞ§£¨Ã»ÓĞĞÎ³ÉÈıÁ¬£©
-            // ¡¾²½Öè 3-Fail¡¿²¥·Å»Øµ¯¶¯»­£¨½»»»»ØÀ´£©
+            // B. äº¤æ¢æ— æ•ˆï¼ˆæ²¡æœ‰å½¢æˆä¸‰è¿ï¼‰
+            // ã€æ­¥éª¤ 3-Failã€‘æ’­æ”¾å›å¼¹åŠ¨ç”»ï¼ˆäº¤æ¢å›æ¥ï¼‰
             m_scene->animateSwap(p2.x(), p2.y(), p1.x(), p1.y(), [=]() {
-                // ³¹µ×½áÊø£¬½âËøÊäÈë
+                // å½»åº•ç»“æŸï¼Œè§£é”è¾“å…¥
                 m_isProcessing = false;
                 });
         }
@@ -137,26 +170,27 @@ void GameController::attemptSwap(const QPoint& p1, const QPoint& p2) {
 }
 
 void GameController::processFallAndMatch() {
-    // 1. ¡¾ÇåÀí¡¿°ÑÉÏÒ»ÂÖÕ¨µôµÄ±¦Ê¯ÔÚÊı¾İ²ã±äÎª¿Õ
+    // 1. ã€æ¸…ç†ã€‘æŠŠä¸Šä¸€è½®ç‚¸æ‰çš„å®çŸ³åœ¨æ•°æ®å±‚å˜ä¸ºç©º
     m_gameCore->clearMatches();
 
-    // 2. ¡¾Ìî³ä¡¿Ö´ĞĞÏÂÂäºÍÉú³ÉĞÂ±¦Ê¯£¬´ËÊ± Board ÊÇÂúµÄ£¬×´Ì¬ÊÇ Falling »ò Static
+    // 2. ã€å¡«å……ã€‘æ‰§è¡Œä¸‹è½å’Œç”Ÿæˆæ–°å®çŸ³ï¼Œæ­¤æ—¶ Board æ˜¯æ»¡çš„ï¼ŒçŠ¶æ€æ˜¯ Falling æˆ– Static
     m_gameCore->applyGravityOnly();
 
-    // 3. ¡¾¶¯»­¡¿²¥·ÅÏÂÂä¶¯»­
-    // ×¢Òâ£ºÕâÀï´«¸ø View µÄ Board ÊÇÏÂÂäºóµÄ×îÖÕ×´Ì¬
+    // 3. ã€åŠ¨ç”»ã€‘æ’­æ”¾ä¸‹è½åŠ¨ç”»
+    // æ³¨æ„ï¼šè¿™é‡Œä¼ ç»™ View çš„ Board æ˜¯ä¸‹è½åçš„æœ€ç»ˆçŠ¶æ€
     m_scene->animateFall(m_gameCore->getBoard(), [=]() {
-        m_gameCore->resetGemStates();//È«²¿ÖØÖÃÎªStatic×´Ì¬,·ÀÖ¹±£Áôfalling×´Ì¬½øÈëÏÂÒ»´ÎÏûÈ¥,µ¼ÖÂ³öÏÖÄªÃûÆäÃîµÄÏÂÂä¶¯»­
+        m_gameCore->resetGemStates();//å…¨éƒ¨é‡ç½®ä¸ºStaticçŠ¶æ€,é˜²æ­¢ä¿ç•™fallingçŠ¶æ€è¿›å…¥ä¸‹ä¸€æ¬¡æ¶ˆå»,å¯¼è‡´å‡ºç°è«åå…¶å¦™çš„ä¸‹è½åŠ¨ç”»
 
-        // 4. ¡¾¼ì²â¡¿É¨ÃèĞÂÅÌÃæ
+        // 4. ã€æ£€æµ‹ã€‘æ‰«ææ–°ç›˜é¢
         int comboSize = 0;
         bool hasNewMatches = m_gameCore->findAndMarkMatches(&comboSize);
 
         if (hasNewMatches) {
-            m_comboLevel++;  //Ò²¿ÉÒÔÊÇ*=2,°´ÕÕÃ¿´Î·­Á½±¶,Á¬»÷µÃ·ÖÔöÇ¿
-            int score = comboSize * 10 * m_comboLevel;  //Á¬»÷·­±¶
+            m_comboLevel++;  //ä¹Ÿå¯ä»¥æ˜¯*=2,æŒ‰ç…§æ¯æ¬¡ç¿»ä¸¤å€,è¿å‡»å¾—åˆ†å¢å¼º
+            int score = comboSize * 10 * m_comboLevel;  //è¿å‡»ç¿»å€
             m_gameCore->addScoreSession(score);
-            // 5. ¡¾×¼±¸Êı¾İ¡¿ËÑ¼¯ĞÂµÄ±¬Õ¨µã
+            m_scene->updateScore(m_gameCore->getScore());
+            // 5. ã€å‡†å¤‡æ•°æ®ã€‘æœé›†æ–°çš„çˆ†ç‚¸ç‚¹
             std::vector<QPoint> explodePoints;
             const Board& board = m_gameCore->getBoard();
             for (int r = 0; r < BOARD_ROWS; ++r) {
@@ -167,13 +201,13 @@ void GameController::processFallAndMatch() {
                 }
             }
 
-            // 6. ¡¾¶¯»­¡¿²¥·ÅĞÂÒ»ÂÖ±¬Õ¨£¬Õ¨ÍêÔÙµİ¹é
+            // 6. ã€åŠ¨ç”»ã€‘æ’­æ”¾æ–°ä¸€è½®çˆ†ç‚¸ï¼Œç‚¸å®Œå†é€’å½’
             m_scene->animateExplosion(explodePoints, [=]() {
-                processFallAndMatch(); // µİ¹é½øÈëÏÂÒ»ÂÖ£ºÇåÀí->ÏÂÂä->ÔÙ¼ì²â
+                processFallAndMatch(); // é€’å½’è¿›å…¥ä¸‹ä¸€è½®ï¼šæ¸…ç†->ä¸‹è½->å†æ£€æµ‹
                 });
         }
         else {
-            // Ã»ÓĞĞÂÁ¬»÷ÁË£¬³¹µ×ÎÈÁË
+            // æ²¡æœ‰æ–°è¿å‡»äº†ï¼Œå½»åº•ç¨³äº†
             m_isProcessing = false;
         }
         });

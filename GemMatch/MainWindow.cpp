@@ -30,16 +30,27 @@ void MainWindow::setupAllPages() {
     m_pageAbout = new PageAbout(this);
     m_pageRank = new SceneRank(this);
 
-    m_stack->addWidget(m_pageLogin);    // 0
-    m_stack->addWidget(m_pageStart);    // 1
-    m_stack->addWidget(m_pageGame);     // 2
-    m_stack->addWidget(m_pageSettings); // 3
-    m_stack->addWidget(m_pageAbout);    // 4
-    m_stack->addWidget(m_pageRank);     // 5
+    m_controller = new GameController(this);  //必须在m_pageGame创建之后创建
 
-    connect(m_pageGame, &SceneGame::backToMenu, [this]() { this->switchPage(1); });
+    // 2. 按索引顺序添加到 Stack
+    m_stack->addWidget(m_pageLogin);    // Index 0
+    m_stack->addWidget(m_pageStart);    // Index 1
+    m_stack->addWidget(m_pageGame);     // Index 2
+    m_stack->addWidget(m_pageSettings); // Index 3
+    m_stack->addWidget(m_pageAbout);    // Index 4
+    m_stack->addWidget(m_pageRank);     // Index 5
+
+    // 3. 处理游戏页面的“返回主菜单”信号
+    connect(m_pageGame, &SceneGame::backToMenu, [this]() {
+        // 切换回主菜单,并停止计时
+        this->switchPage(1); 
+        m_controller->endGame();
+        });
+
+    // 默认显示登录页
+    m_stack->setCurrentIndex(0);
+    
 }
-
 void MainWindow::setupGlobalUI() {
     // 亮度遮罩：初始化
     m_brightnessOverlay = new QWidget(this);
@@ -101,3 +112,15 @@ void MainWindow::toggleLanguage() {
 }
 
 MainWindow::~MainWindow() {}
+SceneGame* MainWindow::getGamePage() {
+    return m_pageGame;
+}
+
+void MainWindow::startNewGame() {
+    // 1. 切换到游戏画面 (假设 index 2 是游戏页面)
+    switchPage(2);
+
+    // 2. 命令控制器开始一局新游戏
+    // 这会触发：重置分数、重置时间、生成新棋盘、启动定时器
+    m_controller->startGame();
+}
