@@ -103,8 +103,10 @@ $(QTDIR)\lib;%(AdditionalLibraryDirectories)
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameButton.cpp" />
     <ClCompile Include="GameController.cpp" />
     <ClCompile Include="GameCore.cpp" />
+    <ClCompile Include="GameLogo.cpp" />
     <ClCompile Include="GemItem.cpp" />
     <ClCompile Include="GravitySystem.cpp" />
     <ClCompile Include="MainWindow.cpp" />
@@ -133,6 +135,8 @@ $(QTDIR)\lib;%(AdditionalLibraryDirectories)
     <QtMoc Include="SceneRank.h" />
     <QtMoc Include="SceneStart.h" />
     <QtMoc Include="PageAbout.h" />
+    <QtMoc Include="GameButton.h" />
+    <QtMoc Include="GameLogo.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="UserManager.h" />
     <QtMoc Include="GameController.h" />
