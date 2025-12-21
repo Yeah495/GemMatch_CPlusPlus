@@ -37,7 +37,7 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>6.9.2_msvc2022_64</QtInstall>
-    <QtModules>core;gui;widgets;multimedia;multimediawidgets</QtModules>
+    <QtModules>core;gui;widgets;multimedia;multimediawidgets;sql</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
@@ -68,7 +68,7 @@
       <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtMultimedia;$(QTDIR)\include\QtMultimediaWidgets </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-	<AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
 $(QTDIR)\lib;%(AdditionalLibraryDirectories)
 	</AdditionalLibraryDirectories>
       <AdditionalDependencies>Qt6Multimediad.lib;Qt6MultimediaWidgetsd.lib;Qt6Cored.lib;Qt6Guid.lib;Qt6Widgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
