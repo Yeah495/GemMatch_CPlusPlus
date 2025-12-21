@@ -46,6 +46,8 @@ signals:
     // 转发宝石点击信号给 Controller (row, col)
     void gemClicked(int row, int col);
 
+    //道具点击,暂停游戏的信号传递给controller,
+
     // 这里的信号供 MainWindow 切换页面使用
     void backToMenu();
 

@@ -11,12 +11,12 @@ int main(int argc, char *argv[])
     w.show();
 
 
-    // 2. 创建控制器 (Controller) 并绑定 View
-    // Controller 内部会自动创建 Model
-    GameController controller(&w);
+    //// 2. 创建控制器 (Controller) 并绑定 View
+    //// Controller 内部会自动创建 Model
+    //GameController controller(&w);
 
-    // 3. 启动游戏
-    controller.startGame();
+    //// 3. 启动游戏
+    //controller.startGame();
 
     return a.exec();
     

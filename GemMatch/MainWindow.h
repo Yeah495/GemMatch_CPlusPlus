@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QStackedWidget>
 
+#include "GameController.h"
+
 // 前向声明所有子页面类，避免头文件互相包含
 class PageLogin;
 class SceneStart;
@@ -12,6 +14,8 @@ class PageSettings;
 class PageAbout;
 class SceneRank;
 
+
+class GameController; // 前置声明
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -26,6 +30,8 @@ public:
     // 获取游戏页面指针（供 Controller 连接信号槽使用）
     SceneGame* getGamePage();
 
+    void startNewGame();
+
 private:
     QStackedWidget* m_stack;
 
@@ -35,6 +41,8 @@ private:
     PageSettings* m_pageSettings;
     PageAbout* m_pageAbout;
     SceneRank* m_pageRank;
+
+    GameController* m_controller;
 };
 
 #endif // MAINWINDOW_H
