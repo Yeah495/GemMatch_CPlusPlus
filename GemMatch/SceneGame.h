@@ -8,6 +8,9 @@
 #include <QLabel>
 #include <QPushButton>
 #include <functional>
+#include <QGraphicsVideoItem> // 新增：视频图元
+#include <QMediaPlayer>       // 新增：播放器
+#include <QAudioOutput>       // 新增：音频输出
 #include "Board.h" // 引用你的 Board 数据结构
 #include "GemItem.h" // 引用宝石图元
 
@@ -41,7 +44,11 @@ public:
 
 protected:
     void paintEvent(QPaintEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override; // 新增：窗口大小改变事件
 
+
+    void showEvent(QShowEvent* event) override;
+    void hideEvent(QHideEvent* event) override;
 signals:
     // 转发宝石点击信号给 Controller (row, col)
     void gemClicked(int row, int col);
@@ -51,12 +58,21 @@ signals:
     // 这里的信号供 MainWindow 切换页面使用
     void backToMenu();
 
+
+
 private:
     MainWindow* m_mainWin;
 
-    // --- 图形视图核心 ---
-    QGraphicsView* m_view;   // 负责显示的窗口
-    QGraphicsScene* m_scene; // 负责管理的场景
+    // --- 背景视频组件 (新增) ---
+    QGraphicsView* m_bgView;      // 背景视图（最底层）
+    QGraphicsScene* m_bgScene;    // 背景场景
+    QGraphicsVideoItem* m_videoItem;
+    QMediaPlayer* m_player;
+    QAudioOutput* m_audioOutput;
+
+    // --- 游戏核心图形视图 ---
+    QGraphicsView* m_view;   // 负责显示棋盘的窗口 (现在嵌入在背景视图中)
+    QGraphicsScene* m_scene; // 负责管理宝石的场景
 
     // 宝石图元指针数组 (方便通过坐标找图元)
     GemItem* m_items[8][8];
@@ -69,6 +85,8 @@ private:
     QPushButton* m_btnSkillTime;
     QPushButton* m_btnPause;
     QPushButton* m_btnExit;
+
+    QString m_videoPath;
 
     // --- 内部辅助 ---
     void setupUI();

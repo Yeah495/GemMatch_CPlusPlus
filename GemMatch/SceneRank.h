@@ -4,6 +4,11 @@
 
 #include <QWidget>
 #include <QTableWidget>
+#include <QGraphicsView>           
+#include <QGraphicsVideoItem>      
+#include <QMediaPlayer>            
+#include <QAudioOutput>            
+#include <QGraphicsProxyWidget>   
 
 class MainWindow;
 
@@ -13,12 +18,23 @@ public:
     explicit SceneRank(MainWindow* mainWin);
 
 protected:
-    // 每次显示时刷新数据
     void showEvent(QShowEvent* event) override;
+
+    void hideEvent(QHideEvent* event) override; // ✅ 新增
+    void resizeEvent(QResizeEvent* event) override;
 
 private:
     MainWindow* m_mainWin;
     QTableWidget* m_table;
+
+    // ========== 视频背景相关 ==========
+    QGraphicsView* m_view;
+    QGraphicsVideoItem* m_videoItem;
+    QMediaPlayer* m_player;
+    QAudioOutput* m_audioOutput;
+
+    QString m_videoPath; // ✅ 新增
+    // =================================
 
     void setupUI();
     void loadRankData();
