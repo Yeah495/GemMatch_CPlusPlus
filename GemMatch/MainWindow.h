@@ -23,6 +23,8 @@ public:
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
+    SceneGame* getGamePage();
+
     // 页面跳转
     void switchPage(int index);
 
