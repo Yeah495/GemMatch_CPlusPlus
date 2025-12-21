@@ -47,7 +47,7 @@ void PageLogin::setupUI() {
     loginContainer->setFixedSize(500, 400); // 高度减小了，因为移走了Logo
     loginContainer->setStyleSheet(
         "QWidget {"
-        "   background-color: rgba(255, 255, 255, 50);" /* 白色，70%不透明 */
+        "   background-color: rgba(255, 255, 255, 100);" /* 白色，70%不透明 */
         "   border-radius: 20px;"                        /* 更大的圆角 */
         "   border: 1px solid rgba(255, 255, 255, 200);" /* 亮边框，增加立体感 */
         "}"
