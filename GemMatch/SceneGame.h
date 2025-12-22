@@ -34,6 +34,9 @@ public:
     void updateScore(int score);
     void updateTime(int seconds);
 
+    void setPauseButtonText(const QString& text);
+    void updateTime(int seconds, bool isFrozen = false);
+
 protected:
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
@@ -43,6 +46,13 @@ protected:
 signals:
     void gemClicked(int row, int col);
     void backToMenu();
+
+    void pauseGame();       // 暂停信号
+    void skillBomb();       // 炸弹技能信号
+    void skillShuffle();    // 洗牌技能信号
+    void skillTime();       // 时间技能信号
+
+
 
 private:
     MainWindow* m_mainWin;

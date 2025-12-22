@@ -167,9 +167,21 @@ void SceneGame::setupUI() {
     connect(m_btnExit, &QPushButton::clicked, [this]() {
         emit backToMenu();
         });
+
+    //连接功能按钮到信号
+    connect(m_btnPause, &QPushButton::clicked, this, &SceneGame::pauseGame);
+    connect(m_btnSkillBomb, &QPushButton::clicked, this, &SceneGame::skillBomb);
+    connect(m_btnSkillShuffle, &QPushButton::clicked, this, &SceneGame::skillShuffle);
+    connect(m_btnSkillTime, &QPushButton::clicked, this, &SceneGame::skillTime);
 }
 
 // 关键：在 resizeEvent 中分别计算两个组件的位置
+void SceneGame::setPauseButtonText(const QString& text) {
+    if (m_btnPause) {
+        m_btnPause->setText(text);
+    }
+}
+
 void SceneGame::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
 
@@ -227,6 +239,43 @@ void SceneGame::renderBoard(const Board& board) {
         }
     }
 }
+
+void SceneGame::updateScore(int score) {
+    m_scoreDisplay->display(score);
+}
+
+void SceneGame::updateTime(int seconds, bool isFrozen) {
+
+    // 基础样式：字号和边距
+    QString baseStyle = "font-size: 20px; margin-top: 10px; font-weight: bold;";
+
+    if (isFrozen) {
+        // --- ❄️ 冻结状态：冰蓝色 + 特殊文字 ---
+        m_timeLabel->setText(QString("❄️时间冻结: %1s").arg(seconds));
+        // DeepSkyBlue 是很好看的冰蓝色，或者用 #00BFFF
+        m_timeLabel->setStyleSheet(baseStyle + "color: #00BFFF;");
+    }
+    else {
+        // --- 正常计时状态 ---
+        m_timeLabel->setText(QString("剩余时间: %1s").arg(seconds));
+
+        if (seconds <= 10) {
+            // ⚠️ 倒计时警报：红色
+            m_timeLabel->setStyleSheet(baseStyle + "color: red;");
+        }
+        else {
+            // ✅ 正常：青色
+            m_timeLabel->setStyleSheet(baseStyle + "color: cyan;");
+        }
+    }
+}
+void SceneGame::setGemSelected(int r, int c, bool selected) {
+    if (r >= 0 && r < 8 && c >= 0 && c < 8 && m_items[r][c]) {
+        m_items[r][c]->setSelected(selected);
+    }
+}
+
+// --- 动画实现部分 ---
 
 void SceneGame::animateSwap(int r1, int c1, int r2, int c2, std::function<void()> finishedCallback) {
     GemItem* item1 = m_items[r1][c1];
