@@ -42,6 +42,9 @@ public:
     void updateScore(int score);
     void updateTime(int seconds);
 
+    void setPauseButtonText(const QString& text);
+    void updateTime(int seconds, bool isFrozen = false);
+
 protected:
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override; // 新增：窗口大小改变事件
@@ -57,6 +60,11 @@ signals:
 
     // 这里的信号供 MainWindow 切换页面使用
     void backToMenu();
+
+    void pauseGame();       // 暂停信号
+    void skillBomb();       // 炸弹技能信号
+    void skillShuffle();    // 洗牌技能信号
+    void skillTime();       // 时间技能信号
 
 
 

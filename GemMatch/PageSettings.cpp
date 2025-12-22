@@ -87,7 +87,7 @@ void PageSettings::setupUI() {
         "border-radius: 5px; font-weight: bold; } "
         "QPushButton:hover { background: white; }"
     );
-    connect(btnBack, &QPushButton::clicked, [this]() { m_mainWin->switchPage(0); });
+    connect(btnBack, &QPushButton::clicked, [this]() { m_mainWin->switchPage(1); });
     form->addWidget(btnBack);
 
     // ========== 步骤 6: 将容器添加到场景 ==========
