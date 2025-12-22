@@ -155,6 +155,20 @@ void PageLogin::onLoginClicked() {
     QString user = m_editUser->text();
     QString pass = m_editPass->text();
 
+    if (user.isEmpty() && pass.isEmpty()) {
+        QMessageBox::warning(this, "错误", "用户名和密码不能为空");
+        return;
+    }
+    else if (user.isEmpty() ) {
+        QMessageBox::warning(this, "错误", "用户名不能为空");
+        return;
+    }
+    else if (pass.isEmpty()) {
+        QMessageBox::warning(this, "错误", "密码不能为空");
+        return;
+    }
+   
+
     if (UserManager::instance().login(user, pass)) {
         m_mainWin->switchPage(1);
     }
@@ -168,8 +182,32 @@ void PageLogin::onRegisterClicked() {
     QString pass = m_editPass->text();
     QString email = m_editEmail->text();
 
-    if (user.isEmpty() || pass.isEmpty()) {
+    if (user.isEmpty()&& pass.isEmpty()&& email.isEmpty()) {
+        QMessageBox::warning(this, "错误", "用户名,密码和邮箱不能为空");
+        return;
+    }
+    else if(user.isEmpty() && pass.isEmpty() ) {
         QMessageBox::warning(this, "错误", "用户名和密码不能为空");
+        return;
+    }
+    else if (user.isEmpty() && email.isEmpty()) {
+        QMessageBox::warning(this, "错误", "用户名和邮箱不能为空");
+        return;
+    }
+    else if (email.isEmpty() && pass.isEmpty()) {
+        QMessageBox::warning(this, "错误", "密码和邮箱不能为空");
+        return;
+    }
+    else if (user.isEmpty() ) {
+        QMessageBox::warning(this, "错误", "用户名不能为空");
+        return;
+    }
+    else if (pass.isEmpty()) {
+        QMessageBox::warning(this, "错误", "密码不能为空");
+        return;
+    }
+    else if (email.isEmpty()) {
+        QMessageBox::warning(this, "错误", "邮箱不能为空");
         return;
     }
 

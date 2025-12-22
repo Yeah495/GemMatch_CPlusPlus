@@ -55,6 +55,9 @@ public:
     void resetGemStates();
 
     void addScoreSession(int score);
+    void shuffleBoard();
+
+    Board* getBoardPtr() { return m_board.get(); }  //得到指针,不是常对象了,可以访问setGem这个非常函数
 private:
     // 组合模式：持有各子模块
     std::unique_ptr<Board> m_board;

@@ -33,9 +33,19 @@ public:
     // 撤销操作
     void undo();
 
+    void endGame();
+
+    bool isPaused() const { return m_isPaused; }
+
 public slots:
     // 响应 View 层的宝石点击
     void onGemClicked(int row, int col);
+    void onGameTick(); //定时器槽函数
+
+    void onPauseClicked();
+    void onSkillBomb();
+    void onSkillShuffle();
+    void onSkillTime();
 
 private:
     // --- 内部流程控制函数 ---
@@ -56,6 +66,13 @@ private:
     bool m_isProcessing;    // 锁：是否正在播放动画（禁止玩家点击）
 
     int m_comboLevel; // 记录当前的连击层数
+    QTimer* m_gameTimer;
+    int m_remainingTime;
+    const int GAME_DURATION = 60; // 游戏时长常量
+
+    bool m_isPaused;       // 暂停状态
+    bool m_isTimeFrozen;   // 时间冻结状态
+    int m_freezeCounter;   // 冻结倒计时
 };
 
 #endif // GAMECONTROLLER_H
