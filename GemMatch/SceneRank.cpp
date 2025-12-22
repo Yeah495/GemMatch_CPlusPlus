@@ -118,24 +118,116 @@ void SceneRank::setupUI() {
 }
 
 void SceneRank::loadRankData() {
+    // 检查数据库连接状态
+    if (!UserManager::instance().isDatabaseConnected()) {
+        // 显示错误信息
+        m_table->setRowCount(1);
+        QTableWidgetItem* errorItem = new QTableWidgetItem("数据库连接失败");
+        errorItem->setTextAlignment(Qt::AlignCenter);
+        errorItem->setForeground(QBrush(Qt::red));
+        m_table->setItem(0, 0, errorItem);
+
+        // 合并单元格显示完整错误信息
+        m_table->setSpan(0, 0, 1, 3);
+        return;
+    }
+
+    // 获取排行榜数据
     // 这里依然只加载 Top10，实际项目可根据难度参数过滤
     QList<UserData> list = UserManager::instance().getTop10();
+
+    if (list.isEmpty()) {
+        // 如果没有数据，显示提示
+        m_table->setRowCount(1);
+        QTableWidgetItem* emptyItem = new QTableWidgetItem("暂无排行榜数据");
+        emptyItem->setTextAlignment(Qt::AlignCenter);
+        emptyItem->setForeground(QBrush(Qt::gray));
+        m_table->setItem(0, 0, emptyItem);
+        m_table->setSpan(0, 0, 1, 3);
+        return;
+    }
+
+    // 设置表格行数
     m_table->setRowCount(list.size());
+
+    // 使用不同颜色标记前三名
+    QList<QColor> rankColors = {
+        QColor(255, 215, 0),   // 金牌色
+        QColor(192, 192, 192), // 银牌色
+        QColor(205, 127, 50),  // 铜牌色
+        QColor(255, 255, 255)  // 白色（其他名次）
+    };
+
     for (int i = 0; i < list.size(); ++i) {
+        const UserData& user = list[i];
+
+        // 确定颜色
+        QColor textColor = (i < 3) ? rankColors[i] : rankColors[3];
+
+        // 排名
         QTableWidgetItem* itemRank = new QTableWidgetItem(QString::number(i + 1));
         itemRank->setTextAlignment(Qt::AlignCenter);
+        itemRank->setForeground(QBrush(textColor));
+
+        // 为前三名添加特殊图标或标记
+        if (i == 0) {
+            itemRank->setIcon(QIcon(":/icons/gold_medal.png")); // 如果有图标资源
+        }
+        else if (i == 1) {
+            itemRank->setIcon(QIcon(":/icons/silver_medal.png"));
+        }
+        else if (i == 2) {
+            itemRank->setIcon(QIcon(":/icons/bronze_medal.png"));
+        }
+
         m_table->setItem(i, 0, itemRank);
 
+        // 用户名
+        QTableWidgetItem* itemName = new QTableWidgetItem(user.username);
         QTableWidgetItem* itemName = new QTableWidgetItem(list[i].username);
         itemName->setTextAlignment(Qt::AlignCenter);
+        itemName->setForeground(QBrush(textColor));
         m_table->setItem(i, 1, itemName);
 
+        // 分数
+        QTableWidgetItem* itemScore = new QTableWidgetItem(QString::number(user.highScore));
         QTableWidgetItem* itemScore = new QTableWidgetItem(QString::number(list[i].highScore));
         itemScore->setTextAlignment(Qt::AlignCenter);
+        itemScore->setForeground(QBrush(textColor));
+
+        // 为高分添加特殊样式
+        if (user.highScore >= 1000) {
+            itemScore->setFont(QFont("Arial", 14, QFont::Bold));
+        }
+
         // 分数颜色
         itemScore->setForeground(QBrush(QColor("#044BB7")));
         itemScore->setFont(QFont("Microsoft YaHei", 10, QFont::Bold));
         m_table->setItem(i, 2, itemScore);
+    }
+
+    // 调整列宽，使排名列稍窄
+    m_table->horizontalHeader()->setStretchLastSection(false);
+    m_table->setColumnWidth(0, 80);  // 排名列
+    m_table->setColumnWidth(1, 300); // 用户名列
+    m_table->setColumnWidth(2, 150); // 分数列
+
+    // 添加当前用户高亮显示（如果当前用户在排行榜中）
+    QString currentUser = UserManager::instance().getCurrentUser();
+    if (!currentUser.isEmpty()) {
+        for (int i = 0; i < list.size(); ++i) {
+            if (list[i].username == currentUser) {
+                // 高亮显示当前用户的行
+                for (int col = 0; col < 3; ++col) {
+                    QTableWidgetItem* item = m_table->item(i, col);
+                    if (item) {
+                        item->setBackground(QBrush(QColor(30, 60, 90))); // 深蓝色背景
+                        item->setFont(QFont("Arial", 14, QFont::Bold));
+                    }
+                }
+                break;
+            }
+        }
     }
 }
 

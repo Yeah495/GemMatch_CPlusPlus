@@ -11,6 +11,7 @@
 #include "GameController.h"
 #include <QDebug>
 #include <QMessageBox>
+#include "UserManager.h"
 
 GameController::GameController(MainWindow* view, QObject* parent)
     : QObject(parent), m_mainWindow(view), m_isProcessing(false)
@@ -165,6 +166,18 @@ void GameController::onGameTick() {
     if (m_remainingTime <= 0) {
         m_gameTimer->stop();
         m_isProcessing = true; // 锁定输入，防止时间到了还能进行其他操作
+
+        // 获取最终得分
+        int finalScore = m_gameCore->getScore();
+
+        // 更新数据库中的用户分数
+        if (!UserManager::instance().getCurrentUser().isEmpty()) {
+            UserManager::instance().updateScore(finalScore);
+
+            // 显示更新成功信息
+            qDebug() << "分数已更新到数据库：" << finalScore;
+
+        }
 
         // 可选：弹出游戏结束提示
         QString msg = QString("时间到！\n\n本局最终得分: %1").arg(m_gameCore->getScore());
