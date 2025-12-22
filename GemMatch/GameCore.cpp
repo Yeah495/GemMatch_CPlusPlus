@@ -7,6 +7,12 @@
 
 #include "GameCore.h"
 
+#include <algorithm>     // for std::shuffle
+#include <random>
+#include <ctime>
+#include <cstdlib>
+#include <chrono>
+
 GameCore::GameCore() {
     m_board = std::unique_ptr<Board>(new Board());
     m_session = std::unique_ptr<PlayerSession>(new PlayerSession());
@@ -110,6 +116,54 @@ void GameCore::addScoreSession(int score){
 
 int GameCore::getScore() const {
     return m_session->getScore();
+}
+
+void GameCore::shuffleBoard() {
+    // 1. 收集所有非空格子（只收集颜色）
+    std::vector<GemType> gems;
+    for (int r = 0; r < BOARD_ROWS; ++r) {
+        for (int c = 0; c < BOARD_COLS; ++c) {
+            Gem g = m_board->getGem(r, c);
+            if (g.type != GemType::Empty) {
+                gems.push_back(g.type);
+            }
+        }
+    }
+
+    if (gems.empty()) return;
+
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine engine(seed);
+
+    bool stable = false;
+    int retryCount = 0;
+
+    // 2. 循环尝试洗牌，直到没有直接消除
+    while (!stable && retryCount < 100) {
+        std::shuffle(gems.begin(), gems.end(), engine); // 打乱
+
+        // 填回
+        int idx = 0;
+        for (int r = 0; r < BOARD_ROWS; ++r) {
+            for (int c = 0; c < BOARD_COLS; ++c) {
+                Gem g = m_board->getGem(r, c);
+                if (g.type != GemType::Empty) {
+                    g.type = gems[idx++];
+                    g.state = GemState::Static;
+                    m_board->setGem(r, c, g);
+                }
+            }
+        }
+
+        // 检测是否有连消
+        auto matches = MatchFinder::findMatches(*m_board);
+        if (matches.empty()) {
+            stable = true; // 成功：当前盘面没有连消
+        }
+        else {
+            retryCount++; // 失败：重洗
+        }
+    }
 }
 
 // 确保 findAndMarkMatches 安全
