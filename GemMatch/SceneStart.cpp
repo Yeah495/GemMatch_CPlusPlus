@@ -1,40 +1,27 @@
 ﻿#include "SceneStart.h"
 #include "MainWindow.h"
 #include <QVBoxLayout>
-#include <QPushButton>
-#include <QLabel>
+#include <QHBoxLayout>
+#include <QGraphicsScene>
 #include <QApplication>
-#include <QPainter>
-#include <QStyleOption>
-#include <QGraphicsProxyWidget>  // ✅ 新增
-#include <QUrl>                  // ✅ 新增
 
 SceneStart::SceneStart(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWin) {
     setupUI();
 }
 
-void SceneStart::paintEvent(QPaintEvent* event) {
-    QStyleOption opt;
-    opt.initFrom(this);
-    QPainter p(this);
-    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
-}
-
 void SceneStart::setupUI() {
-    // ========== 步骤 1: 创建主布局 ==========
+    // 1. 主布局与视图初始化
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    // ========== 步骤 2: 创建 Graphics View ==========
     m_view = new QGraphicsView(this);
     m_view->setStyleSheet("border: none; background: transparent;");
     m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
     QGraphicsScene* scene = new QGraphicsScene(this);
     m_view->setScene(scene);
 
-    // ========== 步骤 3: 添加视频层（底层，Z=0）==========
+    // 2. 视频背景
     m_player = new QMediaPlayer(this);
     m_audioOutput = new QAudioOutput(this);
     m_player->setAudioOutput(m_audioOutput);
@@ -42,113 +29,133 @@ void SceneStart::setupUI() {
 
     m_videoItem = new QGraphicsVideoItem();
     m_videoItem->setSize(QSizeF(1280, 800));
-    m_videoItem->setZValue(0);  // 底层
+    m_videoItem->setZValue(0);
     scene->addItem(m_videoItem);
 
     m_player->setVideoOutput(m_videoItem);
-    
-    m_videoPath = "assets/videos/6.mp4"; // 注意：PageLogin用1.mp4, SceneGame用4.mp4
+    m_videoPath = "assets/videos/8.mp4";
     m_player->setLoops(QMediaPlayer::Infinite);
 
+    // =========================================================
+    // 3. 中央菜单容器 (白色磨砂)
+    // =========================================================
+    QWidget* menuContainer = new QWidget();
+    menuContainer->setFixedSize(500, 400); // 调整大小以适应按钮
+    menuContainer->setStyleSheet(
+        "QWidget {"
+        "   background-color: rgba(255, 255, 255, 100);" /* 白色半透明 */
+        "   border-radius: 20px;"
+        "   border: 1px solid rgba(255, 255, 255, 200);"
+        "}"
+    );
 
-    m_player->setLoops(QMediaPlayer::Infinite);
- 
+    QVBoxLayout* menuLayout = new QVBoxLayout(menuContainer);
+    menuLayout->setContentsMargins(30, 40, 30, 40);
+    menuLayout->setSpacing(20);
+    menuLayout->setAlignment(Qt::AlignCenter);
 
-    // ========== 步骤 4: 创建 UI 容器（顶层）==========
-    QWidget* container = new QWidget();
-    container->setFixedSize(600, 700);
-    container->setStyleSheet("background: rgba(0,0,0,0.3); border-radius: 20px;");
+    // -- 第一行：三个难度按键 --
+    QHBoxLayout* diffLayout = new QHBoxLayout();
+    diffLayout->setSpacing(15);
+    // 请确保有对应图片，没有则用文字图或临时图代替
+    m_btnEasy = new GameButton("assets/images/难度通用.png");
+    m_btnHard = new GameButton("assets/images/难度通用.png");
+    m_btnExtreme = new GameButton("assets/images/难度通用.png");
 
-    QVBoxLayout* layout = new QVBoxLayout(container);
-    layout->setAlignment(Qt::AlignCenter);
-    layout->setSpacing(20);
-    layout->setContentsMargins(40, 40, 40, 40);
+    diffLayout->addWidget(m_btnEasy);
+    diffLayout->addWidget(m_btnHard);
+    diffLayout->addWidget(m_btnExtreme);
+    menuLayout->addLayout(diffLayout);
 
-    // 标题
-    QLabel* title = new QLabel("宝石迷阵");
-    title->setStyleSheet("font-size: 60px; font-weight: bold; color: white; margin-bottom: 50px;");
-    title->setAlignment(Qt::AlignCenter);
-    layout->addWidget(title);
+    // -- 第二行：开始游戏 (大) --
+    m_btnStart = new GameButton("assets/images/按键通用.png");
+    // 如果图片不够大，可以通过 setFixedSize 强制调整，但建议直接用大图
+    menuLayout->addWidget(m_btnStart, 0, Qt::AlignCenter);
 
-    // 通用按钮样式
-    QString btnStyle = "QPushButton { font-size: 24px; color: white; background-color: rgba(0,0,0,0.6); "
-        "border: 2px solid gold; border-radius: 25px; padding: 10px 40px; min-width: 200px; }"
-        "QPushButton:hover { background-color: gold; color: black; }";
+    // -- 第三行：排行榜 --
+    m_btnRank = new GameButton("assets/images/按键通用.png");
+    menuLayout->addWidget(m_btnRank, 0, Qt::AlignCenter);
 
-    QPushButton* btnStart = new QPushButton("开始游戏");
-    btnStart->setStyleSheet(btnStyle);
+    // 添加到场景
+    m_menuProxy = scene->addWidget(menuContainer);
+    m_menuProxy->setZValue(1);
 
-    QPushButton* btnRank = new QPushButton("排行榜");
-    btnRank->setStyleSheet(btnStyle);
+    // =========================================================
+    // 4. Logo (独立，位于菜单上方)
+    // =========================================================
+    m_logo = new GameLogo("assets/images/logo_宝石迷阵.png");
+    m_logoProxy = scene->addWidget(m_logo);
+    m_logoProxy->setZValue(2);
 
-    QPushButton* btnSettings = new QPushButton("设置");
-    btnSettings->setStyleSheet(btnStyle);
+    // =========================================================
+    // 5. 角落按钮 (独立)
+    // =========================================================
+    // 左上：关于
+    m_btnAbout = new GameButton("assets/images/按键通用.png");
+    m_aboutProxy = scene->addWidget(m_btnAbout);
+    m_aboutProxy->setZValue(2);
 
-    QPushButton* btnAbout = new QPushButton("关于");
-    btnAbout->setStyleSheet(btnStyle);
+    // 右上：设置
+    m_btnSettings = new GameButton("assets/images/按键通用.png");
+    m_settingProxy = scene->addWidget(m_btnSettings);
+    m_settingProxy->setZValue(2);
 
-    QPushButton* btnExit = new QPushButton("退出游戏");
-    btnExit->setStyleSheet(btnStyle);
+    // --- 信号连接 ---
+    connect(m_btnStart, &QPushButton::clicked, [this]() { m_mainWin->startNewGame(); });
+    connect(m_btnRank, &QPushButton::clicked, [this]() { m_mainWin->switchPage(5); }); // 假设 Rank 是 Page 5
+    connect(m_btnAbout, &QPushButton::clicked, [this]() { m_mainWin->switchPage(4); }); // 假设 About 是 Page 4
+    connect(m_btnSettings, &QPushButton::clicked, [this]() { m_mainWin->switchPage(3); }); // 假设 Settings 是 Page 3
 
-    layout->addWidget(btnStart);
-    layout->addWidget(btnRank);
-    layout->addWidget(btnSettings);
-    layout->addWidget(btnAbout);
-    layout->addWidget(btnExit);
+    // 简单的难度选择反馈（打印调试，后续可绑定到 GameController）
+    connect(m_btnEasy, &QPushButton::clicked, []() { qDebug() << "Selected Easy"; });
 
-    // 导航连接
-    connect(btnStart, &QPushButton::clicked, [this]() { 
-        m_mainWin->startNewGame(); 
-    });
-    connect(btnRank, &QPushButton::clicked, [this]() { m_mainWin->switchPage(5); });
-    connect(btnSettings, &QPushButton::clicked, [this]() { m_mainWin->switchPage(3); });
-    connect(btnAbout, &QPushButton::clicked, [this]() { m_mainWin->switchPage(4); });
-    connect(btnExit, &QPushButton::clicked, []() { QApplication::quit(); });
-
-    // ========== 步骤 5: 将容器添加到场景（Z=1，在视频上方）==========
-    QGraphicsProxyWidget* proxy = scene->addWidget(container);
-    proxy->setZValue(1);  // 顶层
-    proxy->setPos((2560 - 600) / 2, (1600 - 700) / 2);  // 居中
-
-    // ========== 步骤 6: 添加到主布局 ==========
     mainLayout->addWidget(m_view);
 }
 
 void SceneStart::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
-
     if (m_videoItem && m_view) {
         m_videoItem->setSize(QSizeF(this->size()));
         m_view->setSceneRect(0, 0, this->width(), this->height());
 
-        QList<QGraphicsItem*> items = m_view->scene()->items();
-        for (auto* item : items) {
-            if (QGraphicsProxyWidget* proxy = qgraphicsitem_cast<QGraphicsProxyWidget*>(item)) {
-                QWidget* widget = proxy->widget();
-                if (widget) {
-                    proxy->setPos((this->width() - widget->width()) / 2,
-                        (this->height() - widget->height()) / 2);
-                }
-            }
+        // 1. 中央菜单居中偏下
+        if (m_menuProxy) {
+            QWidget* w = m_menuProxy->widget();
+            if (w) m_menuProxy->setPos((width() - w->width()) / 2, (height() - w->height()) / 2 + 80);
+        }
+
+        // 2. Logo 居中偏上
+        if (m_logoProxy) {
+            QWidget* w = m_logoProxy->widget();
+            if (w) m_logoProxy->setPos((width() - w->width()) / 2, height() * 0.10);
+        }
+
+        // 3. 左上角按钮 (留出边距)
+        if (m_aboutProxy) {
+            m_aboutProxy->setPos(30, 30);
+        }
+
+        // 4. 右上角按钮
+        if (m_settingProxy) {
+            QWidget* w = m_settingProxy->widget();
+            if (w) m_settingProxy->setPos(width() - w->width() - 30, 30);
         }
     }
 }
 
 void SceneStart::showEvent(QShowEvent* event) {
     QWidget::showEvent(event);
-    // 页面显示时，开始播放
     if (m_player) {
-        m_player->setSource(QUrl::fromLocalFile(m_videoPath)); // ✅ 此时才加载进内存
+        m_player->setSource(QUrl::fromLocalFile(m_videoPath));
         m_player->play();
     }
+    if (m_logo) m_logo->startEntrance();
 }
 
 void SceneStart::hideEvent(QHideEvent* event) {
     QWidget::hideEvent(event);
-    // 页面隐藏时，暂停播放以释放CPU/GPU资源
     if (m_player) {
         m_player->stop();
-        m_player->setSource(QUrl()); // ✅ 关键！设为空，强制释放视频占用的内存
-
+        m_player->setSource(QUrl());
     }
 }

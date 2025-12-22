@@ -26,7 +26,7 @@ GameLogo::GameLogo(const QString& pixmapPath, QWidget* parent)
 
     // 关键帧设置：定义整个周期的路径
     breathAnim->setStartValue(1.0);         // 0% 时间点：原始大小
-    breathAnim->setKeyValueAt(0.5, 1.10);   // 50% 时间点：放大到 1.05
+    breathAnim->setKeyValueAt(0.5, 1.10);   // 50% 时间点：放大到 1.10
     breathAnim->setEndValue(1.0);           // 100% 时间点：回到原始大小
 
     // 【核心关键】使用 InOutSine 曲线

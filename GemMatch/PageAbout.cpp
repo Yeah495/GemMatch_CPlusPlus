@@ -2,29 +2,25 @@
 #include "MainWindow.h"
 #include <QVBoxLayout>
 #include <QTextBrowser>
-#include <QPushButton>
-#include <QLabel>                    // ✅ 新增
-#include <QGraphicsProxyWidget>      // ✅ 新增
-#include <QUrl>                      // ✅ 新增：QUrl::fromLocalFile 需要
+#include <QGraphicsScene>
 
 PageAbout::PageAbout(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWin) {
     setupUI();
 }
+
 void PageAbout::setupUI() {
-    // ========== 步骤 1: 创建主布局 ==========
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    // ========== 步骤 2: 创建 Graphics View ==========
+    // 1. 视图初始化
     m_view = new QGraphicsView(this);
     m_view->setStyleSheet("border: none; background: transparent;");
     m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
     QGraphicsScene* scene = new QGraphicsScene(this);
     m_view->setScene(scene);
 
-    // ========== 步骤 3: 添加视频层（底层，Z=0）==========
+    // 2. 视频背景
     m_player = new QMediaPlayer(this);
     m_audioOutput = new QAudioOutput(this);
     m_player->setAudioOutput(m_audioOutput);
@@ -32,72 +28,77 @@ void PageAbout::setupUI() {
 
     m_videoItem = new QGraphicsVideoItem();
     m_videoItem->setSize(QSizeF(1280, 800));
-    m_videoItem->setZValue(0);  // 底层
+    m_videoItem->setZValue(0);
     scene->addItem(m_videoItem);
 
     m_player->setVideoOutput(m_videoItem);
     m_videoPath = "assets/videos/2.mp4";
     m_player->setLoops(QMediaPlayer::Infinite);
 
-    // ========== 步骤 4: 创建 UI 容器（顶层）==========
-    // ❌ 删除原来的 this->setStyleSheet(...) 背景设置
-
-    QWidget* container = new QWidget();  // 注意：不传父对象
-    container->setFixedSize(400, 450);  // 可根据需要调整大小
+    // =========================================================
+    // 3. 内容容器 (Z=1) —— 白色毛玻璃风格
+    // =========================================================
+    QWidget* container = new QWidget();
+    container->setFixedSize(600, 450);
     container->setStyleSheet(
-        "QWidget { background: rgba(0,0,0,0.8); border: 2px solid #555; border-radius: 10px; padding: 20px; }"
+        "QWidget {"
+        "   background-color: rgba(255, 255, 255, 100);" /* 白色半透明 */
+        "   border-radius: 20px;"
+        "   border: 1px solid rgba(255, 255, 255, 200);"
+        "}"
     );
 
-    // ========== 步骤 5: 构建容器内容（保持原有布局逻辑）==========
     QVBoxLayout* contentLayout = new QVBoxLayout(container);
     contentLayout->setContentsMargins(50, 40, 50, 40);
     contentLayout->setSpacing(20);
 
-    // 标题
-    QLabel* title = new QLabel("宝石迷阵");
-    title->setAlignment(Qt::AlignCenter);
-    title->setStyleSheet("color: gold; font-size: 36px; font-weight: bold;");
-
+    // 版本号
     QLabel* version = new QLabel("Version 1.0");
     version->setAlignment(Qt::AlignCenter);
-    version->setStyleSheet("color: white; font-size: 24px;");
+    version->setStyleSheet("color: #044BB7; font-size: 20px; font-weight: bold; background: transparent;");
 
-    // 内容区域（用QTextBrowser）
+    // 文本内容 (注意：文字颜色改为了深色 #333 和 #044BB7)
     QTextBrowser* browser = new QTextBrowser();
     browser->setHtml(
-        "<h3 style='color:white; text-align:center;'>开发团队</h3>"
-        "<p style='color:#ccc; font-size:18px; text-align:center;'>"
+        "<h3 style='color:#044BB7; text-align:center;'>开发团队</h3>"
+        "<p style='color:#333; font-size:18px; text-align:center; font-family: Microsoft YaHei;'>"
         "开发者：张涵玮、刘智童、周秉龙、闵世宇<br><br>"
-        "感谢您的游玩！"
+        "Designed with Qt 6 & C++"
         "</p>"
     );
+    // 修改 TextBrowser 样式：去边框，透明背景
     browser->setStyleSheet(
-        "background: rgba(255,255,255,0.05); border: 1px solid #444; "
-        "border-radius: 5px; padding: 15px; color: white;"
+        "background: transparent; border: none;"
     );
 
-    // 返回按钮
-    QPushButton* btnBack = new QPushButton("返回主菜单 (BACK)");
-    btnBack->setStyleSheet(
-        "QPushButton { font-size: 18px; padding: 12px; background: gold; "
-        "color: black; border-radius: 8px; font-weight: bold; } "
-        "QPushButton:hover { background: white; }"
-    );
-    connect(btnBack, &QPushButton::clicked, [this]() { m_mainWin->switchPage(1); });
+    // ✅ 返回按钮 (使用图片按钮)
+    m_btnBack = new GameButton("assets/images/按键通用.png");
 
-    // 添加到容器布局
-    contentLayout->addWidget(title);
+    // 布局添加
     contentLayout->addWidget(version);
     contentLayout->addWidget(browser);
-    contentLayout->addStretch();
-    contentLayout->addWidget(btnBack);
 
-    // ========== 步骤 6: 将容器添加到场景（Z=1，在视频上方）==========
-    QGraphicsProxyWidget* proxy = scene->addWidget(container);
-    proxy->setZValue(1);  // 顶层
-    proxy->setPos((2560 - 800) / 2, (1600 - 900) / 2);  // 居中
+    // 按钮居中
+    QHBoxLayout* btnLayout = new QHBoxLayout();
+    btnLayout->addStretch();
+    btnLayout->addWidget(m_btnBack);
+    btnLayout->addStretch();
+    contentLayout->addLayout(btnLayout);
 
-    // ========== 步骤 7: 添加到主布局 ==========
+    // 返回到主菜单 (Page 1) 或登录页 (Page 0)，视需求而定
+    connect(m_btnBack, &QPushButton::clicked, [this]() { m_mainWin->switchPage(1); });
+
+    // 添加 Box 代理
+    m_boxProxy = scene->addWidget(container);
+    m_boxProxy->setZValue(1);
+
+    // =========================================================
+    // 4. Logo (Z=2)
+    // =========================================================
+    m_logo = new GameLogo("assets/images/logo_宝石迷阵.png");
+    m_logoProxy = scene->addWidget(m_logo);
+    m_logoProxy->setZValue(2);
+
     mainLayout->addWidget(m_view);
 }
 
@@ -105,39 +106,38 @@ void PageAbout::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
 
     if (m_videoItem && m_view) {
-        // 调整视频大小
         m_videoItem->setSize(QSizeF(this->size()));
         m_view->setSceneRect(0, 0, this->width(), this->height());
 
-        // 重新居中 UI 容器
-        QList<QGraphicsItem*> items = m_view->scene()->items();
-        for (auto* item : items) {
-            if (QGraphicsProxyWidget* proxy = qgraphicsitem_cast<QGraphicsProxyWidget*>(item)) {
-                QWidget* widget = proxy->widget();
-                if (widget) {
-                    proxy->setPos((this->width() - widget->width()) / 2,
-                        (this->height() - widget->height()) / 2);
-                }
-            }
+        // 居中容器 (稍微偏下一点 +60)
+        if (m_boxProxy) {
+            QWidget* w = m_boxProxy->widget();
+            if (w) m_boxProxy->setPos((this->width() - w->width()) / 2,
+                (this->height() - w->height()) / 2 + 60);
+        }
+        // 居中 Logo (顶部 12% 位置)
+        if (m_logoProxy) {
+            QWidget* w = m_logoProxy->widget();
+            if (w) m_logoProxy->setPos((this->width() - w->width()) / 2,
+                this->height() * 0.06);
         }
     }
 }
 
-
-// 【新增】实现 showEvent
 void PageAbout::showEvent(QShowEvent* event) {
     QWidget::showEvent(event);
     if (m_player) {
         m_player->setSource(QUrl::fromLocalFile(m_videoPath));
         m_player->play();
     }
+    // ✅ 播放 Logo 动画
+    if (m_logo) m_logo->startEntrance();
 }
 
-// 【新增】实现 hideEvent
 void PageAbout::hideEvent(QHideEvent* event) {
     QWidget::hideEvent(event);
     if (m_player) {
         m_player->stop();
-        m_player->setSource(QUrl()); // ✅ 释放内存
+        m_player->setSource(QUrl());
     }
 }
