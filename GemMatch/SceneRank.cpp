@@ -184,14 +184,12 @@ void SceneRank::loadRankData() {
 
         // 用户名
         QTableWidgetItem* itemName = new QTableWidgetItem(user.username);
-        QTableWidgetItem* itemName = new QTableWidgetItem(list[i].username);
         itemName->setTextAlignment(Qt::AlignCenter);
         itemName->setForeground(QBrush(textColor));
         m_table->setItem(i, 1, itemName);
 
         // 分数
         QTableWidgetItem* itemScore = new QTableWidgetItem(QString::number(user.highScore));
-        QTableWidgetItem* itemScore = new QTableWidgetItem(QString::number(list[i].highScore));
         itemScore->setTextAlignment(Qt::AlignCenter);
         itemScore->setForeground(QBrush(textColor));
 

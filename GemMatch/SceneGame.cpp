@@ -347,21 +347,21 @@ void SceneGame::animateFall(const Board& newBoard, std::function<void()> finishe
     else { delete group; if (finishedCallback) finishedCallback(); }
 }
 
-void SceneGame::updateScore(int score) {
-    m_scoreDisplay->display(score);
-}
-
-void SceneGame::updateTime(int seconds) {
-    m_timeLabel->setText(QString::number(seconds));
-    if (seconds <= 10) m_timeLabel->setStyleSheet("font-size: 56px; font-weight: bold; color: red; font-family: Arial; border: none; background: transparent;");
-    else m_timeLabel->setStyleSheet("font-size: 56px; font-weight: bold; color: #044BB7; font-family: Arial; border: none; background: transparent;");
-}
-
-void SceneGame::setGemSelected(int r, int c, bool selected) {
-    if (r >= 0 && r < 8 && c >= 0 && c < 8 && m_items[r][c]) {
-        m_items[r][c]->setSelected(selected);
-    }
-}
+//void SceneGame::updateScore(int score) {
+//    m_scoreDisplay->display(score);
+//}
+//
+//void SceneGame::updateTime(int seconds) {
+//    m_timeLabel->setText(QString::number(seconds));
+//    if (seconds <= 10) m_timeLabel->setStyleSheet("font-size: 56px; font-weight: bold; color: red; font-family: Arial; border: none; background: transparent;");
+//    else m_timeLabel->setStyleSheet("font-size: 56px; font-weight: bold; color: #044BB7; font-family: Arial; border: none; background: transparent;");
+//}
+//
+//void SceneGame::setGemSelected(int r, int c, bool selected) {
+//    if (r >= 0 && r < 8 && c >= 0 && c < 8 && m_items[r][c]) {
+//        m_items[r][c]->setSelected(selected);
+//    }
+//}
 
 void SceneGame::showEvent(QShowEvent* event) {
     QWidget::showEvent(event);
