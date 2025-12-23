@@ -51,14 +51,16 @@ void MainWindow::setupAllPages() {
     m_stack->setCurrentIndex(0);
     
 }
+
 void MainWindow::setupGlobalUI() {
     // 亮度遮罩：初始化
     m_brightnessOverlay = new QWidget(this);
     m_brightnessOverlay->setGeometry(0, 0, 1280, 800);
-    // 移除 WA_TransparentForInput 报错代码
-    // 通过 updateBrightness 中的 hide() 逻辑来防止拦截鼠标信号
     m_brightnessOverlay->setStyleSheet("background-color: rgba(0,0,0,0);");
     m_brightnessOverlay->hide();
+
+    //  关键：设置遮罩忽略鼠标事件
+    m_brightnessOverlay->setAttribute(Qt::WA_TransparentForMouseEvents);
 
     // 语言切换按钮
     m_langBtn = new QPushButton("CN / EN", this);
@@ -71,23 +73,28 @@ void MainWindow::switchPage(int index) {
     if (index >= 0 && index < m_stack->count()) {
         m_stack->setCurrentIndex(index);
 
-        // 确保语言按钮始终在最上面
+        //  确保语言按钮在最上面
         m_langBtn->raise();
-
-        // 如果遮罩正在显示，则也将遮罩置顶
-        if (m_brightnessOverlay->isVisible()) {
-            m_brightnessOverlay->raise();
-            // 注意：如果遮罩置顶会拦截点击。
-            // 优化技巧：将常用 UI 按钮（如语言按钮）放在遮罩之上
-            m_langBtn->raise();
-        }
     }
 }
 
 void MainWindow::setGlobalBrightness(int value) {
-    m_brightness = value;
-    updateBrightness();
+    // 避免频繁重绘
+    static int lastValue = 100;
+    if (abs(lastValue - value) < 5 && value != 0 && value != 100) {
+        return; // 添加阈值减少调用频率
+    }
+    lastValue = value;
+
+    // 使用定时器延迟应用效果
+    QTimer::singleShot(50, [this, value]() {
+        m_brightness = value;
+        updateBrightness();
+        // 亮度调节逻辑
+        // 确保不要调用可能导致死循环的函数
+        });
 }
+
 
 void MainWindow::updateBrightness() {
     // 亮度为 100 时，alpha 为 0
@@ -95,15 +102,19 @@ void MainWindow::updateBrightness() {
 
     if (alpha <= 0) {
         // 当亮度最高（透明度为0）时，直接隐藏掉控件
-        // 这样它就完全不会干扰页面的鼠标点击事件
         m_brightnessOverlay->hide();
     }
     else {
         m_brightnessOverlay->show();
         m_brightnessOverlay->setStyleSheet(QString("background-color: rgba(0,0,0,%1);").arg(alpha));
-        // 将语言按钮提至遮罩上方，确保亮度低时也能切换语言
-        m_langBtn->raise();
+
+        //  关键修改：确保遮罩的层级正确
+        // 将遮罩放在页面内容之上，但语言按钮在遮罩之上
+        m_brightnessOverlay->stackUnder(m_langBtn);
     }
+
+    //  确保语言按钮始终在最上面
+    m_langBtn->raise();
 }
 
 void MainWindow::toggleLanguage() {
