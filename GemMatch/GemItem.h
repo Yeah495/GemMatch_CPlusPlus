@@ -11,6 +11,7 @@
 #include <QGraphicsObject>
 #include <QPainter>
 #include "Config.h"
+#include <qpropertyanimation.h>
 
 // 继承 QGraphicsObject 从而支持信号槽和属性动画
 class GemItem : public QGraphicsObject {
@@ -46,6 +47,8 @@ private:
     GemType m_type;
     bool m_isSelected;
     const int GEM_SIZE = 60; // 假设每个宝石 60x60 像素
+
+    QPropertyAnimation* m_animRotate;  //旋转动画对象
 };
 
 #endif // GEMITEM_H
