@@ -38,6 +38,15 @@ GameController::GameController(MainWindow* view, QObject* parent)
     connect(m_scene, &SceneGame::skillBomb, this, &GameController::onSkillBomb);
     connect(m_scene, &SceneGame::skillShuffle, this, &GameController::onSkillShuffle);
     connect(m_scene, &SceneGame::skillTime, this, &GameController::onSkillTime);
+
+    //初始化音效:
+    m_soundClick = new QSoundEffect(this);
+    m_soundClick->setSource(QUrl("qrc:/assets/sound/click.wav"));
+    m_soundClick->setVolume(100.0f); // 音量 0.0 ~ 1.0
+
+    m_soundClear = new QSoundEffect(this);
+    m_soundClear->setSource(QUrl("qrc:/assets/sound/mouth.wav"));
+    m_soundClear->setVolume(1.0f);
 }
 
 // 1. 暂停功能
@@ -94,6 +103,8 @@ void GameController::onSkillBomb() {
         g.state = GemState::Exploding;
         m_gameCore->getBoardPtr()->setGem(p.x(), p.y(), g);
     }
+
+    m_soundClear->play(); //炸弹音效
 
     // 6. 播放动画并进入下落流程
     //    现在 targets 里绝对没有重复坐标，不会导致 View 层重复删除崩溃
@@ -206,6 +217,8 @@ void GameController::onGemClicked(int row, int col) {
     // 1. 守卫：如果正在处理动画，忽略所有点击
     if (m_isPaused || m_isProcessing) return;
 
+    m_soundClick->play();
+
     QPoint currentClick(row, col);
 
     // 2. 情况A：当前没有选中任何宝石
@@ -255,6 +268,9 @@ void GameController::attemptSwap(const QPoint& p1, const QPoint& p2) {
         SwapResult result = m_gameCore->trySwap(p1.x(), p1.y(), p2.x(), p2.y());
 
         if (result == SwapResult::Success) {
+            //播放消除音效
+            m_soundClear->play();
+
             // A. 交换成功且消除了
             m_comboLevel = 1;  //初始化为1连击
             m_scene->updateScore(m_gameCore->getScore());
@@ -278,6 +294,9 @@ void GameController::attemptSwap(const QPoint& p1, const QPoint& p2) {
         }
         else {
             // B. 交换无效（没有形成三连）
+           
+			// 这里也可以加一个小音效提示交换失败
+
             // 【步骤 3-Fail】播放回弹动画（交换回来）
             m_scene->animateSwap(p2.x(), p2.y(), p1.x(), p1.y(), [=]() {
                 // 彻底结束，解锁输入
@@ -304,6 +323,9 @@ void GameController::processFallAndMatch() {
         bool hasNewMatches = m_gameCore->findAndMarkMatches(&comboSize);
 
         if (hasNewMatches) {
+            //连击消除音效:
+            m_soundClear->play();
+
             m_comboLevel++;  //也可以是*=2,按照每次翻两倍,连击得分增强
             int score = comboSize * 10 * m_comboLevel;  //连击翻倍
             m_gameCore->addScoreSession(score);

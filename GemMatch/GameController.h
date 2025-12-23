@@ -21,6 +21,7 @@
 #include "GameCore.h"
 #include "SceneGame.h"
 #include "MainWindow.h"
+#include <QSoundEffect>
 
 class GameController : public QObject {
     Q_OBJECT
@@ -73,6 +74,9 @@ private:
     bool m_isPaused;       // 暂停状态
     bool m_isTimeFrozen;   // 时间冻结状态
     int m_freezeCounter;   // 冻结倒计时
+
+    QSoundEffect* m_soundClick;
+    QSoundEffect* m_soundClear;
 };
 
 #endif // GAMECONTROLLER_H

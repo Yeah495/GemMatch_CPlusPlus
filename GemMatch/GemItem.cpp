@@ -10,6 +10,16 @@ GemItem::GemItem(int row, int col, GemType type, QGraphicsItem* parent)
     : QGraphicsObject(parent), m_row(row), m_col(col), m_type(type), m_isSelected(false)
 {
     setAcceptHoverEvents(true); // 允许悬停事件（可选，用于改变鼠标样式）
+
+    setTransformOriginPoint(GEM_SIZE / 2, GEM_SIZE / 2);  //设置变换中心点为宝石的中心(30, 30)
+
+    // [新增 2] 初始化旋转动画
+    m_animRotate = new QPropertyAnimation(this, "rotation", this);
+    m_animRotate->setDuration(1000); // 旋转一圈需要 1000 毫秒 (1秒)
+    m_animRotate->setStartValue(0);
+    m_animRotate->setEndValue(360);
+    m_animRotate->setLoopCount(-1); // -1 表示无限循环
+    m_animRotate->setEasingCurve(QEasingCurve::Linear); // 匀速旋转
 }
 
 void GemItem::setType(GemType type) {
@@ -57,16 +67,27 @@ void GemItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, Q
         painter->drawPixmap(0, 0, GEM_SIZE, GEM_SIZE, pixmap);
     }
 
-    // 绘制选中框（保持原样）
-    if (m_isSelected) {
-        painter->setPen(QPen(Qt::white, 3));
-        painter->setBrush(Qt::NoBrush);
-        painter->drawRect(0, 0, GEM_SIZE, GEM_SIZE);
-    }
+    //// 绘制选中框（保持原样）
+    //if (m_isSelected) {
+    //    painter->setPen(QPen(Qt::white, 3));
+    //    painter->setBrush(Qt::NoBrush);
+    //    painter->drawRect(0, 0, GEM_SIZE, GEM_SIZE);
+    //}
 }
 
 void GemItem::setSelected(bool selected) {
     m_isSelected = selected;
+
+    if (m_isSelected) {
+        // 选中时，开始旋转
+        m_animRotate->start();
+    }
+    else {
+        // 取消选中时，停止动画并复位
+        m_animRotate->stop();
+        setRotation(0); // 这一步很重要，让宝石“摆正”，否则它会停在歪的角度
+    }
+
     update();
 }
 
