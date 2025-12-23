@@ -1,5 +1,4 @@
 #include "MainWindow.h"
-#include "GameController.h"
 #include <QtWidgets/QApplication>
 #include <QMediaPlayer>
 #include <QAudioOutput>
@@ -32,12 +31,6 @@ int main(int argc, char *argv[])
             bgOutput->setVolume(0.0);
         }
     });
-
-    // 2. 创建控制器 (Controller) 并绑定 View
-    GameController controller(&w);
-
-    // 3. 启动游戏
-    controller.startGame();
 
     return a.exec();
 }
