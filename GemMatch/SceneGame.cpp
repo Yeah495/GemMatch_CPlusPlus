@@ -11,16 +11,14 @@
 #include "ResourceLoader.h"
 #include <QStandardPaths>
 #include <QBuffer>
-
 #include <QPainter>
 #include <QStyleOption>
-#include <QGraphicsProxyWidget> // 新增
-#include <QUrl>                 // 新增
+#include <QGraphicsProxyWidget>
+#include <QUrl>
 
 SceneGame::SceneGame(MainWindow* mainWin)
-    : QWidget(mainWin), m_mainWin(mainWin)
+    : QWidget(mainWin), m_mainWin(mainWin), m_boardProxy(nullptr), m_rightPanelProxy(nullptr)
 {
-    // 初始化指针数组为空
     for (int i = 0; i < 8; ++i)
         for (int j = 0; j < 8; ++j)
             m_items[i][j] = nullptr;
@@ -28,15 +26,11 @@ SceneGame::SceneGame(MainWindow* mainWin)
     setupUI();
 }
 
-SceneGame::~SceneGame() {
-    // Qt 的对象树机制会自动清理 m_view, m_scene 和 UI 控件
-}
+SceneGame::~SceneGame() {}
 
 void SceneGame::paintEvent(QPaintEvent* event) {
     QStyleOption opt;
-    // 如果 init 报错，请使用 initFrom
     opt.initFrom(this);
-
     QPainter p(this);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
@@ -44,144 +38,134 @@ void SceneGame::paintEvent(QPaintEvent* event) {
 void SceneGame::setupUI() {
     this->setObjectName("SceneGame");
 
-    // ========== 步骤 1: 创建主布局 (用于承载背景 View) ==========
+    // 1. 根布局
     QVBoxLayout* rootLayout = new QVBoxLayout(this);
     rootLayout->setContentsMargins(0, 0, 0, 0);
 
-    // ========== 步骤 2: 创建背景 Graphics View ==========
+    // 2. 背景 View
     m_bgView = new QGraphicsView(this);
     m_bgView->setStyleSheet("border: none; background: transparent;");
     m_bgView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_bgView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
     m_bgScene = new QGraphicsScene(this);
     m_bgView->setScene(m_bgScene);
-
     rootLayout->addWidget(m_bgView);
 
-    // ========== 步骤 3: 添加视频层（底层，Z=0）==========
+    // 3. 视频背景
     m_player = new QMediaPlayer(this);
     m_audioOutput = new QAudioOutput(this);
     m_player->setAudioOutput(m_audioOutput);
-    m_audioOutput->setVolume(0.0f); // 游戏背景音乐通常单独控制，这里静音视频原声
+    m_audioOutput->setVolume(0.0f);
 
     m_videoItem = new QGraphicsVideoItem();
     m_videoItem->setSize(QSizeF(1280, 800));
-    m_videoItem->setZValue(0);  // 底层
+    m_videoItem->setZValue(0);
     m_bgScene->addItem(m_videoItem);
 
     m_player->setVideoOutput(m_videoItem);
-    // 使用统一的视频资源，也可更换为 game_bg.mp4 等
-
-    m_videoPath = "assets/videos/4.mp4"; 
-
+    m_videoPath = "assets/videos/4.mp4";
     m_player->setLoops(QMediaPlayer::Infinite);
 
-    m_player->setLoops(QMediaPlayer::Infinite);
- 
-
-    // ========== 步骤 4: 创建 UI 内容容器（顶层）==========
-    QWidget* container = new QWidget();
-    // 设置半透明背景，确保右侧文字在视频上清晰可见
-    container->setStyleSheet("background-color: rgba(0, 0, 0, 100); border-radius: 20px;");
-    // 给定一个固定大小以方便居中 (棋盘600 + 侧边栏约300 + 边距)
-    container->setFixedSize(950, 700);
-
-    // 原有的主布局逻辑现在应用到 container 上
-    QHBoxLayout* mainLayout = new QHBoxLayout(container);
-    mainLayout->setContentsMargins(30, 30, 30, 30);
-    mainLayout->setSpacing(20);
-
-    // --- 左侧：图形视图 (Graphics View) ---
+    // =========================================================
+    // 4. 左侧：棋盘部分 (独立)
+    // =========================================================
     m_scene = new QGraphicsScene(this);
-    m_scene->setSceneRect(0, 0, 580, 580); // 设置场景逻辑大小
+    m_scene->setSceneRect(0, 0, 580, 580);
 
     m_view = new QGraphicsView(m_scene);
-    m_view->setFixedSize(600, 600); // 视图固定大小
-    // 视图样式：透明背景，无边框
-    m_view->setStyleSheet("background: transparent; border: 2px solid rgba(255,255,255,0.3); border-radius: 15px;");
+    m_view->setFixedSize(600, 600); // 固定大小
+    m_view->setStyleSheet("background: transparent; border: 2px solid rgba(255,255,255,0.6); border-radius: 15px;");
     m_view->setRenderHint(QPainter::Antialiasing);
     m_view->setRenderHint(QPainter::SmoothPixmapTransform);
     m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
-    mainLayout->addWidget(m_view);
+    // 直接将棋盘 View 添加到背景场景中
+    m_boardProxy = m_bgScene->addWidget(m_view);
+    m_boardProxy->setZValue(1);
 
-    // --- 右侧：控制面板 (UI) ---
-    QVBoxLayout* sideLayout = new QVBoxLayout();
+    // =========================================================
+    // 5. 右侧：控制面板 (独立白色磨砂框)
+    // =========================================================
+    QWidget* rightPanel = new QWidget();
+    rightPanel->setFixedSize(350, 600); // 设置右侧面板的大小
+    rightPanel->setStyleSheet(
+        "QWidget {"
+        "   background-color: rgba(255, 255, 255, 100);" /* 白色半透明 */
+        "   border-radius: 20px;"
+        "   border: 1px solid rgba(255, 255, 255, 200);"
+        "}"
+    );
 
-    // 1. 状态区
-    QGroupBox* statusBox = new QGroupBox("当前状态");
-    statusBox->setStyleSheet("QGroupBox { color: gold; border: 1px solid rgba(255,255,255,0.5); border-radius: 5px; margin-top: 20px; font-size: 16px; font-weight: bold; } "
-        "QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 5px; }");
+    QVBoxLayout* sideLayout = new QVBoxLayout(rightPanel);
+    sideLayout->setContentsMargins(30, 40, 30, 40);
+    sideLayout->setSpacing(20);
+
+    // --- 状态区 ---
+    QWidget* statusBox = new QWidget();
+    statusBox->setStyleSheet("background: transparent; border: none;");
     QVBoxLayout* statusLayout = new QVBoxLayout(statusBox);
-    statusLayout->setSpacing(10);
+    statusLayout->setContentsMargins(0, 0, 0, 0);
 
-    // 分数
-    QLabel* lblScoreTitle = new QLabel("得分 ");
+    QLabel* lblTimeTitle = new QLabel("剩余时间");
+    lblTimeTitle->setAlignment(Qt::AlignCenter);
+    lblTimeTitle->setStyleSheet("font-size: 16px; color: #555; font-weight: bold; background: transparent; border: none;");
+
+    m_timeLabel = new QLabel("60");
+    m_timeLabel->setAlignment(Qt::AlignCenter);
+    m_timeLabel->setStyleSheet("font-size: 56px; font-weight: bold; color: #044BB7; background: transparent; border: none; font-family: Arial;");
+
+    statusLayout->addWidget(m_timeLabel);
+    statusLayout->addWidget(lblTimeTitle);
+
+    QLabel* lblScoreTitle = new QLabel("得分");
     lblScoreTitle->setAlignment(Qt::AlignCenter);
-    lblScoreTitle->setStyleSheet("color: white;"); // 确保在深色背景上可见
+    lblScoreTitle->setStyleSheet("font-size: 16px; color: #555; font-weight: bold; margin-top: 20px; background: transparent; border: none;");
 
     m_scoreDisplay = new QLCDNumber();
     m_scoreDisplay->setDigitCount(6);
     m_scoreDisplay->setSegmentStyle(QLCDNumber::Flat);
-    m_scoreDisplay->setStyleSheet("border: none; color: gold; background-color: rgba(0,0,0,0.6); border-radius: 5px; height: 40px;");
+    m_scoreDisplay->setStyleSheet("border: none; color: #FF4500; background: rgba(0,0,0,0.05); border-radius: 10px; height: 50px;");
 
-    // 时间
-    m_timeLabel = new QLabel("剩余时间: 60s");
-    m_timeLabel->setAlignment(Qt::AlignCenter);
-    m_timeLabel->setStyleSheet("font-size: 20px; color: cyan; margin-top: 10px;");
-
-    statusLayout->addWidget(lblScoreTitle);
     statusLayout->addWidget(m_scoreDisplay);
-    statusLayout->addWidget(m_timeLabel);
+    statusLayout->addWidget(lblScoreTitle);
     sideLayout->addWidget(statusBox);
 
-    // 2. 技能栏
-    QGroupBox* skillBox = new QGroupBox("技能栏");
-    skillBox->setStyleSheet("QGroupBox { color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 5px; margin-top: 10px; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 5px; }");
-    QGridLayout* skillLayout = new QGridLayout(skillBox);
+    // --- 技能区 ---
+    QGridLayout* skillGrid = new QGridLayout();
+    skillGrid->setSpacing(15);
 
-    m_btnSkillBomb = new QPushButton("炸弹道具");
-    m_btnSkillShuffle = new QPushButton("洗牌道具");
-    m_btnSkillTime = new QPushButton("时间冻结");
+    // 创建按钮时指定父对象防止内存泄漏，虽然 layout 会接管
+    m_btnSkillBomb = new GameButton("assets/images/技能通用.png");
+    m_btnSkillShuffle = new GameButton("assets/images/技能通用.png");
+    m_btnSkillTime = new GameButton("assets/images/技能通用.png");
+    m_btnSkill4 = new GameButton("assets/images/技能通用.png");
 
-    // 简单的按钮样式，使其在视频背景上更好看
-    QString btnStyle = "QPushButton { background-color: rgba(255,255,255,0.2); color: white; border: 1px solid #aaa; padding: 5px; border-radius: 3px; } QPushButton:hover { background-color: rgba(255,255,255,0.4); }";
-    m_btnSkillBomb->setStyleSheet(btnStyle);
-    m_btnSkillShuffle->setStyleSheet(btnStyle);
-    m_btnSkillTime->setStyleSheet(btnStyle);
+    skillGrid->addWidget(m_btnSkillBomb, 0, 0);
+    skillGrid->addWidget(m_btnSkillShuffle, 0, 1);
+    skillGrid->addWidget(m_btnSkillTime, 1, 0);
+    skillGrid->addWidget(m_btnSkill4, 1, 1);
+    sideLayout->addLayout(skillGrid);
 
-    skillLayout->addWidget(m_btnSkillBomb, 0, 0);
-    skillLayout->addWidget(m_btnSkillShuffle, 0, 1);
-    skillLayout->addWidget(m_btnSkillTime, 1, 0, 1, 2);
-    sideLayout->addWidget(skillBox);
+    sideLayout->addStretch(); // 弹簧
 
-    sideLayout->addStretch(); // 弹簧占位
+    // --- 功能按钮 ---
+    m_btnPause = new GameButton("assets/images/按键通用.png");
+    m_btnExit = new GameButton("assets/images/按键通用.png");
 
-    // 3. 系统按钮
-    m_btnPause = new QPushButton("暂停游戏");
-    m_btnPause->setStyleSheet(btnStyle);
+    QHBoxLayout* funcLayout = new QHBoxLayout();
+    funcLayout->setSpacing(15);
+    funcLayout->addWidget(m_btnPause);
+    funcLayout->addWidget(m_btnExit);
+    sideLayout->addLayout(funcLayout);
 
-    m_btnExit = new QPushButton("返回主菜单");
-    m_btnExit->setStyleSheet("QPushButton { background-color: rgba(255, 80, 80, 0.8); color: white; border: none; padding: 8px; border-radius: 5px; } QPushButton:hover { background-color: red; }");
+    // 将右侧面板添加到背景场景
+    m_rightPanelProxy = m_bgScene->addWidget(rightPanel);
+    m_rightPanelProxy->setZValue(1);
 
-    sideLayout->addWidget(m_btnPause);
-    sideLayout->addWidget(m_btnExit);
-
-    mainLayout->addLayout(sideLayout);
-
-    // ========== 步骤 5: 将容器添加到背景场景（Z=1，在视频上方）==========
-    QGraphicsProxyWidget* proxy = m_bgScene->addWidget(container);
-    proxy->setZValue(1);  // 顶层
-
-    // 初始位置设置，后续在 resizeEvent 中修正
-    proxy->setPos(100, 100);
-
-    // --- 信号连接 ---
+    // 信号连接
     connect(m_btnExit, &QPushButton::clicked, [this]() {
-        emit backToMenu(); // 发送信号给 MainWindow
+        emit backToMenu();
         });
 
     //连接功能按钮到信号
@@ -191,6 +175,7 @@ void SceneGame::setupUI() {
     connect(m_btnSkillTime, &QPushButton::clicked, this, &SceneGame::skillTime);
 }
 
+// 关键：在 resizeEvent 中分别计算两个组件的位置
 void SceneGame::setPauseButtonText(const QString& text) {
     if (m_btnPause) {
         m_btnPause->setText(text);
@@ -204,38 +189,43 @@ void SceneGame::resizeEvent(QResizeEvent* event) {
         m_videoItem->setSize(QSizeF(this->size()));
         m_bgView->setSceneRect(0, 0, this->width(), this->height());
 
-        // 重新居中内容容器
-        QList<QGraphicsItem*> items = m_bgView->scene()->items();
-        for (auto* item : items) {
-            if (QGraphicsProxyWidget* proxy = qgraphicsitem_cast<QGraphicsProxyWidget*>(item)) {
-                QWidget* widget = proxy->widget();
-                if (widget) {
-                    proxy->setPos((this->width() - widget->width()) / 2,
-                        (this->height() - widget->height()) / 2);
-                }
-            }
+        // 计算布局参数
+        qreal boardWidth = 600.0;
+        qreal rightPanelWidth = 350.0;
+        qreal spacing = 40.0; // 两个面板之间的间距
+        qreal totalWidth = boardWidth + spacing + rightPanelWidth;
+
+        // 计算起始 X 坐标，使整体居中
+        qreal startX = (this->width() - totalWidth) / 2.0;
+        qreal startY = (this->height() - 600.0) / 2.0; // 假设高度也是600左右居中
+
+        // 1. 定位棋盘
+        if (m_boardProxy) {
+            m_boardProxy->setPos(startX, startY);
+        }
+
+        // 2. 定位右侧面板
+        if (m_rightPanelProxy) {
+            m_rightPanelProxy->setPos(startX + boardWidth + spacing, startY);
         }
     }
 }
 
-// 计算屏幕坐标：基于 8x8 网格居中
+// 其余函数 (getScreenPos, renderBoard, animate..., update...) 保持不变
+// ...
+// 务必保留 animateSwap, animateExplosion 等所有动画逻辑
+// ...
+
 QPointF SceneGame::getScreenPos(int row, int col) const {
-    // 假设场景 580x580，格子 65x65，8个格子共 520
-    // 边距 = (580 - 520) / 2 = 30
     int offsetX = 30;
     int offsetY = 30;
     return QPointF(offsetX + col * CELL_SIZE, offsetY + row * CELL_SIZE);
 }
 
 void SceneGame::renderBoard(const Board& board) {
-    m_scene->clear(); // 清空旧图元
+    m_scene->clear();
+    for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) m_items[i][j] = nullptr;
 
-    // 重置指针数组
-    for (int i = 0; i < 8; ++i)
-        for (int j = 0; j < 8; ++j)
-            m_items[i][j] = nullptr;
-
-    // 遍历生成新宝石
     for (int r = 0; r < 8; ++r) {
         for (int c = 0; c < 8; ++c) {
             Gem g = board.getGem(r, c);
@@ -245,8 +235,6 @@ void SceneGame::renderBoard(const Board& board) {
             item->setPos(getScreenPos(r, c));
             m_scene->addItem(item);
             m_items[r][c] = item;
-
-            // 关键：连接宝石的点击信号到本类的信号
             connect(item, &GemItem::clicked, this, &SceneGame::gemClicked);
         }
     }
@@ -292,158 +280,95 @@ void SceneGame::setGemSelected(int r, int c, bool selected) {
 void SceneGame::animateSwap(int r1, int c1, int r2, int c2, std::function<void()> finishedCallback) {
     GemItem* item1 = m_items[r1][c1];
     GemItem* item2 = m_items[r2][c2];
-
-    if (!item1 || !item2) {
-        if (finishedCallback) finishedCallback();
-        return;
-    }
-
-    // 交换内存中的指针，保证逻辑一致性
+    if (!item1 || !item2) { if (finishedCallback) finishedCallback(); return; }
     std::swap(m_items[r1][c1], m_items[r2][c2]);
-    item1->setGridPos(r2, c2);
-    item2->setGridPos(r1, c1);
-
-    // 动画组
+    item1->setGridPos(r2, c2); item2->setGridPos(r1, c1);
     QParallelAnimationGroup* group = new QParallelAnimationGroup;
-
     QPropertyAnimation* anim1 = new QPropertyAnimation(item1, "pos");
-    anim1->setDuration(250);
-    anim1->setStartValue(item1->pos());
-    anim1->setEndValue(getScreenPos(r2, c2));
-    anim1->setEasingCurve(QEasingCurve::InOutQuad);
-
+    anim1->setDuration(250); anim1->setStartValue(item1->pos()); anim1->setEndValue(getScreenPos(r2, c2)); anim1->setEasingCurve(QEasingCurve::InOutQuad);
     QPropertyAnimation* anim2 = new QPropertyAnimation(item2, "pos");
-    anim2->setDuration(250);
-    anim2->setStartValue(item2->pos());
-    anim2->setEndValue(getScreenPos(r1, c1));
-    anim2->setEasingCurve(QEasingCurve::InOutQuad);
-
-    group->addAnimation(anim1);
-    group->addAnimation(anim2);
-
-    connect(group, &QAbstractAnimation::finished, this, [group, finishedCallback]() {
-        if (finishedCallback) finishedCallback();
-        group->deleteLater();
-        });
+    anim2->setDuration(250); anim2->setStartValue(item2->pos()); anim2->setEndValue(getScreenPos(r1, c1)); anim2->setEasingCurve(QEasingCurve::InOutQuad);
+    group->addAnimation(anim1); group->addAnimation(anim2);
+    connect(group, &QAbstractAnimation::finished, this, [group, finishedCallback]() { if (finishedCallback) finishedCallback(); group->deleteLater(); });
     group->start();
 }
 
 void SceneGame::animateExplosion(const std::vector<QPoint>& points, std::function<void()> finishedCallback) {
     QParallelAnimationGroup* group = new QParallelAnimationGroup;
-
     for (const auto& p : points) {
         if (m_items[p.x()][p.y()]) {
             GemItem* item = m_items[p.x()][p.y()];
-
-            // 缩放+透明度淡出
             QPropertyAnimation* animScale = new QPropertyAnimation(item, "scale");
-            animScale->setDuration(200);
-            animScale->setEndValue(0.1);
-
+            animScale->setDuration(200); animScale->setEndValue(0.1);
             QPropertyAnimation* animOpacity = new QPropertyAnimation(item, "opacity");
-            animOpacity->setDuration(200);
-            animOpacity->setEndValue(0.0);
-
-            group->addAnimation(animScale);
-            group->addAnimation(animOpacity);
+            animOpacity->setDuration(200); animOpacity->setEndValue(0.0);
+            group->addAnimation(animScale); group->addAnimation(animOpacity);
         }
     }
-
     connect(group, &QAbstractAnimation::finished, this, [this, points, group, finishedCallback]() {
-        // 动画结束，移除图元
         for (const auto& p : points) {
             GemItem* item = m_items[p.x()][p.y()];
-            if (item) {
-                m_scene->removeItem(item);
-                delete item;
-                m_items[p.x()][p.y()] = nullptr;
-            }
+            if (item) { m_scene->removeItem(item); delete item; m_items[p.x()][p.y()] = nullptr; }
         }
-        if (finishedCallback) finishedCallback();
-        group->deleteLater();
+        if (finishedCallback) finishedCallback(); group->deleteLater();
         });
     group->start();
 }
 
 void SceneGame::animateFall(const Board& newBoard, std::function<void()> finishedCallback) {
-    // 简单实现：清空并根据新状态重绘，并对新生成的/位置变化的做掉落动画
-    // 这种方式最稳健，不会出现图元错位
-
     QParallelAnimationGroup* group = new QParallelAnimationGroup;
     bool anyMove = false;
-
-    // 1. 先记录旧的图元，准备复用或移除
-    // 为了简化代码，VC环境下我们直接采用“重建法”配合动画
     m_scene->clear();
-    // 重置数组
     for (int i = 0; i < 8; ++i) for (int j = 0; j < 8; ++j) m_items[i][j] = nullptr;
-
     for (int r = 0; r < 8; ++r) {
         for (int c = 0; c < 8; ++c) {
             Gem g = newBoard.getGem(r, c);
             if (g.type == GemType::Empty) continue;
-
             GemItem* item = new GemItem(r, c, g.type);
-            m_scene->addItem(item);
-            m_items[r][c] = item;
+            m_scene->addItem(item); m_items[r][c] = item;
             connect(item, &GemItem::clicked, this, &SceneGame::gemClicked);
-
             QPointF targetPos = getScreenPos(r, c);
-
             if (g.state == GemState::Falling) {
-                // 【核心优化】：计算一个看起来合理的起点
                 QPointF startPos = targetPos - QPointF(0, CELL_SIZE);
-
-                // 如果是第0行(刚生成的)，可以从屏幕外进来
                 if (r == 0) startPos = targetPos - QPointF(0, CELL_SIZE * 1.5);
-
                 item->setPos(startPos);
-
                 QPropertyAnimation* anim = new QPropertyAnimation(item, "pos");
-                anim->setDuration(400); // 稍微调快一点，更有打击感
-                anim->setStartValue(startPos);
-                anim->setEndValue(targetPos);
+                anim->setDuration(400); anim->setStartValue(startPos); anim->setEndValue(targetPos);
                 anim->setEasingCurve(QEasingCurve::OutBounce);
-                group->addAnimation(anim);
-                anyMove = true;
+                group->addAnimation(anim); anyMove = true;
             }
-            else {
-                item->setPos(targetPos);
-            }
+            else { item->setPos(targetPos); }
         }
     }
-
     if (anyMove) {
-        connect(group, &QAbstractAnimation::finished, this, [group, finishedCallback]() {
-            if (finishedCallback) finishedCallback();
-            group->deleteLater();
-            });
+        connect(group, &QAbstractAnimation::finished, this, [group, finishedCallback]() { if (finishedCallback) finishedCallback(); group->deleteLater(); });
         group->start();
     }
-    else {
-        delete group;
-        if (finishedCallback) finishedCallback();
-    }
+    else { delete group; if (finishedCallback) finishedCallback(); }
 }
 
-
-
+//void SceneGame::updateScore(int score) {
+//    m_scoreDisplay->display(score);
+//}
+//
+//void SceneGame::updateTime(int seconds) {
+//    m_timeLabel->setText(QString::number(seconds));
+//    if (seconds <= 10) m_timeLabel->setStyleSheet("font-size: 56px; font-weight: bold; color: red; font-family: Arial; border: none; background: transparent;");
+//    else m_timeLabel->setStyleSheet("font-size: 56px; font-weight: bold; color: #044BB7; font-family: Arial; border: none; background: transparent;");
+//}
+//
+//void SceneGame::setGemSelected(int r, int c, bool selected) {
+//    if (r >= 0 && r < 8 && c >= 0 && c < 8 && m_items[r][c]) {
+//        m_items[r][c]->setSelected(selected);
+//    }
+//}
 
 void SceneGame::showEvent(QShowEvent* event) {
     QWidget::showEvent(event);
-    // 页面显示时，开始播放
-    if (m_player) {
-        m_player->setSource(QUrl::fromLocalFile(m_videoPath)); // ✅ 此时才加载进内存
-        m_player->play();
-    }
+    if (m_player) { m_player->setSource(QUrl::fromLocalFile(m_videoPath)); m_player->play(); }
 }
 
 void SceneGame::hideEvent(QHideEvent* event) {
     QWidget::hideEvent(event);
-    // 页面隐藏时，暂停播放以释放CPU/GPU资源
-    if (m_player) {
-        m_player->stop();
-        m_player->setSource(QUrl()); // ✅ 关键！设为空，强制释放视频占用的内存
-
-    }
+    if (m_player) { m_player->stop(); m_player->setSource(QUrl()); }
 }

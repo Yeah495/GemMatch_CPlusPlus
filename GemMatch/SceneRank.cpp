@@ -2,59 +2,66 @@
 #include "MainWindow.h"
 #include "UserManager.h"
 #include <QVBoxLayout>
-#include <QPushButton>
-#include <QLabel>
+#include <QHBoxLayout>
 #include <QHeaderView>
-#include <QGraphicsProxyWidget>  // ✅ 新增
-#include <QUrl>                  // ✅ 新增
 
 SceneRank::SceneRank(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWin) {
     setupUI();
 }
 
 void SceneRank::setupUI() {
-    // ========== 步骤 1: 创建主布局 ==========
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    // ========== 步骤 2: 创建 Graphics View ==========
     m_view = new QGraphicsView(this);
     m_view->setStyleSheet("border: none; background: transparent;");
     m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
     QGraphicsScene* scene = new QGraphicsScene(this);
     m_view->setScene(scene);
 
-    // ========== 步骤 3: 添加视频层（底层，Z=0）==========
+    // 视频背景
     m_player = new QMediaPlayer(this);
     m_audioOutput = new QAudioOutput(this);
     m_player->setAudioOutput(m_audioOutput);
     m_audioOutput->setVolume(0.0f);
 
     m_videoItem = new QGraphicsVideoItem();
-    m_videoItem->setSize(QSizeF(1280, 800));  // ✅ 修改：适配窗口尺寸
+    m_videoItem->setSize(QSizeF(1280, 800));
     m_videoItem->setZValue(0);
     scene->addItem(m_videoItem);
-
     m_player->setVideoOutput(m_videoItem);
     m_videoPath = "assets/videos/7.mp4";
     m_player->setLoops(QMediaPlayer::Infinite);
 
-    // ========== 步骤 4: 创建 UI 容器 ==========
+    // =========================================================
+    // 容器 (白色磨砂)
+    // =========================================================
     QWidget* container = new QWidget();
-    container->setFixedSize(900, 650);  // ✅ 修改：适配窗口
-    container->setStyleSheet("background: rgba(0,0,0,0.8); border-radius: 20px;");
+    container->setFixedSize(800, 600);
+    container->setStyleSheet(
+        "QWidget {"
+        "   background-color: rgba(255, 255, 255, 100);"
+        "   border-radius: 20px;"
+        "   border: 1px solid rgba(255, 255, 255, 200);"
+        "}"
+    );
 
     QVBoxLayout* layout = new QVBoxLayout(container);
-    layout->setContentsMargins(40, 40, 40, 40);  // ✅ 调整边距
+    layout->setContentsMargins(30, 40, 30, 30);
     layout->setSpacing(15);
 
-    // 标题
-    QLabel* title = new QLabel("排行榜");
-    title->setAlignment(Qt::AlignCenter);
-    title->setStyleSheet("font-size: 32px; color: gold; font-weight: bold; margin-bottom: 15px;");  // ✅ 调整字体
-    layout->addWidget(title);
+    // 难度切换按钮区
+    QHBoxLayout* modeLayout = new QHBoxLayout();
+    modeLayout->addStretch();
+    m_btnEasy = new GameButton("assets/images/难度通用.png");
+    m_btnHard = new GameButton("assets/images/难度通用.png");
+    m_btnExtreme = new GameButton("assets/images/难度通用.png");
+    modeLayout->addWidget(m_btnEasy);
+    modeLayout->addWidget(m_btnHard);
+    modeLayout->addWidget(m_btnExtreme);
+    modeLayout->addStretch();
+    layout->addLayout(modeLayout);
 
     // 表格
     m_table = new QTableWidget();
@@ -65,37 +72,50 @@ void SceneRank::setupUI() {
     m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_table->setSelectionMode(QAbstractItemView::NoSelection);
 
-    // 表格样式
+    // 表格样式适配浅色背景
     m_table->setStyleSheet(
-        "QTableWidget { background: rgba(0,0,0,0.7); gridline-color: #555; "
-        "color: white; font-size: 16px; border: none; }"  // ✅ 调整字体
-        "QHeaderView::section { background: #333; color: gold; padding: 5px; "
-        "font-weight: bold; border: 1px solid #555; }"
+        "QTableWidget {"
+        "   background: rgba(255, 255, 255, 150);" // 稍微更不透明一点
+        "   gridline-color: #ccc;"
+        "   color: #333;" // 深色字体
+        "   font-size: 16px;"
+        "   border: none;"
+        "   border-radius: 10px;"
+        "}"
+        "QHeaderView::section {"
+        "   background: #044BB7;" // 表头深蓝
+        "   color: white;"
+        "   padding: 8px;"
+        "   font-weight: bold;"
+        "   border: none;"
+        "}"
+        "QTableWidget::item { padding: 5px; }"
     );
-
     layout->addWidget(m_table);
 
     // 返回按钮
-    QPushButton* btnBack = new QPushButton("返回");
-    btnBack->setStyleSheet(
-        "QPushButton { font-size: 16px; color: white; background: #444; "
-        "padding: 8px; border-radius: 5px; }"
-        "QPushButton:hover { background: #666; }"
-    );
-    connect(btnBack, &QPushButton::clicked, [this]() { m_mainWin->switchPage(1); });
+    m_btnBack = new GameButton("assets/images/按键通用.png");
+    QHBoxLayout* backLayout = new QHBoxLayout();
+    backLayout->addStretch();
+    backLayout->addWidget(m_btnBack);
+    backLayout->addStretch();
+    layout->addLayout(backLayout);
 
-    layout->addWidget(btnBack, 0, Qt::AlignCenter);
+    connect(m_btnBack, &QPushButton::clicked, [this]() { m_mainWin->switchPage(1); });
 
-    // ========== 步骤 5: 将容器添加到场景 ==========
-    QGraphicsProxyWidget* proxy = scene->addWidget(container);
-    proxy->setZValue(1);
-    proxy->setPos((1280 - 900) / 2, (800 - 650) / 2);  // ✅ 修改：适配窗口
+    // 模拟点击切换 (实际逻辑需配合数据库查询条件)
+    connect(m_btnEasy, &QPushButton::clicked, [this]() { loadRankData(); });
 
-    // ========== 步骤 6: 添加到主布局 ==========
+    m_containerProxy = scene->addWidget(container);
+    m_containerProxy->setZValue(1);
+
+    // Logo
+    m_logo = new GameLogo("assets/images/logo_宝石迷阵.png");
+    m_logoProxy = scene->addWidget(m_logo);
+    m_logoProxy->setZValue(2);
+
     mainLayout->addWidget(m_view);
 }
-
-
 
 void SceneRank::loadRankData() {
     // 检查数据库连接状态
@@ -113,6 +133,7 @@ void SceneRank::loadRankData() {
     }
 
     // 获取排行榜数据
+    // 这里依然只加载 Top10，实际项目可根据难度参数过滤
     QList<UserData> list = UserManager::instance().getTop10();
 
     if (list.isEmpty()) {
@@ -177,6 +198,9 @@ void SceneRank::loadRankData() {
             itemScore->setFont(QFont("Arial", 14, QFont::Bold));
         }
 
+        // 分数颜色
+        itemScore->setForeground(QBrush(QColor("#044BB7")));
+        itemScore->setFont(QFont("Microsoft YaHei", 10, QFont::Bold));
         m_table->setItem(i, 2, itemScore);
     }
 
@@ -207,47 +231,29 @@ void SceneRank::loadRankData() {
 
 void SceneRank::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
-
     if (m_videoItem && m_view) {
         m_videoItem->setSize(QSizeF(this->size()));
         m_view->setSceneRect(0, 0, this->width(), this->height());
 
-        QList<QGraphicsItem*> items = m_view->scene()->items();
-        for (auto* item : items) {
-            if (QGraphicsProxyWidget* proxy = qgraphicsitem_cast<QGraphicsProxyWidget*>(item)) {
-                QWidget* widget = proxy->widget();
-                if (widget) {
-                    proxy->setPos((this->width() - widget->width()) / 2,
-                        (this->height() - widget->height()) / 2);
-                }
-            }
+        if (m_containerProxy) {
+            QWidget* w = m_containerProxy->widget();
+            if (w) m_containerProxy->setPos((width() - w->width()) / 2, (height() - w->height()) / 2 + 60);
+        }
+        if (m_logoProxy) {
+            QWidget* w = m_logoProxy->widget();
+            if (w) m_logoProxy->setPos((width() - w->width()) / 2, height() * 0.05);
         }
     }
 }
 
-
-
-
-
-// 修改 showEvent
 void SceneRank::showEvent(QShowEvent* event) {
     QWidget::showEvent(event);
-    loadRankData(); //原本的逻辑
-
-    // 【新增】懒加载视频
-    if (m_player) {
-        m_player->setSource(QUrl::fromLocalFile(m_videoPath));
-        m_player->play();
-    }
+    loadRankData();
+    if (m_player) { m_player->setSource(QUrl::fromLocalFile(m_videoPath)); m_player->play(); }
+    if (m_logo) m_logo->startEntrance();
 }
 
-// 【新增】hideEvent
 void SceneRank::hideEvent(QHideEvent* event) {
     QWidget::hideEvent(event);
-
-    // 【新增】卸载视频
-    if (m_player) {
-        m_player->stop();
-        m_player->setSource(QUrl()); // ✅ 释放内存的关键
-    }
+    if (m_player) { m_player->stop(); m_player->setSource(QUrl()); }
 }

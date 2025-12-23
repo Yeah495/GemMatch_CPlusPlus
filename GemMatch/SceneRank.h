@@ -1,14 +1,15 @@
-﻿#pragma once
-#ifndef SCENERANK_H
+﻿#ifndef SCENERANK_H
 #define SCENERANK_H
 
 #include <QWidget>
 #include <QTableWidget>
-#include <QGraphicsView>           
-#include <QGraphicsVideoItem>      
-#include <QMediaPlayer>            
-#include <QAudioOutput>            
-#include <QGraphicsProxyWidget>   
+#include <QGraphicsView>
+#include <QGraphicsVideoItem>
+#include <QMediaPlayer>
+#include <QGraphicsProxyWidget>
+
+#include "GameButton.h"
+#include "GameLogo.h"
 
 class MainWindow;
 
@@ -19,25 +20,32 @@ public:
 
 protected:
     void showEvent(QShowEvent* event) override;
-
-    void hideEvent(QHideEvent* event) override; // ✅ 新增
+    void hideEvent(QHideEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 
 private:
     MainWindow* m_mainWin;
     QTableWidget* m_table;
 
-    // ========== 视频背景相关 ==========
+    // 视频背景
     QGraphicsView* m_view;
     QGraphicsVideoItem* m_videoItem;
     QMediaPlayer* m_player;
     QAudioOutput* m_audioOutput;
+    QString m_videoPath;
 
-    QString m_videoPath; // ✅ 新增
-    // =================================
+    // UI
+    GameLogo* m_logo;
+    GameButton* m_btnEasy;
+    GameButton* m_btnHard;
+    GameButton* m_btnExtreme;
+    GameButton* m_btnBack;
+
+    QGraphicsProxyWidget* m_containerProxy;
+    QGraphicsProxyWidget* m_logoProxy;
 
     void setupUI();
-    void loadRankData();
+    void loadRankData(); // 这里可以根据选中的难度加载不同数据
 };
 
 #endif // SCENERANK_H

@@ -60,13 +60,13 @@ void PageLogin::setupUI() {
     // 输入框样式
     QString editStyle =
         "QLineEdit {"
-        "   background-color: rgba(255, 255, 255, 200);" /* 比容器更透一点 */
+        "   background-color: rgba(255, 255, 255, 230);" /* 比容器更透一点 */
         "   font-weight: bold;"          /* <--- 添加这一行：字体加粗 */
         "   border: none;"
         "   font-family: 'Microsoft YaHei';" /* (可选) 设置一种好看的字体，如微软雅黑 */
         "   border-radius: 15px;"         /* 纯圆角 */
         "   padding: 10px 15px;"          /* 内部文字留出呼吸空间 */
-        "   font-size: 16px;"
+        "   font-size: 20px;"
         "   color: #044BB7;"              /* 深蓝灰色字体，不要用纯黑 */
         "   selection-background-color: #044BB7;"
         "}"
@@ -78,13 +78,13 @@ void PageLogin::setupUI() {
     m_editUser = new QLineEdit();
     m_editUser->setPlaceholderText("用户名");
     m_editUser->setStyleSheet(editStyle);
-    m_editUser->setFixedWidth(260);
+    m_editUser->setFixedWidth(350);
 
     m_editPass = new QLineEdit();
     m_editPass->setPlaceholderText("密码");
     m_editPass->setEchoMode(QLineEdit::Password);
     m_editPass->setStyleSheet(editStyle);
-    m_editPass->setFixedWidth(260);
+    m_editPass->setFixedWidth(350);
 
     m_editEmail = new QLineEdit();
     m_editEmail->setPlaceholderText("邮箱");

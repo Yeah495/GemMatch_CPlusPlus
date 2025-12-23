@@ -13,7 +13,7 @@ GameButton::GameButton(const QString& pixmapPath, QWidget* parent)
 
     // 设置按钮固定大小为图片大小
     if (!m_pixmap.isNull()) {
-        setFixedSize(m_pixmap.size());
+        setFixedSize(m_pixmap.width() * 1.25, m_pixmap.height() * 1.25);
     }
 
     // 初始化动画
@@ -36,10 +36,11 @@ void GameButton::paintEvent(QPaintEvent* event) {
     // 变换坐标系到中心，实现中心缩放
     painter.translate(width() / 2, height() / 2);
     painter.scale(m_scale, m_scale);
-    painter.translate(-width() / 2, -height() / 2);
 
     // 绘制图片
-    painter.drawPixmap(0, 0, width(), height(), m_pixmap);
+    painter.drawPixmap(-m_pixmap.width() / 2,
+        -m_pixmap.height() / 2,
+        m_pixmap);
 }
 
 void GameButton::startAnim(qreal endValue) {
