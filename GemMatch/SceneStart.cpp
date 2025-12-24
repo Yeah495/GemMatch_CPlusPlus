@@ -6,7 +6,17 @@
 #include <QApplication>
 
 SceneStart::SceneStart(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWin) {
+    m_currentDifficulty = 0;
     setupUI();
+}
+
+void SceneStart::selectDifficulty(int level) {
+    m_currentDifficulty = level;
+
+    // 如果 level 是 0，所有判断都会是 false，所有按钮都会取消高亮
+    if (m_btnEasy) m_btnEasy->setSelected(level == 3);
+    if (m_btnHard) m_btnHard->setSelected(level == 5);
+    if (m_btnExtreme) m_btnExtreme->setSelected(level == 7);
 }
 
 void SceneStart::setupUI() {
@@ -101,24 +111,32 @@ void SceneStart::setupUI() {
     m_settingProxy->setZValue(2);
 
     // --- 信号连接 ---
-    connect(m_btnStart, &QPushButton::clicked, [this]() { m_mainWin->startNewGame(); });  //其实可以去掉
     connect(m_btnRank, &QPushButton::clicked, [this]() { m_mainWin->switchPage(5); }); // 假设 Rank 是 Page 5
     connect(m_btnAbout, &QPushButton::clicked, [this]() { m_mainWin->switchPage(4); }); // 假设 About 是 Page 4
     connect(m_btnSettings, &QPushButton::clicked, [this]() { m_mainWin->switchPage(3); }); // 假设 Settings 是 Page 3
     
-    //难度按钮,直接开始游戏
+    //难度按钮,不直接开始游戏
     connect(m_btnEasy, &QPushButton::clicked, [this]() {
-        m_mainWin->startNewGame(3);
+        selectDifficulty(3);
         });
 
-    // 2. 普通模式 (5种颜色) - 点击直接开始
     connect(m_btnHard, &QPushButton::clicked, [this]() {
-        m_mainWin->startNewGame(5);
+        selectDifficulty(5);
         });
 
-    // 3. 困难模式 (6种或7种颜色) - 点击直接开始
     connect(m_btnExtreme, &QPushButton::clicked, [this]() {
-        m_mainWin->startNewGame(7);
+        selectDifficulty(7); 
+        });
+
+    connect(m_btnStart, &QPushButton::clicked, [this]() {
+        if (m_currentDifficulty == 0) {
+            // 如果还没选难度，弹窗提示
+            QMessageBox::warning(this, "提示", "请先选择游戏难度！");
+            return; // 直接返回，不开始游戏
+        }
+
+        // 选了才能进
+        m_mainWin->startNewGame(m_currentDifficulty);
         });
 
     mainLayout->addWidget(m_view);
@@ -155,8 +173,12 @@ void SceneStart::resizeEvent(QResizeEvent* event) {
     }
 }
 
+//只要切换到这个页面,就会自动调用一次showEvent
 void SceneStart::showEvent(QShowEvent* event) {
     QWidget::showEvent(event);
+
+    selectDifficulty(0);
+
     if (m_player) {
         m_player->setSource(QUrl::fromLocalFile(m_videoPath));
         m_player->play();
@@ -164,6 +186,7 @@ void SceneStart::showEvent(QShowEvent* event) {
     if (m_logo) m_logo->startEntrance();
 }
 
+//只要离开这个页面,就会自动调用一次hideEvent
 void SceneStart::hideEvent(QHideEvent* event) {
     QWidget::hideEvent(event);
     if (m_player) {

@@ -1,4 +1,4 @@
-#include "GameButton.h"
+ï»¿#include "GameButton.h"
 #include <QPainter>
 
 #include <QPainterPath>
@@ -6,27 +6,33 @@
 GameButton::GameButton(const QString& pixmapPath, QWidget* parent)
     : QPushButton(parent), m_scale(1.0)
 {
-    // ¼ÓÔØÍ¼Æ¬
+    // åŠ è½½å›¾ç‰‡
     m_pixmap.load(pixmapPath);
 
-    // È¥µôÄ¬ÈÏ±ß¿òºÍ±³¾°£¬ÒòÎªÎÒÃÇÒª×Ô¼º»­Í¼
+    // åŽ»æŽ‰é»˜è®¤è¾¹æ¡†å’ŒèƒŒæ™¯ï¼Œå› ä¸ºæˆ‘ä»¬è¦è‡ªå·±ç”»å›¾
     setFlat(true);
     setStyleSheet("border: none; background: transparent;");
 
-    // ÉèÖÃ°´Å¥¹Ì¶¨´óÐ¡ÎªÍ¼Æ¬´óÐ¡
+    // è®¾ç½®æŒ‰é’®å›ºå®šå¤§å°ä¸ºå›¾ç‰‡å¤§å°
     if (!m_pixmap.isNull()) {
         setFixedSize(m_pixmap.width() * 1.25, m_pixmap.height() * 1.25);
     }
 
-    // ³õÊ¼»¯¶¯»­
+    // åˆå§‹åŒ–åŠ¨ç”»
     m_anim = new QPropertyAnimation(this, "scale", this);
-    m_anim->setDuration(150); // ¶¯»­Ê±³¤ 150ms
+    m_anim->setDuration(150); // åŠ¨ç”»æ—¶é•¿ 150ms
     m_anim->setEasingCurve(QEasingCurve::OutQuad);
+}
+
+void GameButton::setSelected(bool selected) {
+    if (m_isSelected == selected) return;
+    m_isSelected = selected;
+    update(); // è§¦å‘é‡ç»˜
 }
 
 void GameButton::setScale(qreal s) {
     m_scale = s;
-    update(); // ´¥·¢ÖØ»æ
+    update(); // è§¦å‘é‡ç»˜
 }
 
 void GameButton::paintEvent(QPaintEvent* event) {
@@ -35,12 +41,12 @@ void GameButton::paintEvent(QPaintEvent* event) {
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
-    // --- 1. ´¦Àí×ø±êÏµ±ä»» (±£³ÖÄãÔ­ÓÐµÄËõ·ÅÂß¼­) ---
+    // --- 1. å¤„ç†åæ ‡ç³»å˜æ¢ (ä¿æŒä½ åŽŸæœ‰çš„ç¼©æ”¾é€»è¾‘) ---
     painter.translate(width() / 2, height() / 2);
     painter.scale(m_scale, m_scale);
 
-    // --- 2. »æÖÆÍ¼Æ¬±³¾° ---
-    // Èç¹û°´Å¥±»½ûÓÃ (setEnabled(false))£¬ÎÒÃÇ¿ÉÒÔ½µµÍÍ¸Ã÷¶È£¬ÈÃËü¿´ÆðÀ´±ä»Ò
+    // --- 2. ç»˜åˆ¶å›¾ç‰‡èƒŒæ™¯ ---
+    // å¦‚æžœæŒ‰é’®è¢«ç¦ç”¨ (setEnabled(false))ï¼Œæˆ‘ä»¬å¯ä»¥é™ä½Žé€æ˜Žåº¦ï¼Œè®©å®ƒçœ‹èµ·æ¥å˜ç°
     if (!isEnabled()) {
         painter.setOpacity(0.6);
     }
@@ -49,39 +55,59 @@ void GameButton::paintEvent(QPaintEvent* event) {
         -m_pixmap.height() / 2,
         m_pixmap);
 
-    // --- 3. »æÖÆÎÄ×Ö (ÐÂÔö²¿·Ö) ---
+    // --- 3. ç»˜åˆ¶æ–‡å­— (æ–°å¢žéƒ¨åˆ†) ---
     if (!text().isEmpty()) {
-        // A. ÉèÖÃ×ÖÌå (Ê¹ÓÃÍâ²¿ setFont ÉèÖÃµÄ×ÖÌå)
+        // A. è®¾ç½®å­—ä½“ (ä½¿ç”¨å¤–éƒ¨ setFont è®¾ç½®çš„å­—ä½“)
         painter.setFont(this->font());
 
-        // ¶¨Òå»æÖÆÇøÓò£¨Í¨³£¾ÍÊÇÍ¼Æ¬µÄ´óÐ¡£©
+        // å®šä¹‰ç»˜åˆ¶åŒºåŸŸï¼ˆé€šå¸¸å°±æ˜¯å›¾ç‰‡çš„å¤§å°ï¼‰
         QRect rect(-m_pixmap.width() / 2, -m_pixmap.height() / 2,
             m_pixmap.width(), m_pixmap.height());
 
-        // B. ¼òµ¥µÄ»æÖÆ·½Ê½ (Ö±½Ó»­°×É«ÎÄ×Ö)
+        // B. ç®€å•çš„ç»˜åˆ¶æ–¹å¼ (ç›´æŽ¥ç”»ç™½è‰²æ–‡å­—)
         /*
         painter.setPen(Qt::white);
         painter.drawText(rect, Qt::AlignCenter, text());
         */
 
-        // C. ¸ß¼¶»æÖÆ·½Ê½£º¡¾´øÃè±ßµÄÎÄ×Ö¡¿(Ç¿ÁÒÍÆ¼ö£¬ÔÚÓÎÏ·Àï¿´µÄ×îÇå³þ)
+        // C. é«˜çº§ç»˜åˆ¶æ–¹å¼ï¼šã€å¸¦æè¾¹çš„æ–‡å­—ã€‘(å¼ºçƒˆæŽ¨èï¼Œåœ¨æ¸¸æˆé‡Œçœ‹çš„æœ€æ¸…æ¥š)
         QPainterPath path;
         path.addText(rect.center() + QPointF(0, fontMetrics().descent()),
             this->font(), text());
 
-        // ¼ÈÈ»addTextÊÇ»ùÓÚ»ùÏßµÄ£¬ÎÒÃÇÐèÒªÖØÐÂ¾ÓÖÐÒ»ÏÂ
-        // ÎªÁË¼òµ¥£¬ÎÒÃÇ»¹ÊÇÓÃ drawText µÄ·½Ê½£¬»òÕßÊÖ¶¯¼ÆËãÆ«ÒÆ
-        // ÕâÀïÌá¹©Ò»¸ö×î¼òµ¥µÄÃè±ßÄ£Äâ·¨£º
+        // æ—¢ç„¶addTextæ˜¯åŸºäºŽåŸºçº¿çš„ï¼Œæˆ‘ä»¬éœ€è¦é‡æ–°å±…ä¸­ä¸€ä¸‹
+        // ä¸ºäº†ç®€å•ï¼Œæˆ‘ä»¬è¿˜æ˜¯ç”¨ drawText çš„æ–¹å¼ï¼Œæˆ–è€…æ‰‹åŠ¨è®¡ç®—åç§»
+        // è¿™é‡Œæä¾›ä¸€ä¸ªæœ€ç®€å•çš„æè¾¹æ¨¡æ‹Ÿæ³•ï¼š
 
-        // C1. ÏÈ»­ºÚÉ«ÒõÓ°/Ãè±ß
-        painter.setPen(QColor(0, 0, 0, 150)); // °ëÍ¸Ã÷ºÚÉ«
-        // ÏòÓÒÏÂÆ«ÒÆÒ»µãµã»­Ò»´Î£¬ÐÎ³ÉÒõÓ°
+        // C1. å…ˆç”»é»‘è‰²é˜´å½±/æè¾¹
+        painter.setPen(QColor(0, 0, 0, 150)); // åŠé€æ˜Žé»‘è‰²
+        // å‘å³ä¸‹åç§»ä¸€ç‚¹ç‚¹ç”»ä¸€æ¬¡ï¼Œå½¢æˆé˜´å½±
         QRect shadowRect = rect.translated(2, 2);
         painter.drawText(shadowRect, Qt::AlignCenter, text());
 
-        // C2. ÔÙ»­°×É«Ö÷Ìå
-        painter.setPen(Qt::white); // »òÕß Qt::yellow, Qt::gold
+        // C2. å†ç”»ç™½è‰²ä¸»ä½“
+        painter.setPen(Qt::white); // æˆ–è€… Qt::yellow, Qt::gold
         painter.drawText(rect, Qt::AlignCenter, text());
+    }
+
+    //æ£€æŸ¥æ˜¯å¦éœ€è¦ç”»é€‰ä¸­æ¡†
+    if (m_isSelected) {
+        QPen pen(QColor(255, 215, 0)); // é‡‘è‰²
+        pen.setWidth(5);               // è¾¹æ¡†å®½åº¦
+        pen.setJoinStyle(Qt::RoundJoin); // åœ†è§’è¿žæŽ¥
+
+        painter.setPen(pen);
+        painter.setBrush(Qt::NoBrush);
+
+        // è¿™é‡Œçš„ rect éœ€è¦æ ¹æ®ä½ çš„å›¾ç‰‡å¤§å°å¾®è°ƒï¼Œé€šå¸¸æ¯”å›¾ç‰‡ç•¥å¤§ä¸€ç‚¹å¥½çœ‹
+        // å‡è®¾ä¹‹å‰ç»˜åˆ¶åŒºåŸŸæ˜¯ m_pixmap å¤§å°
+        QRect borderRect = QRect(-m_pixmap.width() / 2, -m_pixmap.height() / 2,
+            m_pixmap.width(), m_pixmap.height());
+
+        painter.drawRect(borderRect);
+
+        // æˆ–è€…ç”»ä¸€ä¸ª âˆš å·è¡¨ç¤ºé€‰ä¸­
+        // painter.drawText(borderRect, Qt::AlignTop | Qt::AlignRight, "âœ”ï¸");
     }
 }
 
@@ -91,25 +117,25 @@ void GameButton::startAnim(qreal endValue) {
     m_anim->start();
 }
 
-// ÐüÍ££º·Å´ó 1.1 ±¶
+// æ‚¬åœï¼šæ”¾å¤§ 1.1 å€
 void GameButton::enterEvent(QEnterEvent* event) {
     QPushButton::enterEvent(event);
     startAnim(1.1);
 }
 
-// Àë¿ª£º»Ö¸´ 1.0 ±¶
+// ç¦»å¼€ï¼šæ¢å¤ 1.0 å€
 void GameButton::leaveEvent(QEvent* event) {
     QPushButton::leaveEvent(event);
     startAnim(1.0);
 }
 
-// °´ÏÂ£º°¼ÏÝ 0.9 ±¶
+// æŒ‰ä¸‹ï¼šå‡¹é™· 0.9 å€
 void GameButton::mousePressEvent(QMouseEvent* event) {
     QPushButton::mousePressEvent(event);
     startAnim(0.9);
 }
 
-// ËÉ¿ª£ºÈç¹û»¹ÔÚ°´Å¥ÉÏ£¬»Ö¸´ÐüÍ£×´Ì¬(1.1)£¬·ñÔò»Ö¸´Ô­Ê¼(1.0)
+// æ¾å¼€ï¼šå¦‚æžœè¿˜åœ¨æŒ‰é’®ä¸Šï¼Œæ¢å¤æ‚¬åœçŠ¶æ€(1.1)ï¼Œå¦åˆ™æ¢å¤åŽŸå§‹(1.0)
 void GameButton::mouseReleaseEvent(QMouseEvent* event) {
     QPushButton::mouseReleaseEvent(event);
     if (rect().contains(event->pos())) {
