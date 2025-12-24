@@ -5,6 +5,7 @@
 #include <QGraphicsScene>
 #include <QApplication>
 #include <QPainterPath> // 需要引入
+#include <QGraphicsDropShadowEffect>
 
 SceneStart::SceneStart(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWin) {
     m_currentDifficulty = 0;
@@ -123,23 +124,50 @@ void SceneStart::setupUI() {
     m_avatar->setFixedSize(120, 120); // 设定头像大小
     m_avatar->setStyleSheet("background: transparent;");
 
-    // 处理圆形图片
-    QPixmap rawPix("assets/images/1.png"); // 默认头像
+    // =========================================================
+        // 【修改】 6. 右上角圆形头像 (带描边和阴影)
+        // =========================================================
+    m_avatar = new QLabel();
+    m_avatar->setFixedSize(120, 120);
+    m_avatar->setStyleSheet("background: transparent;");
+
+    QPixmap rawPix("assets/images/1.png"); // 你的头像路径
     if (!rawPix.isNull()) {
-        QPixmap circularPix(120, 120);
+        // 创建一个稍大的画布以容纳边框
+        int size = 120;
+        QPixmap circularPix(size, size);
         circularPix.fill(Qt::transparent);
 
         QPainter painter(&circularPix);
         painter.setRenderHint(QPainter::Antialiasing);
         painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
+        // 1. 设置路径：圆形
         QPainterPath path;
-        path.addEllipse(0, 0, 120, 120); // 画圆
+        int border = 4; // 边框宽度
+        path.addEllipse(border, border, size - 2 * border, size - 2 * border);
         painter.setClipPath(path);
 
-        painter.drawPixmap(0, 0, 120, 120, rawPix); // 绘制
+        // 2. 绘制图片
+        painter.drawPixmap(0, 0, size, size, rawPix);
+
+        // 3. 绘制边框 (重置 Clip 为了画在最上层)
+        painter.setClipping(false);
+        QPen pen(Qt::white);
+        pen.setWidth(border);
+        painter.setPen(pen);
+        painter.setBrush(Qt::NoBrush);
+        painter.drawEllipse(border / 2, border / 2, size - border, size - border);
+
         m_avatar->setPixmap(circularPix);
     }
+
+    // 如果想要阴影效果，可以使用 QGraphicsDropShadowEffect
+    QGraphicsDropShadowEffect* shadow = new QGraphicsDropShadowEffect();
+    shadow->setBlurRadius(15);
+    shadow->setColor(QColor(0, 0, 0, 100));
+    shadow->setOffset(0, 4);
+    m_avatar->setGraphicsEffect(shadow);
 
     m_avatarProxy = scene->addWidget(m_avatar);
     m_avatarProxy->setZValue(2);
