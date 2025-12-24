@@ -134,6 +134,38 @@ void GameController::onSkillShuffle() {
 
     // 刷新界面（带有简单的全屏刷新动画效果）
     m_scene->renderBoard(m_gameCore->getBoard());
+
+    int comboSize = 0;
+    // 检测并标记 Exploding 状态
+    if (m_gameCore->findAndMarkMatches(&comboSize)) {
+
+        m_isProcessing = true; // 锁定输入，因为要开始播动画了
+
+        // 播放音效
+        m_soundClear->play();
+        m_comboLevel = 1;
+
+        // 加分
+        m_gameCore->addScoreSession(comboSize * 10);
+        m_scene->updateScore(m_gameCore->getScore());
+
+        // 收集爆炸点 (因为 renderBoard 时是 Static，现在 Model 已经是 Exploding 了)
+        std::vector<QPoint> explodePoints;
+        const Board& board = m_gameCore->getBoard();
+        for (int r = 0; r < BOARD_ROWS; ++r) {
+            for (int c = 0; c < BOARD_COLS; ++c) {
+                if (board.getGem(r, c).state == GemState::Exploding) {
+                    explodePoints.push_back(QPoint(r, c));
+                }
+            }
+        }
+
+        // 4. 触发标准的消除->下落流程
+        // 这里的逻辑和 attemptSwap 成功后是一模一样的
+        m_scene->animateExplosion(explodePoints, [=]() {
+            processFallAndMatch();
+            });
+    }
 }
 
 // 时间冻结：冻结时间 5 秒
