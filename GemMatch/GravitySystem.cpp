@@ -6,10 +6,10 @@
 
 #include "GravitySystem.h"
 
-bool GravitySystem::applyGravity(Board& board) {
+bool GravitySystem::applyGravity(Board& board , int gemTypeCount) {
     bool moved = false;
     static std::mt19937 rng(std::time(nullptr));
-    std::uniform_int_distribution<int> dist(1, GEM_TYPE_COUNT);
+    std::uniform_int_distribution<int> dist(1, gemTypeCount);
 
     for (int c = 0; c < BOARD_COLS; ++c) {
         std::vector<std::pair<int, Gem>> existingGems;

@@ -69,6 +69,9 @@ void GameController::onPauseClicked() {
 void GameController::onSkillBomb() {
     if (m_isPaused || m_isProcessing) return;
 
+    m_remainBomb--;
+    updateSkillButtons();
+
     m_isProcessing = true; // 锁定输入
 
     // 1. 收集所有【非空】的宝石坐标作为候选名单
@@ -121,6 +124,9 @@ void GameController::onSkillBomb() {
 void GameController::onSkillShuffle() {
     if (m_isPaused || m_isProcessing) return;
 
+    m_remainShuffle--;
+    updateSkillButtons();
+
     // [需在 GameCore 实现 shuffleBoard]
     m_gameCore->shuffleBoard();
 
@@ -132,6 +138,9 @@ void GameController::onSkillShuffle() {
 void GameController::onSkillTime() {
     if (m_isPaused || m_isTimeFrozen) return; // 避免重复使用
 
+    m_remainTime--;
+    updateSkillButtons();
+
     m_isTimeFrozen = true;
     m_freezeCounter = 5; // 冻结 5 个 Tick
 
@@ -139,9 +148,15 @@ void GameController::onSkillTime() {
     m_scene->updateTime(m_remainingTime, true);
 }
 
-void GameController::startGame() {
+void GameController::updateSkillButtons() {
+    // 调用 View 的接口刷新界面
+    m_scene->updateSkillButtonText(m_remainBomb, m_remainShuffle, m_remainTime);
+}
+
+void GameController::startGame(int difficultyLevel) {
     // Model 初始化数据
-    m_gameCore->initGame();
+    gemTypeCount = difficultyLevel;
+    m_gameCore->initGame(difficultyLevel);
 
     // View 渲染初始画面
     m_scene->renderBoard(m_gameCore->getBoard());
@@ -152,6 +167,11 @@ void GameController::startGame() {
     m_comboLevel = 1;
 
     m_scene->updateScore(0); // 初始分数 0
+
+    m_remainBomb = MAX_BOMB_COUNT;
+    m_remainShuffle = MAX_SHUFFLE_COUNT;
+    m_remainTime = MAX_TIME_COUNT;
+    updateSkillButtons();
 
     m_remainingTime = GAME_DURATION;
     m_scene->updateTime(m_remainingTime, false); // 初始调用
@@ -311,7 +331,7 @@ void GameController::processFallAndMatch() {
     m_gameCore->clearMatches();
 
     // 2. 【填充】执行下落和生成新宝石，此时 Board 是满的，状态是 Falling 或 Static
-    m_gameCore->applyGravityOnly();
+    m_gameCore->applyGravityOnly(gemTypeCount);
 
     // 3. 【动画】播放下落动画
     // 注意：这里传给 View 的 Board 是下落后的最终状态

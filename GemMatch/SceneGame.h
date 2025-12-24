@@ -32,10 +32,11 @@ public:
     void animateFall(const Board& newBoard, std::function<void()> finishedCallback);
     void setGemSelected(int r, int c, bool selected);
     void updateScore(int score);
-    void updateTime(int seconds);
 
     void setPauseButtonText(const QString& text);
     void updateTime(int seconds, bool isFrozen = false);
+
+    void updateSkillButtonText(int bombCount, int shuffleCount, int timeCount);
 
 protected:
     void paintEvent(QPaintEvent* event) override;

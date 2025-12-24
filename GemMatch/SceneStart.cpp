@@ -101,13 +101,25 @@ void SceneStart::setupUI() {
     m_settingProxy->setZValue(2);
 
     // --- 信号连接 ---
-    connect(m_btnStart, &QPushButton::clicked, [this]() { m_mainWin->startNewGame(); });
+    connect(m_btnStart, &QPushButton::clicked, [this]() { m_mainWin->startNewGame(); });  //其实可以去掉
     connect(m_btnRank, &QPushButton::clicked, [this]() { m_mainWin->switchPage(5); }); // 假设 Rank 是 Page 5
     connect(m_btnAbout, &QPushButton::clicked, [this]() { m_mainWin->switchPage(4); }); // 假设 About 是 Page 4
     connect(m_btnSettings, &QPushButton::clicked, [this]() { m_mainWin->switchPage(3); }); // 假设 Settings 是 Page 3
+    
+    //难度按钮,直接开始游戏
+    connect(m_btnEasy, &QPushButton::clicked, [this]() {
+        m_mainWin->startNewGame(3);
+        });
 
-    // 简单的难度选择反馈（打印调试，后续可绑定到 GameController）
-    connect(m_btnEasy, &QPushButton::clicked, []() { qDebug() << "Selected Easy"; });
+    // 2. 普通模式 (5种颜色) - 点击直接开始
+    connect(m_btnHard, &QPushButton::clicked, [this]() {
+        m_mainWin->startNewGame(5);
+        });
+
+    // 3. 困难模式 (6种或7种颜色) - 点击直接开始
+    connect(m_btnExtreme, &QPushButton::clicked, [this]() {
+        m_mainWin->startNewGame(7);
+        });
 
     mainLayout->addWidget(m_view);
 }

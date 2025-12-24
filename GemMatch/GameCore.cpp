@@ -19,12 +19,12 @@ GameCore::GameCore() {
 }
 
 //初始化棋盘并清除所有自动产生的初始连消（保证稳定开局）
-void GameCore::initGame() {
-    m_board->initRandomBoard();
+void GameCore::initGame(int gemTypeCount) {
+    m_board->initRandomBoard(gemTypeCount);
     m_session->resetScore();
 
     // 先执行一次重力，填补初始生成的任何空洞
-    GravitySystem::applyGravity(*m_board); 
+    GravitySystem::applyGravity(*m_board, gemTypeCount);
 
     bool stable = false;
     while (!stable) {
@@ -36,7 +36,7 @@ void GameCore::initGame() {
                 g.type = GemType::Empty;
                 m_board->setGem(p.r, p.c, g);
             }
-            GravitySystem::applyGravity(*m_board);
+            GravitySystem::applyGravity(*m_board, gemTypeCount);
         }
         else {
             stable = true;
@@ -101,9 +101,9 @@ bool GameCore::undo() {
     return false;
 }
 
-void GameCore::applyGravityOnly() {
+void GameCore::applyGravityOnly(int gemTypeCount) {
     // 调用之前的队列逻辑，实现宝石下沉和顶部补全
-    GravitySystem::applyGravity(*m_board);
+    GravitySystem::applyGravity(*m_board, gemTypeCount);
 }
 
 const Board& GameCore::getBoard() const {

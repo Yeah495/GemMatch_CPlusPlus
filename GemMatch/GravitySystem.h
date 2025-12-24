@@ -15,7 +15,7 @@ class GravitySystem {
 public:
     // 应用重力：处理空洞，上方宝石下落，顶部生成新宝石
     // 返回：是否发生了下落（用于判断动画是否需要继续）
-    static bool applyGravity(Board& board);
+    static bool applyGravity(Board& board , int gemTypeCount = 3);
 };
 
 #endif // GRAVITYSYSTEM_H

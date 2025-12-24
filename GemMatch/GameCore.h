@@ -34,7 +34,7 @@ class GameCore {
 public:
     GameCore();
 
-    void initGame(); // 开始新游戏
+    void initGame(int gemTypeCount = 3); // 开始新游戏
 
  
     // 尝试交换两个宝石。如果成功消除，Model内部会自动处理消除和得分
@@ -50,7 +50,7 @@ public:
 
     bool findAndMarkMatches(int* size = nullptr);
     void clearMatches();
-    void applyGravityOnly();
+    void applyGravityOnly(int gemTypeCount = 3);
     // 在类声明中添加
     void resetGemStates();
 

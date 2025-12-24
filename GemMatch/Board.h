@@ -17,7 +17,7 @@ public:
     Board();
 
     // 初始化地图（随机生成无消除状态的初始图） 
-    void initRandomBoard();
+    void initRandomBoard(int gemTypeCount = 3);
 
     // 获取/设置宝石
     Gem getGem(int row, int col) const;
