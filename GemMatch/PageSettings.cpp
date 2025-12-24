@@ -275,8 +275,5 @@ void PageSettings::onToggleLanguage() {
         qDebug() << "Language switched to Chinese";
     }
 
-    // 调用主窗口的切换接口（如果有的话）
-    if (m_mainWin) {
-        m_mainWin->toggleLanguage();
-    }
+
 }

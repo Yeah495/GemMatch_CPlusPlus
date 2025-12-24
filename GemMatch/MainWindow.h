@@ -35,7 +35,6 @@ public:
 
     // 设置接口
     void setGlobalBrightness(int value);
-    void toggleLanguage();
 
 private:
     void setupAllPages();
@@ -56,7 +55,7 @@ private:
 
     // 悬浮/覆盖控件
     QWidget* m_brightnessOverlay;
-    QPushButton* m_langBtn;
+
 
     int m_brightness = 100;
     int m_language = 0; // 0: CN, 1: EN
