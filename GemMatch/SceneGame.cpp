@@ -182,9 +182,9 @@ void SceneGame::setupUI() {
 }
 
 // 关键：在 resizeEvent 中分别计算两个组件的位置
-void SceneGame::setPauseButtonText(const QString& text) {
+void SceneGame::setPauseButtonText(const QString& imagePath) {
     if (m_btnPause) {
-        m_btnPause->setText(text);
+        m_btnPause->setPixmap(imagePath);
     }
 }
 
