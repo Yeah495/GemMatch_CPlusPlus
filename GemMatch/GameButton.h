@@ -19,8 +19,6 @@ public:
     void setSelected(bool selected);
     void setPixmap(const QString& path);
 
-    void setPixmap(const QString& path);
-
 protected:
     void paintEvent(QPaintEvent* event) override;
     void enterEvent(QEnterEvent* event) override;
