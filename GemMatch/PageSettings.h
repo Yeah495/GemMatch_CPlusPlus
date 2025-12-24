@@ -4,16 +4,14 @@
 #include <QWidget>
 #include <QSlider>
 #include <QLabel>
-// ✅ 在文件开头添加
 #include <QGraphicsView>
 #include <QGraphicsVideoItem>
 #include <QMediaPlayer>
 #include <QAudioOutput>
-#include <QGraphicsProxyWidget>    
-#include <QComboBox> // 新增头文件
+#include <QGraphicsProxyWidget>
+#include <QComboBox>
 #include <QPushButton>
 
-// ✅ 引入自定义控件
 #include "GameButton.h"
 #include "GameLogo.h"
 
@@ -24,11 +22,14 @@ class PageSettings : public QWidget {
 public:
     explicit PageSettings(MainWindow* mainWin);
 
+    void setLanguage(int lang); // 0 CN, 1 EN
+
 private:
     MainWindow* m_mainWin;
     void setupUI();
 
     QLabel* m_labelTitle;
+    QLabel* m_labelLang; // label for language row
     QLabel* m_labelMusic;
     QLabel* m_labelBrightness;
 
@@ -42,7 +43,8 @@ private:
     QMediaPlayer* m_player;
     QAudioOutput* m_audioOutput;
 
-
+    // ✅ 新增：音量滑块
+    QSlider* m_musicSlider;
 
     QString m_videoPath; // ✅ 新增
 

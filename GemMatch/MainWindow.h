@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QStackedWidget>
 #include <QPushButton>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
 #include "GameController.h"
 
@@ -36,6 +38,14 @@ public:
     // 设置接口
     void setGlobalBrightness(int value);
 
+    // 语言接口
+    void setLanguage(int lang); // 0 = CN, 1 = EN
+    int language() const { return m_language; }
+
+    // Background music control (0-100)
+    Q_SLOT void setBackgroundVolume(int volume);
+    int backgroundVolume() const;
+
 private:
     void setupAllPages();
     void setupGlobalUI();
@@ -56,6 +66,9 @@ private:
     // 悬浮/覆盖控件
     QWidget* m_brightnessOverlay;
 
+    // Background music
+    QMediaPlayer* m_bgPlayer;
+    QAudioOutput* m_bgAudioOutput;
 
     int m_brightness = 100;
     int m_language = 0; // 0: CN, 1: EN

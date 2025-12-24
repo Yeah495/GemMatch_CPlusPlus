@@ -5,12 +5,22 @@
 #include "PageSettings.h"
 #include "PageAbout.h"
 #include "SceneRank.h"
+#include <QUrl>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     this->setFixedSize(1280, 800);
 
     m_stack = new QStackedWidget(this);
     setCentralWidget(m_stack);
+
+    // Background music init (use qrc)
+    m_bgPlayer = new QMediaPlayer(this);
+    m_bgAudioOutput = new QAudioOutput(this);
+    m_bgPlayer->setAudioOutput(m_bgAudioOutput);
+    m_bgAudioOutput->setVolume(0.5);
+    m_bgPlayer->setLoops(QMediaPlayer::Infinite);
+    m_bgPlayer->setSource(QUrl("qrc:/assets/sound/bgpiano.wav"));
+    m_bgPlayer->play();
 
     // 1. 实例化所有子页面
     setupAllPages();
@@ -97,7 +107,21 @@ void MainWindow::updateBrightness() {
     }
 }
 
-MainWindow::~MainWindow() {}
+void MainWindow::setBackgroundVolume(int volume) {
+    int v = qBound(0, volume, 100);
+    float linear = v / 100.0f;
+    if (m_bgAudioOutput) {
+        m_bgAudioOutput->setVolume(linear);
+    }
+}
+
+int MainWindow::backgroundVolume() const {
+    if (m_bgAudioOutput) return int(m_bgAudioOutput->volume() * 100.0f);
+    return 0;
+}
+
+MainWindow::~MainWindow() {
+}
 
 SceneGame* MainWindow::getGamePage() {
     return m_pageGame;
