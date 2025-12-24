@@ -5,6 +5,7 @@
 #include <QGraphicsScene>
 #include <QApplication>
 #include <QPainterPath> // 需要引入
+#include <QGraphicsDropShadowEffect>
 
 SceneStart::SceneStart(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWin) {
     m_currentDifficulty = 0;
@@ -116,28 +117,42 @@ void SceneStart::setupUI() {
     m_settingProxy = scene->addWidget(m_btnSettings);
     m_settingProxy->setZValue(2);
 
+
+
     // =========================================================
-    // 【新增】 6. 右上角圆形头像
-    // =========================================================
+        // 【修改】 6. 右上角圆形头像 (带白色描边优化)
+        // =========================================================
     m_avatar = new QLabel();
-    m_avatar->setFixedSize(120, 120); // 设定头像大小
+    m_avatar->setFixedSize(100, 100); // 稍微调小一点，显得更精致
     m_avatar->setStyleSheet("background: transparent;");
 
-    // 处理圆形图片
-    QPixmap rawPix("assets/images/1.png"); // 默认头像
+    // 处理圆形图片 + 描边
+    QPixmap rawPix("assets/images/1.png"); // 读取你的头像图片
     if (!rawPix.isNull()) {
-        QPixmap circularPix(120, 120);
+        // 创建一个透明画布
+        QPixmap circularPix(100, 100);
         circularPix.fill(Qt::transparent);
 
         QPainter painter(&circularPix);
-        painter.setRenderHint(QPainter::Antialiasing);
-        painter.setRenderHint(QPainter::SmoothPixmapTransform);
+        painter.setRenderHint(QPainter::Antialiasing);           // 抗锯齿
+        painter.setRenderHint(QPainter::SmoothPixmapTransform);  // 平滑变换
 
+        // 1. 绘制圆形路径（作为裁剪区域）
         QPainterPath path;
-        path.addEllipse(0, 0, 120, 120); // 画圆
+        // 留出 2px 边距给描边，防止边缘被切掉
+        path.addEllipse(2, 2, 96, 96);
         painter.setClipPath(path);
 
-        painter.drawPixmap(0, 0, 120, 120, rawPix); // 绘制
+        // 2. 绘制图片
+        painter.drawPixmap(0, 0, 100, 100, rawPix);
+
+        // 3. 绘制白色描边 (重置裁剪，否则描边会被切掉一半)
+        painter.setClipping(false);
+        QPen pen(Qt::white, 4); // 白色，4像素宽度
+        painter.setPen(pen);
+        painter.setBrush(Qt::NoBrush);
+        painter.drawEllipse(2, 2, 96, 96); // 这里的圆要和上面的路径一致
+
         m_avatar->setPixmap(circularPix);
     }
 

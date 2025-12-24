@@ -153,3 +153,12 @@ void GameButton::mouseReleaseEvent(QMouseEvent* event) {
         startAnim(1.0);
     }
 }
+
+void GameButton::setPixmap(const QString& path) {
+    m_pixmap.load(path);
+    // 重新调整大小以适应新图片（可选，如果图片尺寸一致可以去掉这一行）
+    if (!m_pixmap.isNull()) {
+        setFixedSize(m_pixmap.width() * 1.25, m_pixmap.height() * 1.25);
+    }
+    update(); // 立即触发重绘
+}

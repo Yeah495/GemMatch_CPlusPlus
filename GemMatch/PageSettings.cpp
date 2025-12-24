@@ -2,6 +2,7 @@
 #include "MainWindow.h"
 #include <QVBoxLayout>
 #include <QGraphicsScene>
+#include <QComboBox>
 
 PageSettings::PageSettings(MainWindow* mainWin)
     : QWidget(mainWin)
@@ -46,7 +47,7 @@ void PageSettings::setupUI() {
     // 4. 设置框容器 (Z=1) —— 模仿 PageLogin 的毛玻璃风格
     // =========================================================
     QWidget* container = new QWidget();
-    container->setFixedSize(500, 450); // 调整大小
+    container->setFixedSize(500, 600); // 调整大小
     container->setStyleSheet(
         "QWidget {"
         "   background-color: rgba(255, 255, 255, 100);" /* 白色半透明 */
@@ -62,31 +63,102 @@ void PageSettings::setupUI() {
     );
 
     QVBoxLayout* form = new QVBoxLayout(container);
-    form->setContentsMargins(40, 40, 40, 40);
-    form->setSpacing(25);
+    form->setContentsMargins(40, 30, 40, 50);
+    form->setSpacing(20);
     form->setAlignment(Qt::AlignTop);
 
-    // --- 内容控件 ---
-    // 标题 (可选，如果有了Logo，这里可以写"系统设置")
+
+
+    // =================================================
+        // 1. 头像显示 (可点击)
+        // =================================================
+    m_btnAvatar = new QPushButton();
+    m_btnAvatar->setFixedSize(100, 100);
+    m_btnAvatar->setStyleSheet("border: none; background: transparent;"); // 去掉默认按钮样式
+
+    // 生成圆形头像 (同 SceneStart 逻辑)
+    QPixmap rawPix("assets/images/1.png");
+    if (!rawPix.isNull()) {
+        QPixmap circularPix(100, 100);
+        circularPix.fill(Qt::transparent);
+        QPainter painter(&circularPix);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform);
+        QPainterPath path;
+        path.addEllipse(2, 2, 96, 96);
+        painter.setClipPath(path);
+        painter.drawPixmap(0, 0, 100, 100, rawPix);
+        painter.setClipping(false);
+        QPen pen(Qt::white, 4);
+        painter.setPen(pen);
+        painter.setBrush(Qt::NoBrush);
+        painter.drawEllipse(2, 2, 96, 96);
+
+        m_btnAvatar->setIcon(QIcon(circularPix));
+        m_btnAvatar->setIconSize(QSize(100, 100));
+    }
+    // 连接点击信号
+    connect(m_btnAvatar, &QPushButton::clicked, this, &PageSettings::onChangeAvatar);
+
+    // 将头像居中添加到布局
+    form->addWidget(m_btnAvatar, 0, Qt::AlignHCenter);
+
+    // =================================================
+    // 2. 标题
+    // =================================================
     m_labelTitle = new QLabel("系统设置");
     m_labelTitle->setAlignment(Qt::AlignCenter);
-    m_labelTitle->setStyleSheet("font-size: 30px; color: #044BB7; margin-bottom: 10px;");
+    m_labelTitle->setStyleSheet("font-size: 26px; color: #044BB7; font-weight: bold;");
     form->addWidget(m_labelTitle);
 
-    // 音乐滑块
+    // ---------------------------------------------------------
+        // 【模块 2】语言切换 (改为按钮)
+        // ---------------------------------------------------------
+    QHBoxLayout* langLayout = new QHBoxLayout();
+    QLabel* lblLang = new QLabel("中英文切换");
+
+    m_btnLang = new QPushButton("简体中文");
+    m_btnLang->setFixedSize(140, 40);
+    m_btnLang->setCursor(Qt::PointingHandCursor);
+    // 美化按钮样式：蓝色边框，白色背景，鼠标悬停变色
+    m_btnLang->setStyleSheet(
+        "QPushButton {"
+        "   border: 2px solid #00BFFF;"
+        "   border-radius: 10px;"
+        "   background-color: rgba(255, 255, 255, 0.8);"
+        "   color: #044BB7;"
+        "   font-size: 16px;"
+        "   font-weight: bold;"
+        "}"
+        "QPushButton:hover {"
+        "   background-color: #00BFFF;"
+        "   color: white;"
+        "}"
+        "QPushButton:pressed {"
+        "   background-color: #009ACD;"
+        "}"
+    );
+    // 连接切换信号
+    connect(m_btnLang, &QPushButton::clicked, this, &PageSettings::onToggleLanguage);
+
+    langLayout->addWidget(lblLang);
+    langLayout->addWidget(m_btnLang);
+    form->addLayout(langLayout);
+
+    // =================================================
+    // 4. 音量与亮度 (原有代码)
+    // =================================================
     m_labelMusic = new QLabel("音乐音量");
     form->addWidget(m_labelMusic);
     QSlider* musicSlider = new QSlider(Qt::Horizontal);
     musicSlider->setRange(0, 100);
     musicSlider->setValue(50);
-    // 美化滑块 (可选)
     musicSlider->setStyleSheet(
         "QSlider::groove:horizontal { height: 8px; background: rgba(0,0,0,0.2); border-radius: 4px; }"
         "QSlider::handle:horizontal { background: #00BFFF; width: 20px; margin: -6px 0; border-radius: 10px; }"
     );
     form->addWidget(musicSlider);
 
-    // 亮度滑块
     m_labelBrightness = new QLabel("屏幕亮度");
     form->addWidget(m_labelBrightness);
     QSlider* brightSlider = new QSlider(Qt::Horizontal);
@@ -100,43 +172,32 @@ void PageSettings::setupUI() {
 
     form->addStretch();
 
-    // 1. 创建“返回”按钮 (图片按钮)
-        // 请确保 assets/images/ 下有对应的图片，如果没有请更换为实际路径
+    // =================================================
+    // 5. 底部按钮
+    // =================================================
+    QVBoxLayout* bottomLayout = new QVBoxLayout();
     m_btnBack = new GameButton("assets/images/返回主菜单.png");
-    connect(m_btnBack, &QPushButton::clicked, [this]() {
-        m_mainWin->switchPage(1); // 返回主菜单 (Index 1)
-        });
-
-    // 2. 创建“重新登录”按钮 (图片按钮)
     m_btnReLogin = new GameButton("assets/images/重新登录.png");
-    connect(m_btnReLogin, &QPushButton::clicked, [this]() {
-        m_mainWin->switchPage(0); // 返回登录页 (Index 0)
-        });
 
-    // 3. 添加到布局 (垂直布局会自动上下排列)
-    // Qt::AlignHCenter 确保按钮水平居中
-    form->addWidget(m_btnBack, 0, Qt::AlignHCenter);
 
-    // 添加一点间距
-    form->addSpacing(15);
 
-    form->addWidget(m_btnReLogin, 0, Qt::AlignHCenter);
+    connect(m_btnBack, &QPushButton::clicked, [this]() { m_mainWin->switchPage(1); });
+    connect(m_btnReLogin, &QPushButton::clicked, [this]() { m_mainWin->switchPage(0); });
 
-    // 底部再加一点弹簧，让按钮不要死贴着底边
-    form->addSpacing(20);
+    bottomLayout->addWidget(m_btnReLogin,0,Qt::AlignHCenter);
+    bottomLayout->addSpacing(10);
+    bottomLayout->addWidget(m_btnBack, 0, Qt::AlignHCenter);
+    form->addLayout(bottomLayout);
 
-    m_boxProxy = scene->addWidget(container); // <--- 加上这一行！
-    m_boxProxy->setZValue(1);                 // 确保它在视频之上，Logo之下
+    // 添加到 Scene
+    m_boxProxy = scene->addWidget(container);
+    m_boxProxy->setZValue(1);
 
-    // =========================================================
-    // 5. Logo (Z=2)
-    // =========================================================
-    // 这里可以使用 "logo_settings.png" 或者复用主 Logo
+    // Logo 
     m_logo = new GameLogo("assets/images/logo_宝石迷阵.png");
     m_logoProxy = scene->addWidget(m_logo);
-    m_logoProxy->setZValue(2); // 浮在上方
+    m_logoProxy->setZValue(2);
 
-    // 6. 完成布局
     mainLayout->addWidget(m_view);
 }
 
@@ -184,5 +245,38 @@ void PageSettings::hideEvent(QHideEvent* event) {
     if (m_player) {
         m_player->stop();
         m_player->setSource(QUrl());
+    }
+}
+
+
+
+// 实现空函数
+void PageSettings::onChangeAvatar() {
+    // TODO: 后续实现选择图片逻辑
+    qDebug() << "点击了更换头像";
+}
+
+// 切换语言的逻辑
+void PageSettings::onToggleLanguage() {
+    // 1. 获取当前按钮文字，判断状态
+    QString currentTxt = m_btnLang->text();
+
+    if (currentTxt == "简体中文") {
+        // 切换到英文状态
+        m_btnLang->setText("English");
+        // TODO: 这里可以调用 MainWindow 的翻译函数，或者直接发信号
+        // m_mainWin->toggleLanguage(); 
+        qDebug() << "Language switched to English";
+    }
+    else {
+        // 切换回中文状态
+        m_btnLang->setText("简体中文");
+        // m_mainWin->toggleLanguage(); 
+        qDebug() << "Language switched to Chinese";
+    }
+
+    // 调用主窗口的切换接口（如果有的话）
+    if (m_mainWin) {
+        m_mainWin->toggleLanguage();
     }
 }

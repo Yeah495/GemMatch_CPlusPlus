@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #ifndef GAMEBUTTON_H
 #define GAMEBUTTON_H
 
@@ -8,7 +8,7 @@
 
 class GameButton : public QPushButton {
     Q_OBJECT
-        // ×¢²á scale ÊôĞÔÓÃÓÚ¶¯»­
+        // æ³¨å†Œ scale å±æ€§ç”¨äºåŠ¨ç”»
         Q_PROPERTY(qreal scale READ scale WRITE setScale)
 
 public:
@@ -19,6 +19,8 @@ public:
     void setSelected(bool selected);
     void setPixmap(const QString& path);
 
+    void setPixmap(const QString& path);
+
 protected:
     void paintEvent(QPaintEvent* event) override;
     void enterEvent(QEnterEvent* event) override;
@@ -27,9 +29,9 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
-    qreal m_scale;           // µ±Ç°Ëõ·Å±ÈÀı
-    QPixmap m_pixmap;        // °´Å¥Í¼Æ¬
-    QPropertyAnimation* m_anim; // Ëõ·Å¶¯»­¶ÔÏó
+    qreal m_scale;           // å½“å‰ç¼©æ”¾æ¯”ä¾‹
+    QPixmap m_pixmap;        // æŒ‰é’®å›¾ç‰‡
+    QPropertyAnimation* m_anim; // ç¼©æ”¾åŠ¨ç”»å¯¹è±¡
     bool m_isSelected = false;
 
     void startAnim(qreal endValue);

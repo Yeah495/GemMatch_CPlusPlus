@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #ifndef GAMELOGO_H
 #define GAMELOGO_H
 
@@ -9,13 +9,13 @@
 
 class GameLogo : public QWidget {
     Q_OBJECT
-        Q_PROPERTY(qreal yOffset READ yOffset WRITE setYOffset) // ÓÃÓÚµôÂäÎ»ÒÆ
-        Q_PROPERTY(qreal scale READ scale WRITE setScale)       // ÓÃÓÚºôÎüËõ·Å
+        Q_PROPERTY(qreal yOffset READ yOffset WRITE setYOffset) // ç”¨äºæ‰è½ä½ç§»
+        Q_PROPERTY(qreal scale READ scale WRITE setScale)       // ç”¨äºå‘¼å¸ç¼©æ”¾
 
 public:
     explicit GameLogo(const QString& pixmapPath, QWidget* parent = nullptr);
 
-    // Æô¶¯Èë³¡¶¯»­£¨µôÂä + ¿ªÊ¼ºôÎü£©
+    // å¯åŠ¨å…¥åœºåŠ¨ç”»ï¼ˆæ‰è½ + å¼€å§‹å‘¼å¸ï¼‰
     void startEntrance();
 
     qreal yOffset() const { return m_yOffset; }
@@ -29,10 +29,10 @@ protected:
 
 private:
     QPixmap m_pixmap;
-    qreal m_yOffset; // ´¹Ö±Æ«ÒÆÁ¿
-    qreal m_scale;   // Ëõ·Å±ÈÀı
+    qreal m_yOffset; // å‚ç›´åç§»é‡
+    qreal m_scale;   // ç¼©æ”¾æ¯”ä¾‹
 
-    QSequentialAnimationGroup* m_groupAnim; // ´®ĞĞ¶¯»­×é
+    QSequentialAnimationGroup* m_groupAnim; // ä¸²è¡ŒåŠ¨ç”»ç»„
 };
 
 #endif // GAMELOGO_H

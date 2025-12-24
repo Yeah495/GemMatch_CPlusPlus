@@ -99,6 +99,8 @@ private:
     void setupUI();
     QPointF getScreenPos(int row, int col) const;
     const int CELL_SIZE = 65;
+
+    QLabel* m_avatarLabel;// 新增：游戏界面头像
     // 【新增】提示按钮点击
     void onHintClicked();
 };

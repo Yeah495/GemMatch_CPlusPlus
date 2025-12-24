@@ -88,7 +88,7 @@ void SceneGame::setupUI() {
     // 5. 右侧：控制面板 (独立白色磨砂框)
     // =========================================================
     QWidget* rightPanel = new QWidget();
-    rightPanel->setFixedSize(350, 600); // 设置右侧面板的大小
+    rightPanel->setFixedSize(350, 650); // 设置右侧面板的大小
     rightPanel->setStyleSheet(
         "QWidget {"
         "   background-color: rgba(255, 255, 255, 100);" /* 白色半透明 */
@@ -98,8 +98,38 @@ void SceneGame::setupUI() {
     );
 
     QVBoxLayout* sideLayout = new QVBoxLayout(rightPanel);
-    sideLayout->setContentsMargins(30, 30, 30, 30);
-    sideLayout->setSpacing(20);
+    sideLayout->setContentsMargins(20, 20, 20, 20);
+    sideLayout->setSpacing(2);
+
+    // -------------------------------------------------
+    // 【新增】 1. 顶部显示头像
+    // -------------------------------------------------
+    m_avatarLabel = new QLabel();
+    m_avatarLabel->setFixedSize(100, 100);
+    m_avatarLabel->setStyleSheet("background: transparent; border: none;");
+
+    // 生成圆形头像 (同上)
+    QPixmap rawPix("assets/images/1.png");
+    if (!rawPix.isNull()) {
+        QPixmap circularPix(100, 100);
+        circularPix.fill(Qt::transparent);
+        QPainter painter(&circularPix);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform);
+        QPainterPath path;
+        path.addEllipse(2, 2, 96, 96);
+        painter.setClipPath(path);
+        painter.drawPixmap(0, 0, 100, 100, rawPix);
+        painter.setClipping(false);
+        QPen pen(Qt::white, 4);
+        painter.setPen(pen);
+        painter.setBrush(Qt::NoBrush);
+        painter.drawEllipse(2, 2, 96, 96);
+        m_avatarLabel->setPixmap(circularPix);
+    }
+
+    // 居中添加到布局顶部
+    sideLayout->addWidget(m_avatarLabel, 0, Qt::AlignHCenter);
 
     // --- 状态区 ---
     QWidget* statusBox = new QWidget();
@@ -130,7 +160,7 @@ void SceneGame::setupUI() {
 
     // --- 技能区 ---
     QGridLayout* skillGrid = new QGridLayout();
-    skillGrid->setSpacing(15);
+    skillGrid->setSpacing(5);
 
     // 创建按钮时指定父对象防止内存泄漏，虽然 layout 会接管
     m_btnSkillBomb = new GameButton("assets/images/炸弹.png");
@@ -159,6 +189,7 @@ void SceneGame::setupUI() {
 
     QVBoxLayout* funcLayout = new QVBoxLayout();
     funcLayout->setSpacing(15);
+    funcLayout->setAlignment(Qt::AlignHCenter);
     funcLayout->addWidget(m_btnHint);
     funcLayout->addWidget(m_btnPause);
     funcLayout->addWidget(m_btnExit);
@@ -182,9 +213,24 @@ void SceneGame::setupUI() {
 }
 
 // 关键：在 resizeEvent 中分别计算两个组件的位置
-void SceneGame::setPauseButtonText(const QString& imagePath) {
-    if (m_btnPause) {
-        m_btnPause->setPixmap(imagePath);
+void SceneGame::setPauseButtonText(const QString& text) {
+    if (!m_btnPause) return;
+
+    // 逻辑：根据文本判断状态，切换对应的图片
+    // 注意：不再调用 setText，否则文字会覆盖在图片上
+
+    if (text == "继续游戏") {
+        // 切换到 继续游戏.png
+        m_btnPause->setPixmap("assets/images/继续游戏.png");
+        // 如果你的图片里已经有文字了，就把按钮文字清空，防止重叠
+        m_btnPause->setText("");
+    }
+    else {
+        // 切换回 暂停游戏.png
+        m_btnPause->setPixmap("assets/images/暂停游戏.png");
+        m_btnPause->setText("");
+    }
+}
     }
 }
 
@@ -198,7 +244,7 @@ void SceneGame::resizeEvent(QResizeEvent* event) {
         // 计算布局参数
         qreal boardWidth = 600.0;
         qreal rightPanelWidth = 350.0;
-        qreal spacing = 40.0; // 两个面板之间的间距
+        qreal spacing = 50.0; // 两个面板之间的间距
         qreal totalWidth = boardWidth + spacing + rightPanelWidth;
 
         // 计算起始 X 坐标，使整体居中

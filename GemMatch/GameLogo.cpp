@@ -1,4 +1,4 @@
-#include "GameLogo.h"
+ï»¿#include "GameLogo.h"
 #include <QPainter>
 
 GameLogo::GameLogo(const QString& pixmapPath, QWidget* parent)
@@ -10,37 +10,37 @@ GameLogo::GameLogo(const QString& pixmapPath, QWidget* parent)
         setFixedSize(m_pixmap.size()*1.2);
     }
 
-    // 1. µôÂä¶¯»­ (±£³Ö²»±ä)
+    // 1. æ‰è½åŠ¨ç”» (ä¿æŒä¸å˜)
     QPropertyAnimation* dropAnim = new QPropertyAnimation(this, "yOffset");
     dropAnim->setStartValue(-300);
     dropAnim->setEndValue(0);
     dropAnim->setDuration(1200);
     dropAnim->setEasingCurve(QEasingCurve::OutBounce);
 
-    // ================== ĞŞ¸Ä¿ªÊ¼ ==================
+    // ================== ä¿®æ”¹å¼€å§‹ ==================
 
-    // 2. ºôÎü¶¯»­ (ºÏ²¢ÎªÒ»¸öÍêÕûµÄÖÜÆÚ¶¯»­)
+    // 2. å‘¼å¸åŠ¨ç”» (åˆå¹¶ä¸ºä¸€ä¸ªå®Œæ•´çš„å‘¨æœŸåŠ¨ç”»)
     QPropertyAnimation* breathAnim = new QPropertyAnimation(this, "scale");
-    breathAnim->setDuration(3000); // ×ÜÖÜÆÚ 3Ãë (1.5s ÉÏ + 1.5s ÏÂ)
-    breathAnim->setLoopCount(-1);  // ÎŞÏŞÑ­»·
+    breathAnim->setDuration(3000); // æ€»å‘¨æœŸ 3ç§’ (1.5s ä¸Š + 1.5s ä¸‹)
+    breathAnim->setLoopCount(-1);  // æ— é™å¾ªç¯
 
-    // ¹Ø¼üÖ¡ÉèÖÃ£º¶¨ÒåÕû¸öÖÜÆÚµÄÂ·¾¶
-    breathAnim->setStartValue(1.0);         // 0% Ê±¼äµã£ºÔ­Ê¼´óĞ¡
-    breathAnim->setKeyValueAt(0.5, 1.10);   // 50% Ê±¼äµã£º·Å´óµ½ 1.10
-    breathAnim->setEndValue(1.0);           // 100% Ê±¼äµã£º»Øµ½Ô­Ê¼´óĞ¡
+    // å…³é”®å¸§è®¾ç½®ï¼šå®šä¹‰æ•´ä¸ªå‘¨æœŸçš„è·¯å¾„
+    breathAnim->setStartValue(1.0);         // 0% æ—¶é—´ç‚¹ï¼šåŸå§‹å¤§å°
+    breathAnim->setKeyValueAt(0.5, 1.10);   // 50% æ—¶é—´ç‚¹ï¼šæ”¾å¤§åˆ° 1.10
+    breathAnim->setEndValue(1.0);           // 100% æ—¶é—´ç‚¹ï¼šå›åˆ°åŸå§‹å¤§å°
 
-    // ¡¾ºËĞÄ¹Ø¼ü¡¿Ê¹ÓÃ InOutSine ÇúÏß
-    // InOut:ÒâÎ¶×ÅÁ½Í·Âı£¬ÖĞ¼ä¿ì¡£
-    // Sine: ÕıÏÒÇúÏß£¬×î·ûºÏ×ÔÈ»½çºôÎüµÄ¹æÂÉ¡£
+    // ã€æ ¸å¿ƒå…³é”®ã€‘ä½¿ç”¨ InOutSine æ›²çº¿
+    // InOut:æ„å‘³ç€ä¸¤å¤´æ…¢ï¼Œä¸­é—´å¿«ã€‚
+    // Sine: æ­£å¼¦æ›²çº¿ï¼Œæœ€ç¬¦åˆè‡ªç„¶ç•Œå‘¼å¸çš„è§„å¾‹ã€‚
     breathAnim->setEasingCurve(QEasingCurve::InOutSine);
 
-    // 3. ×éºÏÕûÌåÁ÷³Ì
-    // ×¢Òâ£º²»ÔÙĞèÒª loopGroup ÁË£¬ÒòÎª breathAnim ×Ô¼º¾ÍÊÇÎŞÏŞÑ­»·µÄ
+    // 3. ç»„åˆæ•´ä½“æµç¨‹
+    // æ³¨æ„ï¼šä¸å†éœ€è¦ loopGroup äº†ï¼Œå› ä¸º breathAnim è‡ªå·±å°±æ˜¯æ— é™å¾ªç¯çš„
     m_groupAnim = new QSequentialAnimationGroup(this);
-    m_groupAnim->addAnimation(dropAnim);   // ÏÈÖ´ĞĞµôÂä
-    m_groupAnim->addAnimation(breathAnim); // µôÂäÍêºó£¬Ö´ĞĞºôÎü(ÎŞÏŞ¿¨ÔÚÕâÀï)
+    m_groupAnim->addAnimation(dropAnim);   // å…ˆæ‰§è¡Œæ‰è½
+    m_groupAnim->addAnimation(breathAnim); // æ‰è½å®Œåï¼Œæ‰§è¡Œå‘¼å¸(æ— é™å¡åœ¨è¿™é‡Œ)
 
-    // ================== ĞŞ¸Ä½áÊø ==================
+    // ================== ä¿®æ”¹ç»“æŸ ==================
 }
 
 void GameLogo::startEntrance() {
@@ -63,26 +63,26 @@ void GameLogo::paintEvent(QPaintEvent* event) {
     Q_UNUSED(event);
     QPainter painter(this);
 
-    // ¿ªÆô¿¹¾â³İ£¬Õâ¶ÔÓÚºôÎü¶¯»­·Ç³£ÖØÒª£¬·ñÔò±ßÔµ»áÓĞ¾â³İ¶¶¶¯
+    // å¼€å¯æŠ—é”¯é½¿ï¼Œè¿™å¯¹äºå‘¼å¸åŠ¨ç”»éå¸¸é‡è¦ï¼Œå¦åˆ™è¾¹ç¼˜ä¼šæœ‰é”¯é½¿æŠ–åŠ¨
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
-    // 1. ½«×ø±êÔ­µãÒÆ¶¯µ½¿Ø¼şµÄ¼¸ºÎÖĞĞÄ
-    // ¼ÓÉÏ m_yOffset ÊµÏÖµôÂäĞ§¹û
+    // 1. å°†åæ ‡åŸç‚¹ç§»åŠ¨åˆ°æ§ä»¶çš„å‡ ä½•ä¸­å¿ƒ
+    // åŠ ä¸Š m_yOffset å®ç°æ‰è½æ•ˆæœ
     qreal centerX = width() / 2.0;
     qreal centerY = height() / 2.0 + m_yOffset;
 
     painter.translate(centerX, centerY);
 
-    // 2. Ö´ĞĞºôÎüËõ·Å
+    // 2. æ‰§è¡Œå‘¼å¸ç¼©æ”¾
     painter.scale(m_scale, m_scale);
 
-    // 3. »æÖÆÍ¼Æ¬
-    // ¹Ø¼üµã£ºÒòÎªÔ­µãÒÑ¾­ÔÚÖĞĞÄÁË£¬ÎÒÃÇĞèÒªÏò×óÉÏ½ÇÆ«ÒÆÍ¼Æ¬¿í/¸ßµÄÒ»°ë
-    // ÕâÑùÍ¼Æ¬µÄÖĞĞÄ²Å»áºÍ×ø±êÔ­µã¶ÔÆë
+    // 3. ç»˜åˆ¶å›¾ç‰‡
+    // å…³é”®ç‚¹ï¼šå› ä¸ºåŸç‚¹å·²ç»åœ¨ä¸­å¿ƒäº†ï¼Œæˆ‘ä»¬éœ€è¦å‘å·¦ä¸Šè§’åç§»å›¾ç‰‡å®½/é«˜çš„ä¸€åŠ
+    // è¿™æ ·å›¾ç‰‡çš„ä¸­å¿ƒæ‰ä¼šå’Œåæ ‡åŸç‚¹å¯¹é½
     qreal pixW = m_pixmap.width();
     qreal pixH = m_pixmap.height();
 
-    // ÕâÀïµÄ×ø±êÊÇ (-w/2, -h/2)£¬È·±£»æÖÆµÄÊÇÔ­Í¼´óĞ¡£¬²»ÊÇÀ­ÉìºóµÄ widget ´óĞ¡
+    // è¿™é‡Œçš„åæ ‡æ˜¯ (-w/2, -h/2)ï¼Œç¡®ä¿ç»˜åˆ¶çš„æ˜¯åŸå›¾å¤§å°ï¼Œä¸æ˜¯æ‹‰ä¼¸åçš„ widget å¤§å°
     painter.drawPixmap(-pixW / 2.0, -pixH / 2.0, m_pixmap);
 }
