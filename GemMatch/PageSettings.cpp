@@ -3,6 +3,11 @@
 #include <QVBoxLayout>
 #include <QGraphicsScene>
 #include <QComboBox>
+#include <QPainter>
+#include <QPainterPath>
+#include <QPen>
+#include <QDebug>
+#include <QSlider>
 
 PageSettings::PageSettings(MainWindow* mainWin)
     : QWidget(mainWin)
@@ -11,6 +16,7 @@ PageSettings::PageSettings(MainWindow* mainWin)
     , m_logoProxy(nullptr)  // ✅ 初始化为空指针
     , m_player(nullptr)
     , m_logo(nullptr)
+    , m_musicSlider(nullptr)
 {
     setupUI();
 }
@@ -148,7 +154,7 @@ void PageSettings::setupUI() {
     // =================================================
     // 4. 音量与亮度 (原有代码)
     // =================================================
-    m_labelMusic = new QLabel("音乐音量");
+    m_labelMusic = new QLabel(tr("音乐音量"));
     form->addWidget(m_labelMusic);
     QSlider* musicSlider = new QSlider(Qt::Horizontal);
     musicSlider->setRange(0, 100);
@@ -158,6 +164,18 @@ void PageSettings::setupUI() {
         "QSlider::handle:horizontal { background: #00BFFF; width: 20px; margin: -6px 0; border-radius: 10px; }"
     );
     form->addWidget(musicSlider);
+    m_musicSlider = musicSlider; // save pointer
+
+    // Initialize slider position from MainWindow background volume
+    if (m_mainWin) {
+        int vol = m_mainWin->backgroundVolume();
+        m_musicSlider->setValue(vol);
+    }
+
+    // Connect slider changes to update background volume
+    connect(m_musicSlider, &QSlider::valueChanged, this, [this](int v) {
+        if (m_mainWin) m_mainWin->setBackgroundVolume(v);
+    });
 
     m_labelBrightness = new QLabel("屏幕亮度");
     form->addWidget(m_labelBrightness);
