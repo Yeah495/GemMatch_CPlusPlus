@@ -52,6 +52,8 @@ signals:
     void skillBomb();       // 炸弹技能信号
     void skillShuffle();    // 洗牌技能信号
     void skillTime();       // 时间技能信号
+    // 【新增】提示信号
+    void hintRequested();
 
 
 
@@ -80,9 +82,14 @@ private:
     GameButton* m_btnSkillTime;
     GameButton* m_btnSkill4; // 第4个技能
 
+
+    // 【新增】
+    GameButton* m_btnHint; // 提示按键
     // 系统按键
     GameButton* m_btnPause;
     GameButton* m_btnExit;
+
+
 
     QString m_videoPath;
 
@@ -92,6 +99,8 @@ private:
     void setupUI();
     QPointF getScreenPos(int row, int col) const;
     const int CELL_SIZE = 65;
+    // 【新增】提示按钮点击
+    void onHintClicked();
 };
 
 #endif // SCENEGAME_H
