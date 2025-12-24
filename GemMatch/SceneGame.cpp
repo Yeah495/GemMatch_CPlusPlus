@@ -231,8 +231,6 @@ void SceneGame::setPauseButtonText(const QString& text) {
         m_btnPause->setText("");
     }
 }
-    }
-}
 
 void SceneGame::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
