@@ -33,7 +33,7 @@ public:
     void setGemSelected(int r, int c, bool selected);
     void updateScore(int score);
 
-    void setPauseButtonText(const QString& text);
+    void setPauseButtonText(const QString& imagePath);
     void updateTime(int seconds, bool isFrozen = false);
 
     void updateSkillButtonText(int bombCount, int shuffleCount, int timeCount);
