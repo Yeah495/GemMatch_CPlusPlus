@@ -116,6 +116,27 @@ void PageLogin::setupUI() {
     m_logoProxy = scene->addWidget(m_logo);
     m_logoProxy->setZValue(2);
 
+    // =========================================================
+    // 【新增】 5. 左下角后台按键
+    // =========================================================
+    m_btnBackstage = new GameButton("assets/images/后台.png");
+    // 如果图片太大，可以强制缩小一点，例如：
+    // m_btnBackstage->setFixedSize(60, 60); 
+
+    m_backstageProxy = scene->addWidget(m_btnBackstage);
+    m_backstageProxy->setZValue(2); // 确保在最上层
+
+    // 连接信号：点击进入新窗口
+    connect(m_btnBackstage, &QPushButton::clicked, this, [this]() {
+        // 这里假设你要弹出一个新窗口，或者切换到新的 Page
+        // 如果有现成的窗口类，请在这里 new 并 show
+        QMessageBox::information(this, "后台", "正在进入后台管理系统...");
+        // 例如: 
+        // AdminWindow* admin = new AdminWindow();
+        // admin->show();
+        });
+
+
     // 添加 View 到主布局
     mainLayout->addWidget(m_view);
 
