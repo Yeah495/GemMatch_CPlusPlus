@@ -132,36 +132,21 @@ void GameCore::shuffleBoard() {
 
     if (gems.empty()) return;
 
+    // 2. 纯随机打乱 (不检查是否连消，生成啥就是啥)
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine engine(seed);
+    std::shuffle(gems.begin(), gems.end(), engine);
 
-    bool stable = false;
-    int retryCount = 0;
-
-    // 2. 循环尝试洗牌，直到没有直接消除
-    while (!stable && retryCount < 100) {
-        std::shuffle(gems.begin(), gems.end(), engine); // 打乱
-
-        // 填回
-        int idx = 0;
-        for (int r = 0; r < BOARD_ROWS; ++r) {
-            for (int c = 0; c < BOARD_COLS; ++c) {
-                Gem g = m_board->getGem(r, c);
-                if (g.type != GemType::Empty) {
-                    g.type = gems[idx++];
-                    g.state = GemState::Static;
-                    m_board->setGem(r, c, g);
-                }
+    // 3. 填回棋盘
+    int idx = 0;
+    for (int r = 0; r < BOARD_ROWS; ++r) {
+        for (int c = 0; c < BOARD_COLS; ++c) {
+            Gem g = m_board->getGem(r, c);
+            if (g.type != GemType::Empty) {
+                g.type = gems[idx++];
+                g.state = GemState::Static; // 设为静止
+                m_board->setGem(r, c, g);
             }
-        }
-
-        // 检测是否有连消
-        auto matches = MatchFinder::findMatches(*m_board);
-        if (matches.empty()) {
-            stable = true; // 成功：当前盘面没有连消
-        }
-        else {
-            retryCount++; // 失败：重洗
         }
     }
 }

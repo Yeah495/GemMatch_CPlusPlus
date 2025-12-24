@@ -86,7 +86,7 @@ void GameButton::paintEvent(QPaintEvent* event) {
         painter.drawText(shadowRect, Qt::AlignCenter, text());
 
         // C2. 再画白色主体
-        painter.setPen(Qt::white); // 或者 Qt::yellow, Qt::gold
+        painter.setPen(Qt::yellow); // 或者 Qt::yellow, Qt::gold
         painter.drawText(rect, Qt::AlignCenter, text());
     }
 
