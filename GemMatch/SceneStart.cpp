@@ -120,13 +120,13 @@ void SceneStart::setupUI() {
     // 【新增】 6. 右上角圆形头像
     // =========================================================
     m_avatar = new QLabel();
-    m_avatar->setFixedSize(80, 80); // 设定头像大小
+    m_avatar->setFixedSize(120, 120); // 设定头像大小
     m_avatar->setStyleSheet("background: transparent;");
 
     // 处理圆形图片
     QPixmap rawPix("assets/images/1.png"); // 默认头像
     if (!rawPix.isNull()) {
-        QPixmap circularPix(80, 80);
+        QPixmap circularPix(120, 120);
         circularPix.fill(Qt::transparent);
 
         QPainter painter(&circularPix);
@@ -134,10 +134,10 @@ void SceneStart::setupUI() {
         painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
         QPainterPath path;
-        path.addEllipse(0, 0, 80, 80); // 画圆
+        path.addEllipse(0, 0, 120, 120); // 画圆
         painter.setClipPath(path);
 
-        painter.drawPixmap(0, 0, 80, 80, rawPix); // 绘制
+        painter.drawPixmap(0, 0, 120, 120, rawPix); // 绘制
         m_avatar->setPixmap(circularPix);
     }
 
@@ -209,7 +209,7 @@ void SceneStart::resizeEvent(QResizeEvent* event) {
         if (m_avatarProxy) {
             QWidget* w = m_avatarProxy->widget();
             // 距离右边30，距离顶部30
-            if (w) m_avatarProxy->setPos(width() - w->width() - 30, 30);
+            if (w) m_avatarProxy->setPos( 50, 50);
         }
     }
 }

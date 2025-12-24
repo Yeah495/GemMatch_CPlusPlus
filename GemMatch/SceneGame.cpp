@@ -153,12 +153,14 @@ void SceneGame::setupUI() {
     sideLayout->addStretch(); // 弹簧
 
     // --- 功能按钮 ---
+    m_btnHint = new GameButton("assets/images/提示.png");
     m_btnPause = new GameButton("assets/images/暂停游戏.png");
     m_btnExit = new GameButton("assets/images/返回主菜单.png");
     m_btnExit->setText("返回主菜单");
 
-    QHBoxLayout* funcLayout = new QHBoxLayout();
+    QVBoxLayout* funcLayout = new QVBoxLayout();
     funcLayout->setSpacing(15);
+    funcLayout->addWidget(m_btnHint);
     funcLayout->addWidget(m_btnPause);
     funcLayout->addWidget(m_btnExit);
     sideLayout->addLayout(funcLayout);
@@ -177,6 +179,7 @@ void SceneGame::setupUI() {
     connect(m_btnSkillBomb, &QPushButton::clicked, this, &SceneGame::skillBomb);
     connect(m_btnSkillShuffle, &QPushButton::clicked, this, &SceneGame::skillShuffle);
     connect(m_btnSkillTime, &QPushButton::clicked, this, &SceneGame::skillTime);
+    connect(m_btnExit, &QPushButton::clicked, this, &SceneGame::backToMenu);
 }
 
 // 关键：在 resizeEvent 中分别计算两个组件的位置
@@ -442,4 +445,12 @@ void SceneGame::showEvent(QShowEvent* event) {
 void SceneGame::hideEvent(QHideEvent* event) {
     QWidget::hideEvent(event);
     if (m_player) { m_player->stop(); m_player->setSource(QUrl()); }
+}
+
+// 【新增】提示按钮响应
+void SceneGame::onHintClicked() {
+    qDebug() << "请求提示";
+    // 仿照 backToMenu，这里不弹窗，只发射信号
+    // 具体的提示逻辑（比如高亮某个宝石）在 GameController 或 Board 里处理
+    emit hintRequested();
 }
