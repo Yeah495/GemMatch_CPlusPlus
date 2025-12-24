@@ -58,13 +58,13 @@ void GameController::onPauseClicked() {
         // 恢复游戏
         m_isPaused = false;
         m_gameTimer->start();
-        m_scene->setPauseButtonText("暂停游戏");
+        m_scene->setPauseButtonText("assets/images/暂停游戏.png");
     }
     else {
         // 暂停游戏
         m_isPaused = true;
         m_gameTimer->stop();
-        m_scene->setPauseButtonText("继续游戏");
+        m_scene->setPauseButtonText("assets/images/继续游戏.png");
     }
 }
 
@@ -209,7 +209,7 @@ void GameController::startGame(int difficultyLevel) {
     m_gameTimer->start(1000); // 每 1000ms (1秒) 触发一次
     m_isTimeFrozen = false;
     m_isPaused = false;
-    m_scene->setPauseButtonText("暂停游戏");
+    m_scene->setPauseButtonText("assets/images/暂停游戏.png");
 }
 
 void GameController::onGameTick() {
