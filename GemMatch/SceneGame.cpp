@@ -213,23 +213,10 @@ void SceneGame::setupUI() {
 }
 
 // 关键：在 resizeEvent 中分别计算两个组件的位置
-void SceneGame::setPauseButtonText(const QString& text) {
+void SceneGame::setPauseButtonText(const QString& path) {
     if (!m_btnPause) return;
 
-    // 逻辑：根据文本判断状态，切换对应的图片
-    // 注意：不再调用 setText，否则文字会覆盖在图片上
-
-    if (text == "继续游戏") {
-        // 切换到 继续游戏.png
-        m_btnPause->setPixmap("assets/images/继续游戏.png");
-        // 如果你的图片里已经有文字了，就把按钮文字清空，防止重叠
-        m_btnPause->setText("");
-    }
-    else {
-        // 切换回 暂停游戏.png
-        m_btnPause->setPixmap("assets/images/暂停游戏.png");
-        m_btnPause->setText("");
-    }
+    m_btnPause->setPixmap(path);
 }
 
 void SceneGame::resizeEvent(QResizeEvent* event) {
