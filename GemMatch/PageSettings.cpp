@@ -102,13 +102,13 @@ void PageSettings::setupUI() {
 
     // 1. 创建“返回”按钮 (图片按钮)
         // 请确保 assets/images/ 下有对应的图片，如果没有请更换为实际路径
-    m_btnBack = new GameButton("assets/images/按键通用.png");
+    m_btnBack = new GameButton("assets/images/返回主菜单.png");
     connect(m_btnBack, &QPushButton::clicked, [this]() {
         m_mainWin->switchPage(1); // 返回主菜单 (Index 1)
         });
 
     // 2. 创建“重新登录”按钮 (图片按钮)
-    m_btnReLogin = new GameButton("assets/images/按键通用.png");
+    m_btnReLogin = new GameButton("assets/images/重新登录.png");
     connect(m_btnReLogin, &QPushButton::clicked, [this]() {
         m_mainWin->switchPage(0); // 返回登录页 (Index 0)
         });
