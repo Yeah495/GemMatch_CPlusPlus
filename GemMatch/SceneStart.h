@@ -12,6 +12,8 @@
 #include "GameButton.h"
 #include "GameLogo.h"
 
+#include <QMessageBox>
+
 class MainWindow;
 
 class SceneStart : public QWidget {
@@ -49,6 +51,11 @@ private:
     QGraphicsProxyWidget* m_menuProxy;    // 中央菜单框
     QGraphicsProxyWidget* m_aboutProxy;   // 左上
     QGraphicsProxyWidget* m_settingProxy; // 右上
+
+    int m_currentDifficulty; // [新增] 记录当前选中的难度 (3, 5, 7)
+
+    // [新增] 辅助函数：统一处理选中逻辑
+    void selectDifficulty(int level);
 
 protected:
     void resizeEvent(QResizeEvent* event) override;

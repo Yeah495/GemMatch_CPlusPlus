@@ -16,6 +16,7 @@ public:
 
     qreal scale() const { return m_scale; }
     void setScale(qreal s);
+    void setSelected(bool selected);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -28,6 +29,7 @@ private:
     qreal m_scale;           // 当前缩放比例
     QPixmap m_pixmap;        // 按钮图片
     QPropertyAnimation* m_anim; // 缩放动画对象
+    bool m_isSelected = false;
 
     void startAnim(qreal endValue);
 };

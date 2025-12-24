@@ -37,7 +37,7 @@ public:
     void updateTime(int seconds, bool isFrozen = false);
 
     void updateSkillButtonText(int bombCount, int shuffleCount, int timeCount);
-
+    void startShakeAnimation();
 protected:
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;

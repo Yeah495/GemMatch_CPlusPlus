@@ -107,6 +107,8 @@ void GameController::onSkillBomb() {
         m_gameCore->getBoardPtr()->setGem(p.x(), p.y(), g);
     }
 
+    m_scene->startShakeAnimation();
+
     m_soundClear->play(); //炸弹音效
 
     // 6. 播放动画并进入下落流程
