@@ -1,16 +1,8 @@
-﻿/*● GameController.h/cpp
-  ○ 职责：监听 View 的点击信号，调用 Model 的函数。
-  ○ 流程：
-    ⅰ. 用户在 SceneGame 点击宝石 A 和 B。
-    ⅱ. SceneGame 告诉 GameController：“用户想交换 (x1, y1) 和 (x2, y2)”。
-    ⅲ. GameController 调用 GameMap::trySwap(...)。
-    ⅳ. 如果成功，GameMap 返回消除数据，GameController 通知 SceneGame 播放动画并更新分数。*/
-
-
-
-#include "GameController.h"
+﻿#include "GameController.h"
 #include <QDebug>
 #include <QMessageBox>
+#include <QJsonDocument>
+#include <QJsonArray>
 #include "UserManager.h"
 
 GameController::GameController(MainWindow* view, QObject* parent)
@@ -23,10 +15,13 @@ GameController::GameController(MainWindow* view, QObject* parent)
     m_scene = m_mainWindow->getGamePage();
 
     // 3. 连接 View 的信号
-    // 注意：SceneGame 里的宝石点击会触发此信号
     connect(m_scene, &SceneGame::gemClicked, this, &GameController::onGemClicked);
 
-    //连接道具点击和暂停游戏的信号,并做出相应的点击处理(在具体函数中)
+    // 连接道具点击和暂停游戏的信号
+    connect(m_scene, &SceneGame::pauseGame, this, &GameController::onPauseClicked);
+    connect(m_scene, &SceneGame::skillBomb, this, &GameController::onSkillBomb);
+    connect(m_scene, &SceneGame::skillShuffle, this, &GameController::onSkillShuffle);
+    connect(m_scene, &SceneGame::skillTime, this, &GameController::onSkillTime);
 
     // 初始化选中状态
     m_selectedPos = QPoint(-1, -1);
@@ -34,19 +29,27 @@ GameController::GameController(MainWindow* view, QObject* parent)
     m_gameTimer = new QTimer(this);
     connect(m_gameTimer, &QTimer::timeout, this, &GameController::onGameTick);
 
-    connect(m_scene, &SceneGame::pauseGame, this, &GameController::onPauseClicked);
-    connect(m_scene, &SceneGame::skillBomb, this, &GameController::onSkillBomb);
-    connect(m_scene, &SceneGame::skillShuffle, this, &GameController::onSkillShuffle);
-    connect(m_scene, &SceneGame::skillTime, this, &GameController::onSkillTime);
-
-    //初始化音效:
+    // 初始化音效
     m_soundClick = new QSoundEffect(this);
     m_soundClick->setSource(QUrl("qrc:/assets/sound/click.wav"));
-    m_soundClick->setVolume(100.0f); // 音量 0.0 ~ 1.0
+    m_soundClick->setVolume(100.0f);
 
     m_soundClear = new QSoundEffect(this);
     m_soundClear->setSource(QUrl("qrc:/assets/sound/mouth.wav"));
     m_soundClear->setVolume(1.0f);
+
+    // 初始化难度
+    m_currentDifficulty = 3; // 默认简单难度
+}
+
+// 获取难度名称
+QString GameController::getDifficultyName(int difficulty) {
+    switch (difficulty) {
+    case 3: return "简单";
+    case 5: return "普通";
+    case 7: return "困难";
+    default: return "未知";
+    }
 }
 
 // 1. 暂停功能
@@ -75,11 +78,9 @@ void GameController::onSkillBomb() {
     m_isProcessing = true; // 锁定输入
 
     // 1. 收集所有【非空】的宝石坐标作为候选名单
-    //    这样既避免了选中空位，也方便后续去重
     std::vector<QPoint> candidates;
     for (int r = 0; r < BOARD_ROWS; ++r) {
         for (int c = 0; c < BOARD_COLS; ++c) {
-            // 只选择存在的宝石
             if (m_gameCore->getBoard().getGem(r, c).type != GemType::Empty) {
                 candidates.push_back(QPoint(r, c));
             }
@@ -90,7 +91,6 @@ void GameController::onSkillBomb() {
     int bombCount = std::min((int)candidates.size(), 5);
 
     // 3. 使用标准库进行乱序（洗牌候选名单）
-    //    这比 while 循环去重更高效，也更安全
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::shuffle(candidates.begin(), candidates.end(), std::default_random_engine(seed));
 
@@ -108,11 +108,9 @@ void GameController::onSkillBomb() {
     }
 
     m_scene->startShakeAnimation();
-
-    m_soundClear->play(); //炸弹音效
+    m_soundClear->play(); // 炸弹音效
 
     // 6. 播放动画并进入下落流程
-    //    现在 targets 里绝对没有重复坐标，不会导致 View 层重复删除崩溃
     m_scene->animateExplosion(targets, [=]() {
         // 增加一点分数作为奖励
         m_gameCore->addScoreSession(100);
@@ -129,10 +127,7 @@ void GameController::onSkillShuffle() {
     m_remainShuffle--;
     updateSkillButtons();
 
-    // [需在 GameCore 实现 shuffleBoard]
     m_gameCore->shuffleBoard();
-
-    // 刷新界面（带有简单的全屏刷新动画效果）
     m_scene->renderBoard(m_gameCore->getBoard());
 }
 
@@ -156,8 +151,10 @@ void GameController::updateSkillButtons() {
 }
 
 void GameController::startGame(int difficultyLevel) {
+    // 记录当前难度
+    m_currentDifficulty = difficultyLevel;
+
     // Model 初始化数据
-    gemTypeCount = difficultyLevel;
     m_gameCore->initGame(difficultyLevel);
 
     // View 渲染初始画面
@@ -189,34 +186,53 @@ void GameController::onGameTick() {
         if (m_freezeCounter <= 0) {
             m_isTimeFrozen = false;
         }
-        // 冻结期间时间不减少
         m_scene->updateTime(m_remainingTime, true);
         return;
     }
+
     m_remainingTime--;
     m_scene->updateTime(m_remainingTime, false);
 
     if (m_remainingTime <= 0) {
         m_gameTimer->stop();
-        m_isProcessing = true; // 锁定输入，防止时间到了还能进行其他操作
+        m_isProcessing = true;
 
         // 获取最终得分
         int finalScore = m_gameCore->getScore();
 
-        // 更新数据库中的用户分数
+        // 更新数据库中的用户分数（根据难度）
         if (!UserManager::instance().getCurrentUser().isEmpty()) {
-            UserManager::instance().updateScore(finalScore);
+            QString currentUser = UserManager::instance().getCurrentUser();
+            qDebug() << "游戏结束，用户：" << currentUser
+                << "，难度：" << m_currentDifficulty
+                << "，得分：" << finalScore;
 
-            // 显示更新成功信息
-            qDebug() << "分数已更新到数据库：" << finalScore;
+            UserManager::instance().updateScore(finalScore, m_currentDifficulty);
 
+            // 立即验证分数是否保存成功
+            int savedScore = UserManager::instance().getCurrentUserHighScore(m_currentDifficulty);
+            qDebug() << "数据库保存验证 - 难度" << m_currentDifficulty
+                << "的最高分：" << savedScore;
+        }
+        else {
+            qDebug() << "游戏结束，但用户未登录，分数不保存";
         }
 
-        // 可选：弹出游戏结束提示
-        QString msg = QString("时间到！\n\n本局最终得分: %1").arg(m_gameCore->getScore());
-        QMessageBox::information(m_mainWindow, "游戏结束", msg);
+        // 弹出游戏结束提示
+        QString difficultyName = getDifficultyName(m_currentDifficulty);
+        QString msg = QString("时间到！\n\n游戏难度: %1\n本局最终得分: %2")
+            .arg(difficultyName)
+            .arg(finalScore);
 
-        m_mainWindow->switchPage(1);
+        // 使用非阻塞的方式显示消息框
+        QTimer::singleShot(100, [this, msg]() {
+            QMessageBox::information(m_mainWindow, "游戏结束", msg);
+            });
+
+        // 延迟切换页面，确保消息框显示
+        QTimer::singleShot(500, [this]() {
+            m_mainWindow->switchPage(1);
+            });
     }
 }
 
@@ -225,7 +241,6 @@ void GameController::undo() {
 
     if (m_gameCore->undo()) {
         // 撤销成功，重新渲染界面
-        // 简单粗暴：直接重绘整个盘面，因为撤销不常发生
         m_scene->renderBoard(m_gameCore->getBoard());
         m_selectedPos = QPoint(-1, -1);
     }
@@ -281,22 +296,21 @@ void GameController::onGemClicked(int row, int col) {
 
 void GameController::attemptSwap(const QPoint& p1, const QPoint& p2) {
     // 【步骤 1】先让 View 播放交换动画（此时 Model 还没动）
-    // 动画也是一种用户反馈，无论成不成功都要先动一下
     m_scene->animateSwap(p1.x(), p1.y(), p2.x(), p2.y(), [=]() {
-
         // --- 动画结束后的回调 (Callback) ---
 
         // 【步骤 2】调用 Model 进行逻辑判断
         SwapResult result = m_gameCore->trySwap(p1.x(), p1.y(), p2.x(), p2.y());
 
         if (result == SwapResult::Success) {
-            //播放消除音效
+            // 播放消除音效
             m_soundClear->play();
 
             // A. 交换成功且消除了
-            m_comboLevel = 1;  //初始化为1连击
+            m_comboLevel = 1;  // 初始化为1连击
             m_scene->updateScore(m_gameCore->getScore());
-            // 这里演示通用做法：获取需要爆炸的坐标
+
+            // 获取需要爆炸的坐标
             std::vector<QPoint> explodePoints;
             const Board& board = m_gameCore->getBoard();
             for (int r = 0; r < BOARD_ROWS; ++r) {
@@ -312,12 +326,10 @@ void GameController::attemptSwap(const QPoint& p1, const QPoint& p2) {
                 // 消除动画结束，开始处理下落
                 processFallAndMatch();
                 });
-
         }
         else {
             // B. 交换无效（没有形成三连）
-           
-			// 这里也可以加一个小音效提示交换失败
+            // 这里也可以加一个小音效提示交换失败
 
             // 【步骤 3-Fail】播放回弹动画（交换回来）
             m_scene->animateSwap(p2.x(), p2.y(), p1.x(), p1.y(), [=]() {
@@ -332,26 +344,26 @@ void GameController::processFallAndMatch() {
     // 1. 【清理】把上一轮炸掉的宝石在数据层变为空
     m_gameCore->clearMatches();
 
-    // 2. 【填充】执行下落和生成新宝石，此时 Board 是满的，状态是 Falling 或 Static
-    m_gameCore->applyGravityOnly(gemTypeCount);
+    // 2. 【填充】执行下落和生成新宝石
+    m_gameCore->applyGravityOnly(m_currentDifficulty); // 使用当前难度
 
     // 3. 【动画】播放下落动画
-    // 注意：这里传给 View 的 Board 是下落后的最终状态
     m_scene->animateFall(m_gameCore->getBoard(), [=]() {
-        m_gameCore->resetGemStates();//全部重置为Static状态,防止保留falling状态进入下一次消去,导致出现莫名其妙的下落动画
+        m_gameCore->resetGemStates(); // 全部重置为Static状态
 
         // 4. 【检测】扫描新盘面
         int comboSize = 0;
         bool hasNewMatches = m_gameCore->findAndMarkMatches(&comboSize);
 
         if (hasNewMatches) {
-            //连击消除音效:
+            // 连击消除音效
             m_soundClear->play();
 
-            m_comboLevel++;  //也可以是*=2,按照每次翻两倍,连击得分增强
-            int score = comboSize * 10 * m_comboLevel;  //连击翻倍
+            m_comboLevel++;  // 连击层数增加
+            int score = comboSize * 10 * m_comboLevel;  // 连击翻倍
             m_gameCore->addScoreSession(score);
             m_scene->updateScore(m_gameCore->getScore());
+
             // 5. 【准备数据】搜集新的爆炸点
             std::vector<QPoint> explodePoints;
             const Board& board = m_gameCore->getBoard();
@@ -365,7 +377,7 @@ void GameController::processFallAndMatch() {
 
             // 6. 【动画】播放新一轮爆炸，炸完再递归
             m_scene->animateExplosion(explodePoints, [=]() {
-                processFallAndMatch(); // 递归进入下一轮：清理->下落->再检测
+                processFallAndMatch(); // 递归进入下一轮
                 });
         }
         else {

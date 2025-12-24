@@ -1,27 +1,17 @@
 #pragma once
-/*● GameController.h/cpp
-  ○ 职责：监听 View 的点击信号，调用 Model 的函数。
-  ○ 流程：
-    ⅰ. 用户在 SceneGame 点击宝石 A 和 B。
-    ⅱ. SceneGame 告诉 GameController：“用户想交换 (x1, y1) 和 (x2, y2)”。
-    ⅲ. GameController 调用 GameMap::trySwap(...)。
-    ⅳ. 如果成功，GameMap 返回消除数据，GameController 通知 SceneGame 播放动画并更新分数。*/
-
-
-
-
-
-
 #ifndef GAMECONTROLLER_H
 #define GAMECONTROLLER_H
 
 #include <QObject>
 #include <QPoint>
 #include <QTimer>
+#include <QSoundEffect>
+#include <chrono>
+#include <random>
+#include <algorithm>
 #include "GameCore.h"
 #include "SceneGame.h"
 #include "MainWindow.h"
-#include <QSoundEffect>
 
 class GameController : public QObject {
     Q_OBJECT
@@ -57,6 +47,12 @@ private:
     // 处理消除后的下落和连锁反应 (递归核心)
     void processFallAndMatch();
 
+    // 辅助函数：获取难度名称
+    QString getDifficultyName(int difficulty);
+
+    // 辅助函数：统一刷新按钮文字
+    void updateSkillButtons();
+
     // --- 成员变量 ---
 
     GameCore* m_gameCore;   // Model 对象
@@ -78,7 +74,7 @@ private:
     QSoundEffect* m_soundClick;
     QSoundEffect* m_soundClear;
 
-    int gemTypeCount = 3;
+    int m_currentDifficulty; // 当前游戏难度（3=简单，5=普通，7=困难）
 
     const int MAX_BOMB_COUNT = 3;
     const int MAX_SHUFFLE_COUNT = 1;
@@ -88,9 +84,6 @@ private:
     int m_remainBomb;
     int m_remainShuffle;
     int m_remainTime;
-
-    //辅助函数：统一刷新按钮文字
-    void updateSkillButtons();
 };
 
 #endif // GAMECONTROLLER_H

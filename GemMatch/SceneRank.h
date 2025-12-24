@@ -45,7 +45,7 @@ private:
     QGraphicsProxyWidget* m_logoProxy;
 
     void setupUI();
-    void loadRankData(); // 这里可以根据选中的难度加载不同数据
+    void loadRankData(int difficultyLevel = 3); // 添加默认参数
 };
 
 #endif // SCENERANK_H
