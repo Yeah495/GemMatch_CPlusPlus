@@ -31,7 +31,7 @@ public:
     // 提供给其他页面的接口
     SceneGame* getGamePage() const { return m_pageGame; }
 
-    void startNewGame();
+    void startNewGame(int difficulty = 3);
 
     // 设置接口
     void setGlobalBrightness(int value);
