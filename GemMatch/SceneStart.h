@@ -46,11 +46,18 @@ private:
     GameButton* m_btnStart;
     GameButton* m_btnRank;
 
+    GameButton* m_btnHistory; // 个人战绩
+    QLabel* m_avatar;         // 头像 (使用QLabel显示处理后的圆形图片)
+
     // 代理容器（用于定位）
     QGraphicsProxyWidget* m_logoProxy;
     QGraphicsProxyWidget* m_menuProxy;    // 中央菜单框
-    QGraphicsProxyWidget* m_aboutProxy;   // 左上
-    QGraphicsProxyWidget* m_settingProxy; // 右上
+    QGraphicsProxyWidget* m_aboutProxy;   // 左下
+    QGraphicsProxyWidget* m_settingProxy; // 右下
+
+
+    // 【新增】
+    QGraphicsProxyWidget* m_avatarProxy;  // 头像代理
 
     int m_currentDifficulty; // [新增] 记录当前选中的难度 (3, 5, 7)
 

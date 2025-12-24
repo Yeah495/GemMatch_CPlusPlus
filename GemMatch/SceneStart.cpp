@@ -4,6 +4,7 @@
 #include <QHBoxLayout>
 #include <QGraphicsScene>
 #include <QApplication>
+#include <QPainterPath> // 需要引入
 
 SceneStart::SceneStart(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWin) {
     m_currentDifficulty = 0;
@@ -86,6 +87,11 @@ void SceneStart::setupUI() {
     m_btnRank = new GameButton("assets/images/排行榜.png");
     menuLayout->addWidget(m_btnRank, 0, Qt::AlignCenter);
 
+
+    // 【新增】 -- 第四行：个人战绩 --
+    m_btnHistory = new GameButton("assets/images/个人战绩.png");
+    menuLayout->addWidget(m_btnHistory, 0, Qt::AlignCenter);
+
     // 添加到场景
     m_menuProxy = scene->addWidget(menuContainer);
     m_menuProxy->setZValue(1);
@@ -101,14 +107,42 @@ void SceneStart::setupUI() {
     // 5. 角落按钮 (独立)
     // =========================================================
     // 左上：关于
-    m_btnAbout = new GameButton("assets/images/按键通用.png");
+    m_btnAbout = new GameButton("assets/images/关于.png");
     m_aboutProxy = scene->addWidget(m_btnAbout);
     m_aboutProxy->setZValue(2);
 
     // 右上：设置
-    m_btnSettings = new GameButton("assets/images/按键通用.png");
+    m_btnSettings = new GameButton("assets/images/设置.png");
     m_settingProxy = scene->addWidget(m_btnSettings);
     m_settingProxy->setZValue(2);
+
+    // =========================================================
+    // 【新增】 6. 右上角圆形头像
+    // =========================================================
+    m_avatar = new QLabel();
+    m_avatar->setFixedSize(80, 80); // 设定头像大小
+    m_avatar->setStyleSheet("background: transparent;");
+
+    // 处理圆形图片
+    QPixmap rawPix("assets/images/1.png"); // 默认头像
+    if (!rawPix.isNull()) {
+        QPixmap circularPix(80, 80);
+        circularPix.fill(Qt::transparent);
+
+        QPainter painter(&circularPix);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+        QPainterPath path;
+        path.addEllipse(0, 0, 80, 80); // 画圆
+        painter.setClipPath(path);
+
+        painter.drawPixmap(0, 0, 80, 80, rawPix); // 绘制
+        m_avatar->setPixmap(circularPix);
+    }
+
+    m_avatarProxy = scene->addWidget(m_avatar);
+    m_avatarProxy->setZValue(2);
 
     // --- 信号连接 ---
     connect(m_btnRank, &QPushButton::clicked, [this]() { m_mainWin->switchPage(5); }); // 假设 Rank 是 Page 5
@@ -151,7 +185,7 @@ void SceneStart::resizeEvent(QResizeEvent* event) {
         // 1. 中央菜单居中偏下
         if (m_menuProxy) {
             QWidget* w = m_menuProxy->widget();
-            if (w) m_menuProxy->setPos((width() - w->width()) / 2, (height() - w->height()) / 2 + 80);
+            if (w) m_menuProxy->setPos((width() - w->width()) / 2, (height() - w->height()) / 2 + 50);
         }
 
         // 2. Logo 居中偏上
@@ -160,15 +194,22 @@ void SceneStart::resizeEvent(QResizeEvent* event) {
             if (w) m_logoProxy->setPos((width() - w->width()) / 2, height() * 0.10);
         }
 
-        // 3. 左上角按钮 (留出边距)
         if (m_aboutProxy) {
-            m_aboutProxy->setPos(30, 30);
+            QWidget* w = m_aboutProxy->widget();
+            if (w) m_aboutProxy->setPos(30, height() - w->height() - 30);
         }
 
-        // 4. 右上角按钮
+        // 【修改】 4. 设置按钮 -> 移到右下角
         if (m_settingProxy) {
             QWidget* w = m_settingProxy->widget();
-            if (w) m_settingProxy->setPos(width() - w->width() - 30, 30);
+            if (w) m_settingProxy->setPos(width() - w->width() - 30, height() - w->height() - 30);
+        }
+
+        // 【新增】 5. 头像 -> 移到右上角
+        if (m_avatarProxy) {
+            QWidget* w = m_avatarProxy->widget();
+            // 距离右边30，距离顶部30
+            if (w) m_avatarProxy->setPos(width() - w->width() - 30, 30);
         }
     }
 }
