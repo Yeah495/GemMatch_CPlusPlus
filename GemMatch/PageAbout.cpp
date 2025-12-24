@@ -72,7 +72,7 @@ void PageAbout::setupUI() {
     );
 
     // ✅ 返回按钮 (使用图片按钮)
-    m_btnBack = new GameButton("assets/images/按键通用.png");
+    m_btnBack = new GameButton("assets/images/返回主菜单.png");
 
     // 布局添加
     contentLayout->addWidget(version);

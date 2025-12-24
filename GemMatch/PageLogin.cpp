@@ -91,8 +91,8 @@ void PageLogin::setupUI() {
     m_editEmail->setStyleSheet(editStyle);
     m_editEmail->setFixedWidth(260);
 
-    m_btnLogin = new GameButton("assets/images/登录.png");
-    m_btnReg = new GameButton("assets/images/注册.png");
+    m_btnLogin = new GameButton("assets/images/登录1.png");
+    m_btnReg = new GameButton("assets/images/注册1.png");
 
     // 添加控件到登录框 (注意：没有 Logo)
     formLayout->addWidget(m_editUser);

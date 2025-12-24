@@ -158,8 +158,8 @@ void SceneGame::setupUI() {
     sideLayout->addStretch(); // 弹簧
 
     // --- 功能按钮 ---
-    m_btnPause = new GameButton("assets/images/按键通用.png");
-    m_btnExit = new GameButton("assets/images/按键通用.png");
+    m_btnPause = new GameButton("assets/images/暂停游戏.png");
+    m_btnExit = new GameButton("assets/images/返回主菜单.png");
     m_btnExit->setText("返回主菜单");
 
     QHBoxLayout* funcLayout = new QHBoxLayout();

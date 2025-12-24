@@ -60,17 +60,17 @@ void SceneStart::setupUI() {
     );
 
     QVBoxLayout* menuLayout = new QVBoxLayout(menuContainer);
-    menuLayout->setContentsMargins(30, 40, 30, 40);
+    menuLayout->setContentsMargins(20, 40, 30, 40);
     menuLayout->setSpacing(20);
     menuLayout->setAlignment(Qt::AlignCenter);
 
     // -- 第一行：三个难度按键 --
     QHBoxLayout* diffLayout = new QHBoxLayout();
-    diffLayout->setSpacing(15);
+    diffLayout->setSpacing(20);
     // 请确保有对应图片，没有则用文字图或临时图代替
-    m_btnEasy = new GameButton("assets/images/难度通用.png");
-    m_btnHard = new GameButton("assets/images/难度通用.png");
-    m_btnExtreme = new GameButton("assets/images/难度通用.png");
+    m_btnEasy = new GameButton("assets/images/简单1.png");
+    m_btnHard = new GameButton("assets/images/困难1.png");
+    m_btnExtreme = new GameButton("assets/images/极限1.png");
 
     diffLayout->addWidget(m_btnEasy);
     diffLayout->addWidget(m_btnHard);
@@ -78,12 +78,12 @@ void SceneStart::setupUI() {
     menuLayout->addLayout(diffLayout);
 
     // -- 第二行：开始游戏 (大) --
-    m_btnStart = new GameButton("assets/images/按键通用.png");
+    m_btnStart = new GameButton("assets/images/开始游戏.png");
     // 如果图片不够大，可以通过 setFixedSize 强制调整，但建议直接用大图
     menuLayout->addWidget(m_btnStart, 0, Qt::AlignCenter);
 
     // -- 第三行：排行榜 --
-    m_btnRank = new GameButton("assets/images/按键通用.png");
+    m_btnRank = new GameButton("assets/images/排行榜.png");
     menuLayout->addWidget(m_btnRank, 0, Qt::AlignCenter);
 
     // 添加到场景
