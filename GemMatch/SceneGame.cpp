@@ -98,7 +98,7 @@ void SceneGame::setupUI() {
     );
 
     QVBoxLayout* sideLayout = new QVBoxLayout(rightPanel);
-    sideLayout->setContentsMargins(30, 40, 30, 40);
+    sideLayout->setContentsMargins(30, 30, 30, 30);
     sideLayout->setSpacing(20);
 
     // --- 状态区 ---
@@ -107,7 +107,7 @@ void SceneGame::setupUI() {
     QVBoxLayout* statusLayout = new QVBoxLayout(statusBox);
     statusLayout->setContentsMargins(0, 0, 0, 0);
 
-    QLabel* lblTimeTitle = new QLabel("剩余时间");
+    QLabel* lblTimeTitle = new QLabel("得分：");
     lblTimeTitle->setAlignment(Qt::AlignCenter);
     lblTimeTitle->setStyleSheet("font-size: 16px; color: #555; font-weight: bold; background: transparent; border: none;");
 
@@ -118,9 +118,7 @@ void SceneGame::setupUI() {
     statusLayout->addWidget(m_timeLabel);
     statusLayout->addWidget(lblTimeTitle);
 
-    QLabel* lblScoreTitle = new QLabel("得分");
-    lblScoreTitle->setAlignment(Qt::AlignCenter);
-    lblScoreTitle->setStyleSheet("font-size: 16px; color: #555; font-weight: bold; margin-top: 20px; background: transparent; border: none;");
+
 
     m_scoreDisplay = new QLCDNumber();
     m_scoreDisplay->setDigitCount(6);
@@ -128,7 +126,6 @@ void SceneGame::setupUI() {
     m_scoreDisplay->setStyleSheet("border: none; color: #FF4500; background: rgba(0,0,0,0.05); border-radius: 10px; height: 50px;");
 
     statusLayout->addWidget(m_scoreDisplay);
-    statusLayout->addWidget(lblScoreTitle);
     sideLayout->addWidget(statusBox);
 
     // --- 技能区 ---
@@ -136,14 +133,12 @@ void SceneGame::setupUI() {
     skillGrid->setSpacing(15);
 
     // 创建按钮时指定父对象防止内存泄漏，虽然 layout 会接管
-    m_btnSkillBomb = new GameButton("assets/images/技能通用.png");
-    m_btnSkillShuffle = new GameButton("assets/images/技能通用.png");
-    m_btnSkillTime = new GameButton("assets/images/技能通用.png");
-    m_btnSkill4 = new GameButton("assets/images/技能通用.png");
+    m_btnSkillBomb = new GameButton("assets/images/炸弹.png");
+    m_btnSkillShuffle = new GameButton("assets/images/洗牌.png");
+    m_btnSkillTime = new GameButton("assets/images/冻结.png");
+    m_btnSkill4 = new GameButton("assets/images/万能.png");
 
-    m_btnSkillBomb->setText("炸弹 (3)");
-    m_btnSkillShuffle->setText("洗牌 (1)");
-    m_btnSkillTime->setText("时间冻结 (2)");
+
     QFont font("Microsoft YaHei", 12, QFont::Bold);
     m_btnSkillBomb->setFont(font);
     m_btnSkillShuffle->setFont(font);
