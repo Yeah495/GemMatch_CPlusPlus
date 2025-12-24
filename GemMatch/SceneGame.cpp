@@ -141,6 +141,14 @@ void SceneGame::setupUI() {
     m_btnSkillTime = new GameButton("assets/images/技能通用.png");
     m_btnSkill4 = new GameButton("assets/images/技能通用.png");
 
+    m_btnSkillBomb->setText("炸弹 (3)");
+    m_btnSkillShuffle->setText("洗牌 (1)");
+    m_btnSkillTime->setText("时间冻结 (2)");
+    QFont font("Microsoft YaHei", 12, QFont::Bold);
+    m_btnSkillBomb->setFont(font);
+    m_btnSkillShuffle->setFont(font);
+    m_btnSkillTime->setFont(font);
+
     skillGrid->addWidget(m_btnSkillBomb, 0, 0);
     skillGrid->addWidget(m_btnSkillShuffle, 0, 1);
     skillGrid->addWidget(m_btnSkillTime, 1, 0);
@@ -152,6 +160,7 @@ void SceneGame::setupUI() {
     // --- 功能按钮 ---
     m_btnPause = new GameButton("assets/images/按键通用.png");
     m_btnExit = new GameButton("assets/images/按键通用.png");
+    m_btnExit->setText("返回主菜单");
 
     QHBoxLayout* funcLayout = new QHBoxLayout();
     funcLayout->setSpacing(15);
@@ -242,6 +251,21 @@ void SceneGame::renderBoard(const Board& board) {
 
 void SceneGame::updateScore(int score) {
     m_scoreDisplay->display(score);
+}
+
+void SceneGame::updateSkillButtonText(int bombCount, int shuffleCount, int timeCount) {
+    if (m_btnSkillBomb) {
+        m_btnSkillBomb->setText(QString("炸弹 (%1)").arg(bombCount));
+        m_btnSkillBomb->setEnabled(bombCount > 0); // 次数耗尽则禁用按钮
+    }
+    if (m_btnSkillShuffle) {
+        m_btnSkillShuffle->setText(QString("洗牌 (%1)").arg(shuffleCount));
+        m_btnSkillShuffle->setEnabled(shuffleCount > 0);
+    }
+    if (m_btnSkillTime) {
+        m_btnSkillTime->setText(QString("冻结 (%1)").arg(timeCount));
+        m_btnSkillTime->setEnabled(timeCount > 0);
+    }
 }
 
 void SceneGame::updateTime(int seconds, bool isFrozen) {

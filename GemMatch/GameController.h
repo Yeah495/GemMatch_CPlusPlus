@@ -29,7 +29,7 @@ public:
     explicit GameController(MainWindow* view, QObject* parent = nullptr);
 
     // 启动游戏
-    void startGame();
+    void startGame(int difficultyLevel);
 
     // 撤销操作
     void undo();
@@ -77,6 +77,20 @@ private:
 
     QSoundEffect* m_soundClick;
     QSoundEffect* m_soundClear;
+
+    int gemTypeCount = 3;
+
+    const int MAX_BOMB_COUNT = 3;
+    const int MAX_SHUFFLE_COUNT = 1;
+    const int MAX_TIME_COUNT = 2;
+
+    //当前剩余次数
+    int m_remainBomb;
+    int m_remainShuffle;
+    int m_remainTime;
+
+    //辅助函数：统一刷新按钮文字
+    void updateSkillButtons();
 };
 
 #endif // GAMECONTROLLER_H

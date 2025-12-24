@@ -11,10 +11,10 @@ Board::Board() {
     m_grid.resize(BOARD_ROWS, std::vector<Gem>(BOARD_COLS));
 }
 
-void Board::initRandomBoard() {
+void Board::initRandomBoard(int gemTypeCount) {
     // 简单的随机填充，实际项目中通常需要检查生成时不能直接出现3连
     // 这里为了简化，先完全随机，GameCore 初始化时会进行一次清理
-    std::uniform_int_distribution<int> dist(1, GEM_TYPE_COUNT);
+    std::uniform_int_distribution<int> dist(1, gemTypeCount);
 
     for (int i = 0; i < BOARD_ROWS; ++i) {
         for (int j = 0; j < BOARD_COLS; ++j) {
