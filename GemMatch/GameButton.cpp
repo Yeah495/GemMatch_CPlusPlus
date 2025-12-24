@@ -35,6 +35,14 @@ void GameButton::setScale(qreal s) {
     update(); // 触发重绘
 }
 
+void GameButton::setPixmap(const QString& path) {
+    // 1. 加载新图片
+    m_pixmap.load(path);
+
+    // 2. 触发重绘，这样 paintEvent 就会画新图了
+    update();
+}
+
 void GameButton::paintEvent(QPaintEvent* event) {
     Q_UNUSED(event);
     QPainter painter(this);

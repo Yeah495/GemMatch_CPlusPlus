@@ -17,6 +17,7 @@ public:
     qreal scale() const { return m_scale; }
     void setScale(qreal s);
     void setSelected(bool selected);
+    void setPixmap(const QString& path);
 
     void setPixmap(const QString& path);
 
