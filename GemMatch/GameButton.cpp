@@ -106,8 +106,8 @@ void GameButton::paintEvent(QPaintEvent* event) {
 
         painter.drawRect(borderRect);
 
-        // 或者画一个 √ 号表示选中
-        // painter.drawText(borderRect, Qt::AlignTop | Qt::AlignRight, "✔️");
+        // 也画一个 √ 号表示选中
+        painter.drawText(borderRect, Qt::AlignTop | Qt::AlignRight, "✔️");
     }
 }
 
