@@ -10,6 +10,8 @@
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include <QGraphicsProxyWidget>    
+#include <QComboBox> // 新增头文件
+#include <QPushButton>
 
 // ✅ 引入自定义控件
 #include "GameButton.h"
@@ -40,6 +42,8 @@ private:
     QMediaPlayer* m_player;
     QAudioOutput* m_audioOutput;
 
+
+
     QString m_videoPath; // ✅ 新增
 
     // ✅ 新增：Logo 相关
@@ -49,11 +53,23 @@ private:
     QGraphicsProxyWidget* m_boxProxy;  // 设置框代理
     QGraphicsProxyWidget* m_logoProxy; // Logo 代理
 
+    // ✅ 修改：语言切换改为按钮，而不是下拉框
+    QPushButton* m_btnLang;
+
+    // ✅ 新增：头像按钮（为了支持点击更换）
+    QPushButton* m_btnAvatar;
+
+    // ✅ 新增：空函数
+    void onChangeAvatar();// 更换头像逻辑
+    void onToggleLanguage(); // ✅ 切换语言逻辑
+
 protected:
     void resizeEvent(QResizeEvent* event) override;
 
     void showEvent(QShowEvent* event) override; // ✅ 新增
     void hideEvent(QHideEvent* event) override; // ✅ 新增
+
+    
 };
 
 #endif

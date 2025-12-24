@@ -54,9 +54,9 @@ void SceneRank::setupUI() {
     // 难度切换按钮区
     QHBoxLayout* modeLayout = new QHBoxLayout();
     modeLayout->addStretch();
-    m_btnEasy = new GameButton("assets/images/简单.png");
-    m_btnHard = new GameButton("assets/images/困难.png");
-    m_btnExtreme = new GameButton("assets/images/极限.png");
+    m_btnEasy = new GameButton("assets/images/简单1.png");
+    m_btnHard = new GameButton("assets/images/困难1.png");
+    m_btnExtreme = new GameButton("assets/images/极限1.png");
     modeLayout->addWidget(m_btnEasy);
     modeLayout->addWidget(m_btnHard);
     modeLayout->addWidget(m_btnExtreme);
