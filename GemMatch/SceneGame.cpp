@@ -371,6 +371,58 @@ void SceneGame::animateFall(const Board& newBoard, std::function<void()> finishe
     else { delete group; if (finishedCallback) finishedCallback(); }
 }
 
+//震动动画实现
+void SceneGame::startShakeAnimation() {
+    // 1. 安全检查
+    if (!m_boardProxy) return;
+
+    // 2. 获取棋盘当前的位置 (由 resizeEvent 计算出来的那个位置)
+    QPointF originalPos = m_boardProxy->pos();
+
+    // 3. 创建串行动画组
+    QSequentialAnimationGroup* group = new QSequentialAnimationGroup(this);
+
+    // 4. 设置震动参数
+    int intensity = 15; // 震动幅度 (像素)
+    int duration = 30;  // 每次位移耗时 (毫秒)
+
+    // --- 关键：定义一组乱序的位移路径 ---
+
+    // 向右下
+    QPropertyAnimation* anim1 = new QPropertyAnimation(m_boardProxy, "pos");
+    anim1->setDuration(duration);
+    anim1->setEndValue(originalPos + QPointF(intensity, intensity));
+    group->addAnimation(anim1);
+
+    // 向左上 (大幅反向拉扯)
+    QPropertyAnimation* anim2 = new QPropertyAnimation(m_boardProxy, "pos");
+    anim2->setDuration(duration);
+    anim2->setEndValue(originalPos + QPointF(-intensity, -intensity));
+    group->addAnimation(anim2);
+
+    // 向左下
+    QPropertyAnimation* anim3 = new QPropertyAnimation(m_boardProxy, "pos");
+    anim3->setDuration(duration);
+    anim3->setEndValue(originalPos + QPointF(-intensity, intensity));
+    group->addAnimation(anim3);
+
+    // 向右上
+    QPropertyAnimation* anim4 = new QPropertyAnimation(m_boardProxy, "pos");
+    anim4->setDuration(duration);
+    anim4->setEndValue(originalPos + QPointF(intensity, -intensity));
+    group->addAnimation(anim4);
+
+    // --- 5. 最后必须归位！ ---
+    QPropertyAnimation* animEnd = new QPropertyAnimation(m_boardProxy, "pos");
+    animEnd->setDuration(duration);
+    animEnd->setEndValue(originalPos); // 回到原点
+    animEnd->setEasingCurve(QEasingCurve::OutBounce); // 加一点回弹效果
+    group->addAnimation(animEnd);
+
+    // 6. 播放并自动删除
+    group->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
 //void SceneGame::updateScore(int score) {
 //    m_scoreDisplay->display(score);
 //}
