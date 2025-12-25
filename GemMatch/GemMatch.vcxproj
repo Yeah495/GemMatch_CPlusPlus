@@ -103,6 +103,12 @@ $(QTDIR)\lib;%(AdditionalLibraryDirectories)
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Email.cpp">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
+    </ClCompile>
     <ClCompile Include="GameButton.cpp" />
     <ClCompile Include="GameController.cpp" />
     <ClCompile Include="GameCore.cpp" />
@@ -139,6 +145,7 @@ $(QTDIR)\lib;%(AdditionalLibraryDirectories)
     <QtMoc Include="GameButton.h" />
     <QtMoc Include="GameLogo.h" />
     <QtMoc Include="PageAdmin.h" />
+    <QtMoc Include="Email.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="UserManager.h" />
     <QtMoc Include="GameController.h" />
