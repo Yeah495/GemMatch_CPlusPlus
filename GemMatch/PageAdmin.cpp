@@ -11,6 +11,8 @@
 #include <QAbstractItemView>
 #include <QFile>
 #include <QStatusTipEvent>
+#include <QMessageBox>
+#include <QApplication>
 
 QMessageBox* PageAdmin::createStyledMessageBox(const QString& title, const QString& text,
     QMessageBox::Icon icon) {
@@ -46,7 +48,7 @@ QMessageBox* PageAdmin::createStyledMessageBox(const QString& title, const QStri
 }
 
 PageAdmin::PageAdmin(MainWindow* mainWin)
-    : QWidget(mainWin), m_mainWin(mainWin), m_currentSelectedUser("")
+    : QWidget(mainWin), m_mainWin(mainWin), m_currentSelectedUser(""), m_lastSelectedRow(-1)
 {
     setupDatabase();
     setupUI();
@@ -134,21 +136,51 @@ void PageAdmin::setupUI()
         "   border-radius: 8px;"
         "   padding: 8px;"
         "   font-size: 14px;"
+        "   color: black;"  // 输入文本颜色为黑色
         "}"
         "QLineEdit:focus {"
         "   border-color: #3498db;"
+        "}"
+        "QLineEdit::placeholder {"  // 提示文本颜色
+        "   color: #666666;"
         "}"
     );
     m_searchEdit->setMinimumWidth(300);
 
     m_filterCombo = new QComboBox();
-    m_filterCombo->addItems({ "所有用户", "简单模式玩家", "普通模式玩家", "困难模式玩家" });
+    m_filterCombo->addItems({ "所有用户", "简单", "普通", "困难" });
     m_filterCombo->setStyleSheet(
         "QComboBox {"
         "   border: 2px solid #bdc3c7;"
         "   border-radius: 8px;"
         "   padding: 8px;"
         "   font-size: 14px;"
+        "   color: black;"  // 当前选中的文本颜色为黑色
+        "   background-color: white;"  // 背景为白色
+        "}"
+        "QComboBox::drop-down {"
+        "   border: none;"  // 下拉箭头按钮无边框
+        "}"
+        "QComboBox::down-arrow {"
+        "   image: url(:/resources/down_arrow.png);"  // 可以设置自定义箭头，如果没有就用默认
+        "   width: 12px;"
+        "   height: 12px;"
+        "}"
+        "QComboBox QAbstractItemView {"  // 下拉列表样式
+        "   border: 2px solid #bdc3c7;"
+        "   border-radius: 8px;"
+        "   background-color: white;"  // 下拉列表背景为白色
+        "   selection-background-color: #3498db;"  // 选中项背景色
+        "   selection-color: white;"  // 选中项文字颜色
+        "}"
+        "QComboBox QAbstractItemView::item {"  // 下拉列表项
+        "   color: black;"  // 下拉列表项字体颜色为黑色
+        "   padding: 8px;"
+        "   min-height: 25px;"
+        "}"
+        "QComboBox QAbstractItemView::item:hover {"  // 鼠标悬停
+        "   background-color: #f0f0f0;"
+        "   color: black;"
         "}"
     );
 
@@ -296,6 +328,43 @@ void PageAdmin::setupUI()
     );
     QObject::connect(m_btnStats, &QPushButton::clicked, this, &PageAdmin::showStatistics);
 
+    // 在按钮栏部分添加这个按钮
+    QPushButton* m_btnForceRefresh = new QPushButton("💥 强制刷新界面");
+    m_btnForceRefresh->setStyleSheet(
+        "QPushButton {"
+        "   background-color: #e67e22;"
+        "   color: white;"
+        "   border: none;"
+        "   border-radius: 8px;"
+        "   padding: 8px 20px;"
+        "   font-weight: bold;"
+        "}"
+        "QPushButton:hover {"
+        "   background-color: #d35400;"
+        "}"
+    );
+    connect(m_btnForceRefresh, &QPushButton::clicked, [this]() {
+        // 强制处理所有待处理的事件
+        QApplication::processEvents();
+
+        // 重新加载数据
+        loadUserData();
+
+        // 清空详情面板
+        m_detailPanel->setVisible(false);
+        m_currentSelectedUser = "";
+
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("刷新完成");
+        msgBox.setText("界面已强制刷新！");
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.setStyleSheet("QLabel{color: white;}");
+        msgBox.exec();
+        });
+
+    // 将按钮添加到按钮布局中
+    m_buttonLayout->addWidget(m_btnForceRefresh);
+
     m_buttonLayout->addWidget(m_btnRefresh);
     m_buttonLayout->addWidget(m_btnDelete);
     m_buttonLayout->addWidget(m_btnDeleteAll);
@@ -371,6 +440,7 @@ void PageAdmin::setupTable()
         "}"
         "QTableWidget::item {"
         "   padding: 8px;"
+        "   color: black;"  // 表格项文本颜色
         "}"
         "QTableWidget::item:selected {"
         "   background-color: #3498db;"
@@ -378,7 +448,7 @@ void PageAdmin::setupTable()
         "}"
         "QHeaderView::section {"
         "   background-color: #2c3e50;"
-        "   color: white;"
+        "   color: white;"  // 表头保持白色
         "   padding: 8px;"
         "   border: none;"
         "   font-weight: bold;"
@@ -405,8 +475,32 @@ void PageAdmin::setupTable()
 
 void PageAdmin::loadUserData()
 {
+    // 重置选中状态
+    m_lastSelectedRow = -1;
+    m_currentSelectedUser = "";
+
     if (!m_db.isOpen()) {
-        QMessageBox::warning(this, "错误", "数据库未连接！");
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("错误");
+        msgBox.setText("数据库未连接！");
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setStyleSheet("QLabel{color: black;}");
+        msgBox.exec();
+        return;
+    }
+
+    // 清除现有数据前先处理事件
+    QApplication::processEvents();
+    m_table->setRowCount(0);
+    QApplication::processEvents();
+
+    if (!m_db.isOpen()) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("错误");
+        msgBox.setText("数据库未连接！");
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setStyleSheet("QLabel{color: black;}");
+        msgBox.exec();
         return;
     }
 
@@ -549,16 +643,24 @@ void PageAdmin::deleteSelectedUser()
 {
     int row = m_table->currentRow();
     if (row < 0) {
-        QMessageBox::warning(this, "警告", "请先选择要删除的用户！");
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("警告");
+        msgBox.setText("请先选择要删除的用户！");
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setStyleSheet("QLabel{color: white;}");
+        msgBox.exec();
         return;
     }
 
     QString username = m_table->item(row, 1)->text();
 
-    QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "确认删除",
-        QString("确定要删除用户 '%1' 吗？此操作不可恢复！").arg(username),
-        QMessageBox::Yes | QMessageBox::No);
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("确认删除");
+    msgBox.setText(QString("确定要删除用户 '%1' 吗？此操作不可恢复！").arg(username));
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setStyleSheet("QLabel{color: white;}");
+    int reply = msgBox.exec();
 
     if (reply == QMessageBox::Yes) {
         if (deleteUser(username)) {
@@ -582,21 +684,98 @@ bool PageAdmin::deleteUser(const QString& username)
 
 void PageAdmin::deleteAllUsers()
 {
-    QMessageBox::StandardButton reply;
-    reply = QMessageBox::critical(this, "⚠️ 危险操作",
+    // 创建黑底白字的确认对话框
+    QMessageBox confirmBox;
+    confirmBox.setWindowTitle("⚠️ 危险操作");
+    confirmBox.setText(
         "确定要删除所有用户数据吗？\n"
         "此操作将清空所有用户记录，包括最高分！\n"
-        "此操作不可恢复！",
-        QMessageBox::Yes | QMessageBox::No);
+        "此操作不可恢复！"
+    );
+    confirmBox.setIcon(QMessageBox::Critical);
+    confirmBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 
-    if (reply == QMessageBox::Yes) {
+    // 设置黑底白字样式
+    confirmBox.setStyleSheet(
+        "QMessageBox {"
+        "   background-color: black;"  // 背景为黑色
+        "}"
+        "QMessageBox QLabel {"
+        "   color: white;"  // 字体为白色
+        "   font-size: 14px;"
+        "}"
+        "QMessageBox QPushButton {"
+        "   background-color: #444444;"  // 按钮深灰色背景
+        "   color: white;"               // 按钮白色字体
+        "   border: 1px solid #666666;"
+        "   border-radius: 5px;"
+        "   padding: 8px 16px;"
+        "   min-width: 80px;"
+        "}"
+        "QMessageBox QPushButton:hover {"
+        "   background-color: #555555;"  // 悬停时稍亮的灰色
+        "   border-color: #777777;"
+        "}"
+    );
+
+    if (confirmBox.exec() == QMessageBox::Yes) {
         QSqlQuery query(m_db);
         if (query.exec("DELETE FROM users")) {
-            QMessageBox::information(this, "成功", "所有用户数据已清空！");
+            // 成功提示框 - 也改为黑底白字
+            QMessageBox successBox;
+            successBox.setWindowTitle("成功");
+            successBox.setText("所有用户数据已清空！");
+            successBox.setIcon(QMessageBox::Information);
+            successBox.setStyleSheet(
+                "QMessageBox {"
+                "   background-color: black;"
+                "}"
+                "QMessageBox QLabel {"
+                "   color: white;"
+                "   font-size: 14px;"
+                "}"
+                "QMessageBox QPushButton {"
+                "   background-color: #444444;"
+                "   color: white;"
+                "   border: 1px solid #666666;"
+                "   border-radius: 5px;"
+                "   padding: 8px 16px;"
+                "   min-width: 80px;"
+                "}"
+                "QMessageBox QPushButton:hover {"
+                "   background-color: #555555;"
+                "}"
+            );
+            successBox.exec();
             loadUserData();
         }
         else {
-            QMessageBox::critical(this, "错误", "清空失败！");
+            // 错误提示框 - 黑底白字
+            QMessageBox errorBox;
+            errorBox.setWindowTitle("错误");
+            errorBox.setText("清空失败！");
+            errorBox.setIcon(QMessageBox::Critical);
+            errorBox.setStyleSheet(
+                "QMessageBox {"
+                "   background-color: black;"
+                "}"
+                "QMessageBox QLabel {"
+                "   color: white;"
+                "   font-size: 14px;"
+                "}"
+                "QMessageBox QPushButton {"
+                "   background-color: #444444;"
+                "   color: white;"
+                "   border: 1px solid #666666;"
+                "   border-radius: 5px;"
+                "   padding: 8px 16px;"
+                "   min-width: 80px;"
+                "}"
+                "QMessageBox QPushButton:hover {"
+                "   background-color: #555555;"
+                "}"
+            );
+            errorBox.exec();
         }
     }
 }
@@ -604,21 +783,85 @@ void PageAdmin::deleteAllUsers()
 void PageAdmin::resetUserPassword()
 {
     if (m_currentSelectedUser.isEmpty()) {
-        QMessageBox::warning(this, "警告", "请先选择一个用户！");
+        // 创建黑色字体的警告框
+        QMessageBox warningBox;
+        warningBox.setWindowTitle("警告");
+        warningBox.setText("请先选择一个用户！");
+        warningBox.setIcon(QMessageBox::Warning);
+        warningBox.setStyleSheet("QLabel{color: white;}");
+        warningBox.exec();
         return;
     }
 
-    bool ok;
-    QString newPassword = QInputDialog::getText(this, "重置密码",
-        QString("为用户 '%1' 设置新密码：").arg(m_currentSelectedUser),
-        QLineEdit::Password, "", &ok);
+    // 创建简化的黑底白字密码输入对话框
+    QDialog passwordDialog(this);
+    passwordDialog.setWindowTitle("重置密码");
+    passwordDialog.setFixedSize(350, 150);
 
-    if (ok && !newPassword.isEmpty()) {
-        if (resetPassword(m_currentSelectedUser, newPassword)) {
-            QMessageBox::information(this, "成功", "密码重置成功！");
-        }
-        else {
-            QMessageBox::critical(this, "错误", "密码重置失败！");
+    // 设置黑底白字样式
+    passwordDialog.setStyleSheet(
+        "QDialog {"
+        "   background-color: white;"
+        "}"
+        "QLabel {"
+        "   color: black;"
+        "   font-size: 14px;"
+        "}"
+        "QLineEdit {"
+        "   background-color: #222222;"
+        "   color: white;"
+        "   border: 2px solid #444444;"
+        "   border-radius: 5px;"
+        "   padding: 8px;"
+        "}"
+        "QPushButton {"
+        "   background-color: #333333;"
+        "   color: white;"
+        "   border: 2px solid #444444;"
+        "   border-radius: 5px;"
+        "   padding: 8px 16px;"
+        "   min-width: 80px;"
+        "}"
+    );
+
+    QVBoxLayout layout(&passwordDialog);
+    layout.setContentsMargins(20, 20, 20, 20);
+    layout.setSpacing(10);
+
+    QLabel label(QString("为用户 '%1' 设置新密码：").arg(m_currentSelectedUser), &passwordDialog);
+    QLineEdit passwordEdit(&passwordDialog);
+    passwordEdit.setEchoMode(QLineEdit::Password);
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &passwordDialog);
+
+    layout.addWidget(&label);
+    layout.addWidget(&passwordEdit);
+    layout.addWidget(&buttonBox);
+
+    QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &passwordDialog, &QDialog::accept);
+    QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &passwordDialog, &QDialog::reject);
+
+    if (passwordDialog.exec() == QDialog::Accepted) {
+        QString newPassword = passwordEdit.text();
+        if (!newPassword.isEmpty()) {
+            if (resetPassword(m_currentSelectedUser, newPassword)) {
+                // 创建黑色字体的成功提示框
+                QMessageBox successBox;
+                successBox.setWindowTitle("成功");
+                successBox.setText("密码重置成功！");
+                successBox.setIcon(QMessageBox::Information);
+                successBox.setStyleSheet("QLabel{color: white;}");
+                successBox.exec();
+            }
+            else {
+                // 创建黑色字体的错误提示框
+                QMessageBox errorBox;
+                errorBox.setWindowTitle("错误");
+                errorBox.setText("密码重置失败！");
+                errorBox.setIcon(QMessageBox::Critical);
+                errorBox.setStyleSheet("QLabel{color: white;}");
+                errorBox.exec();
+            }
         }
     }
 }
@@ -698,19 +941,43 @@ void PageAdmin::refreshTable()
 
 void PageAdmin::onCellClicked(int row, int column)
 {
-    if (row >= 0 && row < m_table->rowCount()) {
-        m_currentSelectedUser = m_table->item(row, 1)->text();
+    if (row < 0 || row >= m_table->rowCount()) {
+        return;
+    }
 
-        // 高亮选中的行
-        for (int i = 0; i < m_table->rowCount(); i++) {
-            for (int j = 0; j < m_table->columnCount(); j++) {
-                QTableWidgetItem* item = m_table->item(i, j);
-                if (item) {
-                    item->setBackground(i == row ? QBrush(QColor(52, 152, 219, 50)) : QBrush(Qt::white));
+    m_currentSelectedUser = m_table->item(row, 1)->text();
+
+    // 使用 QApplication::processEvents() 防止界面冻结
+    QApplication::processEvents();
+
+    // 清除之前选中的行的高亮
+    if (m_lastSelectedRow >= 0 && m_lastSelectedRow < m_table->rowCount()) {
+        for (int j = 0; j < m_table->columnCount(); j++) {
+            QTableWidgetItem* item = m_table->item(m_lastSelectedRow, j);
+            if (item) {
+                // 恢复默认背景色
+                if (m_lastSelectedRow % 2 == 0) {
+                    item->setBackground(QBrush(Qt::white));
+                }
+                else {
+                    item->setBackground(QBrush(QColor(240, 240, 240)));
                 }
             }
         }
     }
+
+    // 高亮当前选中的行
+    for (int j = 0; j < m_table->columnCount(); j++) {
+        QTableWidgetItem* item = m_table->item(row, j);
+        if (item) {
+            item->setBackground(QBrush(QColor(52, 152, 219, 50)));
+        }
+    }
+
+    m_lastSelectedRow = row;
+
+    // 再次处理事件，确保UI响应
+    QApplication::processEvents();
 }
 
 void PageAdmin::showUserDetails()
@@ -804,7 +1071,13 @@ void PageAdmin::showUserDetails()
 void PageAdmin::showStatistics()
 {
     if (!m_db.isOpen()) {
-        QMessageBox::warning(this, "错误", "数据库未连接！");
+        // 创建黑色字体的错误提示框
+        QMessageBox errorBox;
+        errorBox.setWindowTitle("错误");
+        errorBox.setText("数据库未连接！");
+        errorBox.setIcon(QMessageBox::Warning);
+        errorBox.setStyleSheet("QLabel{color: black;}");
+        errorBox.exec();
         return;
     }
 
@@ -868,5 +1141,11 @@ void PageAdmin::showStatistics()
         .arg(topHardUser).arg(topHardScore)
         .arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 
-    QMessageBox::information(this, "统计数据", statsText);
+    // 创建黑色字体的统计信息框
+    QMessageBox statsBox;
+    statsBox.setWindowTitle("统计数据");
+    statsBox.setText(statsText);
+    statsBox.setIcon(QMessageBox::Information);
+    statsBox.setStyleSheet("QLabel{color: white;}");
+    statsBox.exec();
 }

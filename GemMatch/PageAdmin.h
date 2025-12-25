@@ -97,6 +97,8 @@ private:
 
     QMessageBox* createStyledMessageBox(const QString& title, const QString& text,
         QMessageBox::Icon icon = QMessageBox::Information);
+
+    int m_lastSelectedRow;
 };
 
 #endif // PAGEADMIN_H
