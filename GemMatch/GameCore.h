@@ -51,6 +51,8 @@ public:
     bool findAndMarkMatches(int* size = nullptr);
     void clearMatches();
     void applyGravityOnly(int gemTypeCount = 3);
+
+    int explodeAllColor(GemType targetColor);
     // 在类声明中添加
     void resetGemStates();
 

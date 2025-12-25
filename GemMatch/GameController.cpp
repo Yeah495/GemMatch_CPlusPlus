@@ -22,6 +22,7 @@ GameController::GameController(MainWindow* view, QObject* parent)
     connect(m_scene, &SceneGame::skillBomb, this, &GameController::onSkillBomb);
     connect(m_scene, &SceneGame::skillShuffle, this, &GameController::onSkillShuffle);
     connect(m_scene, &SceneGame::skillTime, this, &GameController::onSkillTime);
+    connect(m_scene, &SceneGame::skillAll, this, &GameController::onSkillAll);
 
     // 初始化选中状态
     m_selectedPos = QPoint(-1, -1);
@@ -177,9 +178,38 @@ void GameController::onSkillTime() {
     m_scene->updateTime(m_remainingTime, true);
 }
 
+//万能
+void GameController::onSkillAll() {
+    // 1. 检查条件
+    if (m_isPaused || m_isProcessing || m_remainAll <= 0) return;
+
+    m_remainAll--;
+    updateSkillButtons();
+
+    // 2. 随机找一个非空的普通位置变成万能宝石
+    // 更好的体验是：把它变在棋盘中央，或者变在玩家选中的位置（如果选了的话）
+    int r, c;
+    do {
+        r = rand() % BOARD_ROWS;
+        c = rand() % BOARD_COLS;
+    } while (m_gameCore->getBoard().getGem(r, c).type == GemType::Empty);
+
+    // 3. 修改 Model
+    Gem g = m_gameCore->getBoard().getGem(r, c);
+    g.type = GemType::Universal; 
+    g.state = GemState::Static;
+    m_gameCore->getBoardPtr()->setGem(r, c, g);
+
+    // 4. 播放特效音效
+    // m_soundMagic->play(); 
+
+    // 5. 刷新界面----paint宝石图片调用的时机,会根据宝石的类型以及坐标对应绘图显示宝石(addItm)
+    m_scene->renderBoard(m_gameCore->getBoard());
+}
+
 void GameController::updateSkillButtons() {
     // 调用 View 的接口刷新界面
-    m_scene->updateSkillButtonText(m_remainBomb, m_remainShuffle, m_remainTime);
+    m_scene->updateSkillButtonText(m_remainBomb, m_remainShuffle, m_remainTime, m_remainAll);
 }
 
 void GameController::startGame(int difficultyLevel) {
@@ -202,6 +232,7 @@ void GameController::startGame(int difficultyLevel) {
     m_remainBomb = MAX_BOMB_COUNT;
     m_remainShuffle = MAX_SHUFFLE_COUNT;
     m_remainTime = MAX_TIME_COUNT;
+    m_remainAll = MAX_ALL_COUNT;
     updateSkillButtons();
 
     m_remainingTime = GAME_DURATION;
@@ -330,6 +361,64 @@ void GameController::attemptSwap(const QPoint& p1, const QPoint& p2) {
     // 【步骤 1】先让 View 播放交换动画（此时 Model 还没动）
     m_scene->animateSwap(p1.x(), p1.y(), p2.x(), p2.y(), [=]() {
         // --- 动画结束后的回调 (Callback) ---
+
+        //判断是否为万能宝石交换
+        const Board& board = m_gameCore->getBoard();
+        GemType type1 = board.getGem(p1.x(), p1.y()).type;
+        GemType type2 = board.getGem(p2.x(), p2.y()).type;
+
+        // ============================================================
+        // 【新增逻辑】万能宝石特殊处理 (Magic Gem Logic)
+        // ============================================================
+        bool isUniversal1 = (type1 == GemType::Universal);
+        bool isUniversal2 = (type2 == GemType::Universal);
+
+        // 只要其中一个是万能宝石，就触发特殊消除
+        if (isUniversal1 || isUniversal2) {
+
+            // 1. 确定要消除的目标颜色
+            // 如果两个都是万能宝石(双彩虹)，逻辑比较特殊，这里暂时默认消除其中一方的颜色
+            // 如果 p1 是万能，那么目标颜色就是 p2 的颜色，反之亦然
+            GemType targetColor = isUniversal1 ? type2 : type1;
+
+            // 2. 如果目标也是万能宝石（即两个万能互换），或者目标是空的，则不处理或全屏清除
+            // 这里简单处理：如果是两个万能互换，我们假设消除所有红色（或者你可以写一个 explodeAllBoard）
+            if (targetColor == GemType::Universal) targetColor = GemType::Red; // 兜底逻辑
+            if (targetColor == GemType::Empty) return; // 交换了个寂寞
+
+            // 3. 在数据层执行交换
+            // 我们必须先让它们在数据上换位置，这样万能宝石才会跑到目标位置去爆炸
+            m_gameCore->getBoardPtr()->swapGem(p1.x(), p1.y(), p2.x(), p2.y());
+
+            // 4. 调用核心算法：消除所有该颜色的宝石
+            // 注意：explodeAllColor 需要你在 GameCore 中实现
+            int count = m_gameCore->explodeAllColor(targetColor);
+
+            // 5. 播放音效与加分
+            m_soundClear->play();
+            m_comboLevel = 1;
+            m_gameCore->addScoreSession(count * 10);
+            m_scene->updateScore(m_gameCore->getScore());
+
+            // 6. 搜集所有状态为 Exploding 的点（用于播放动画）
+            std::vector<QPoint> explodePoints;
+            const Board& currentBoard = m_gameCore->getBoard(); // 重新获取最新的引用
+            for (int r = 0; r < BOARD_ROWS; ++r) {
+                for (int c = 0; c < BOARD_COLS; ++c) {
+                    if (currentBoard.getGem(r, c).state == GemState::Exploding) {
+                        explodePoints.push_back(QPoint(r, c));
+                    }
+                }
+            }
+
+            // 7. 播放消除动画 -> 并在结束后进入下落流程
+            m_scene->animateExplosion(explodePoints, [=]() {
+                processFallAndMatch();
+                });
+
+            // 【非常重要】直接 return，不执行下面的常规三连检测逻辑
+            return;
+        }
 
         // 【步骤 2】调用 Model 进行逻辑判断
         SwapResult result = m_gameCore->trySwap(p1.x(), p1.y(), p2.x(), p2.y());

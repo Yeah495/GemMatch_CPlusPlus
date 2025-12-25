@@ -179,3 +179,20 @@ void GameCore::clearMatches() {
         }
     }
 }
+
+int GameCore::explodeAllColor(GemType targetColor) {
+    int count = 0;
+    for (int r = 0; r < BOARD_ROWS; ++r) {
+        for (int c = 0; c < BOARD_COLS; ++c) {
+            Gem g = m_board->getGem(r, c);
+
+            // 只要是目标颜色，或者它本身就是万能宝石（自己也要炸），就标记爆炸
+            if (g.type == targetColor || g.type == GemType::Universal) {
+                g.state = GemState::Exploding;
+                m_board->setGem(r, c, g);
+                count++;
+            }
+        }
+    }
+    return count;
+}

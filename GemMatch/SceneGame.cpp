@@ -166,18 +166,19 @@ void SceneGame::setupUI() {
     m_btnSkillBomb = new GameButton("assets/images/炸弹.png");
     m_btnSkillShuffle = new GameButton("assets/images/洗牌.png");
     m_btnSkillTime = new GameButton("assets/images/冻结.png");
-    m_btnSkill4 = new GameButton("assets/images/万能.png");
+    m_btnSkillAll = new GameButton("assets/images/万能.png");
 
 
     QFont font("Microsoft YaHei", 20, QFont::Bold);
     m_btnSkillBomb->setFont(font);
     m_btnSkillShuffle->setFont(font);
     m_btnSkillTime->setFont(font);
+    m_btnSkillAll-> setFont(font);
 
     skillGrid->addWidget(m_btnSkillBomb, 0, 0);
     skillGrid->addWidget(m_btnSkillShuffle, 0, 1);
     skillGrid->addWidget(m_btnSkillTime, 1, 0);
-    skillGrid->addWidget(m_btnSkill4, 1, 1);
+    skillGrid->addWidget(m_btnSkillAll, 1, 1);
     sideLayout->addLayout(skillGrid);
 
     sideLayout->addStretch(); // 弹簧
@@ -209,6 +210,7 @@ void SceneGame::setupUI() {
     connect(m_btnSkillBomb, &QPushButton::clicked, this, &SceneGame::skillBomb);
     connect(m_btnSkillShuffle, &QPushButton::clicked, this, &SceneGame::skillShuffle);
     connect(m_btnSkillTime, &QPushButton::clicked, this, &SceneGame::skillTime);
+    connect(m_btnSkillAll, &QPushButton::clicked, this, &SceneGame::skillAll);
     connect(m_btnExit, &QPushButton::clicked, this, &SceneGame::backToMenu);
 }
 
@@ -281,7 +283,7 @@ void SceneGame::updateScore(int score) {
     m_scoreDisplay->display(score);
 }
 
-void SceneGame::updateSkillButtonText(int bombCount, int shuffleCount, int timeCount) {
+void SceneGame::updateSkillButtonText(int bombCount, int shuffleCount, int timeCount, int allCount) {
     if (m_btnSkillBomb) {
         m_btnSkillBomb->setText(QString("(%1)").arg(bombCount));
         m_btnSkillBomb->setEnabled(bombCount > 0); // 次数耗尽则禁用按钮
@@ -293,6 +295,10 @@ void SceneGame::updateSkillButtonText(int bombCount, int shuffleCount, int timeC
     if (m_btnSkillTime) {
         m_btnSkillTime->setText(QString("(%1)").arg(timeCount));
         m_btnSkillTime->setEnabled(timeCount > 0);
+    }
+    if (m_btnSkillAll) {
+        m_btnSkillAll->setText(QString("(%1)").arg(allCount));
+        m_btnSkillAll->setEnabled(allCount > 0);
     }
 }
 
