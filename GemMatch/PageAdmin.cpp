@@ -296,7 +296,7 @@ void PageAdmin::setupUI()
     );
     QObject::connect(m_btnResetPwd, &QPushButton::clicked, this, &PageAdmin::resetUserPassword);
 
-    m_btnExport = new QPushButton("📊 导出CSV");
+    m_btnExport = new QPushButton("📊 导出txt文件");
     m_btnExport->setStyleSheet(
         "QPushButton {"
         "   background-color: #9b59b6;"
@@ -878,9 +878,10 @@ bool PageAdmin::resetPassword(const QString& username, const QString& newPasswor
 
 void PageAdmin::exportToCSV()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, "导出CSV",
-        QString("用户数据_%1.csv").arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss")),
-        "CSV文件 (*.csv)");
+    // 将文件后缀改为.txt
+    QString fileName = QFileDialog::getSaveFileName(this, "导出文本文件",
+        QString("用户数据_%1.txt").arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss")),
+        "文本文件 (*.txt);;所有文件 (*)");
 
     if (fileName.isEmpty()) return;
 
@@ -921,15 +922,65 @@ void PageAdmin::exportToCSV()
 
     file.close();
 
-    QMessageBox::information(this, "导出成功",
-        QString("数据已成功导出到：\n%1").arg(fileName));
+    // 黑底白字成功提示框
+    QMessageBox successBox;
+    successBox.setWindowTitle("✅ 导出成功");
+    successBox.setText(QString("数据已成功导出到：\n%1").arg(fileName));
+    successBox.setIcon(QMessageBox::Information);
+    successBox.setStyleSheet(
+        "QMessageBox {"
+        "   background-color: black;"
+        "}"
+        "QMessageBox QLabel {"
+        "   color: white;"
+        "   font-size: 14px;"
+        "}"
+        "QMessageBox QPushButton {"
+        "   background-color: #444444;"
+        "   color: white;"
+        "   border: 2px solid #666666;"
+        "   border-radius: 8px;"
+        "   padding: 8px 16px;"
+        "   min-width: 80px;"
+        "   font-weight: bold;"
+        "}"
+        "QMessageBox QPushButton:hover {"
+        "   background-color: #555555;"
+        "   border-color: #777777;"
+        "}"
+    );
+    successBox.exec();
 
-    // 询问是否打开文件
-    QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "打开文件", "是否现在打开导出的CSV文件？",
-        QMessageBox::Yes | QMessageBox::No);
+    // 询问是否打开文件 - 黑底白字
+    QMessageBox openBox;
+    openBox.setWindowTitle("📂 打开文件");
+    openBox.setText("是否现在打开导出的txt文件？");
+    openBox.setIcon(QMessageBox::Question);
+    openBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    openBox.setStyleSheet(
+        "QMessageBox {"
+        "   background-color: black;"
+        "}"
+        "QMessageBox QLabel {"
+        "   color: white;"
+        "   font-size: 14px;"
+        "}"
+        "QMessageBox QPushButton {"
+        "   background-color: #444444;"
+        "   color: white;"
+        "   border: 2px solid #666666;"
+        "   border-radius: 8px;"
+        "   padding: 8px 16px;"
+        "   min-width: 80px;"
+        "   font-weight: bold;"
+        "}"
+        "QMessageBox QPushButton:hover {"
+        "   background-color: #555555;"
+        "   border-color: #777777;"
+        "}"
+    );
 
-    if (reply == QMessageBox::Yes) {
+    if (openBox.exec() == QMessageBox::Yes) {
         QDesktopServices::openUrl(QUrl::fromLocalFile(fileName));
     }
 }
