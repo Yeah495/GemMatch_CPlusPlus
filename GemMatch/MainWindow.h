@@ -14,6 +14,7 @@ class SceneGame;
 class PageSettings;
 class PageAbout;
 class SceneRank;
+class PageAdmin;
 
 
 class GameController; // 前置声明
@@ -51,6 +52,7 @@ private:
     PageSettings* m_pageSettings;
     PageAbout* m_pageAbout;
     SceneRank* m_pageRank;
+    PageAdmin* m_pageAdmin;
 
     GameController* m_controller;
 
