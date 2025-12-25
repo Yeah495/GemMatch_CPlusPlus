@@ -13,9 +13,9 @@
         <file>assets/images/game.jpg</file>
         <file>assets/images/login.jpg</file>
         <file>assets/images/menu.jpg</file>
-        <!-- Audio assets: use actual on-disk 'sound' folder -->
         <file>assets/sound/bgpiano.wav</file>
         <file>assets/sound/click.wav</file>
         <file>assets/sound/mouth.wav</file>
+        <file>assets/images/gem_99.png</file>
     </qresource>
 </RCC>
