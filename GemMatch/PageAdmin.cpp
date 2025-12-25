@@ -355,7 +355,7 @@ void PageAdmin::setupUI()
         m_currentSelectedUser = "";
 
         QMessageBox msgBox;
-        msgBox.setWindowTitle("刷新完成");
+        msgBox.setWindowTitle("刷新完成！");
         msgBox.setText("界面已强制刷新！");
         msgBox.setIcon(QMessageBox::Information);
         msgBox.setStyleSheet("QLabel{color: white;}");
