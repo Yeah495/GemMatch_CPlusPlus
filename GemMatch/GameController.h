@@ -37,6 +37,7 @@ public slots:
     void onSkillBomb();
     void onSkillShuffle();
     void onSkillTime();
+    void onSkillAll();
 
 private:
     // --- 内部流程控制函数 ---
@@ -79,11 +80,13 @@ private:
     const int MAX_BOMB_COUNT = 3;
     const int MAX_SHUFFLE_COUNT = 1;
     const int MAX_TIME_COUNT = 2;
+    const int MAX_ALL_COUNT = 1;
 
     //当前剩余次数
     int m_remainBomb;
     int m_remainShuffle;
     int m_remainTime;
+    int m_remainAll;
 };
 
 #endif // GAMECONTROLLER_H

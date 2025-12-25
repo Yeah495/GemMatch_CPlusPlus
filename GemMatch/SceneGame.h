@@ -36,7 +36,7 @@ public:
     void setPauseButtonText(const QString& path);
     void updateTime(int seconds, bool isFrozen = false);
 
-    void updateSkillButtonText(int bombCount, int shuffleCount, int timeCount);
+    void updateSkillButtonText(int bombCount, int shuffleCount, int timeCount, int allCount);
     void startShakeAnimation();
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -52,6 +52,7 @@ signals:
     void skillBomb();       // 炸弹技能信号
     void skillShuffle();    // 洗牌技能信号
     void skillTime();       // 时间技能信号
+    void skillAll();       // 万能技能信号
     // 【新增】提示信号
     void hintRequested();
 
@@ -80,7 +81,7 @@ private:
     GameButton* m_btnSkillBomb;
     GameButton* m_btnSkillShuffle;
     GameButton* m_btnSkillTime;
-    GameButton* m_btnSkill4; // 第4个技能
+    GameButton* m_btnSkillAll;
 
 
     // 【新增】

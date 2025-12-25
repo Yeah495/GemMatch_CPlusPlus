@@ -16,7 +16,9 @@ enum class GemType {
     Yellow,
     Purple,
     Orange,
-    White
+    White,
+
+    Universal = 99
 };
 
 // 宝石状态（用于UI动画判断，Model层主要负责标记）
