@@ -42,9 +42,9 @@ void MainWindow::setupAllPages() {
 
     // 3. 处理游戏页面的“返回主菜单”信号
     connect(m_pageGame, &SceneGame::backToMenu, [this]() {
-        // 切换回主菜单,并停止计时
-        this->switchPage(1); 
+        // 切换回主菜单,并停止计时,停止音效
         m_controller->endGame();
+        this->switchPage(1); 
         });
 
     // 默认显示登录页

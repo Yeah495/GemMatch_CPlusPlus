@@ -52,6 +52,35 @@ void GameCore::initGame(int gemTypeCount) {
         }
 }
 
+std::vector<QPoint> GameCore::findHint() {
+    // 遍历每一个格子
+    for (int r = 0; r < BOARD_ROWS; ++r) {
+        for (int c = 0; c < BOARD_COLS; ++c) {
+
+            // 尝试向右交换
+            if (c + 1 < BOARD_COLS) {
+                m_board->swapGem(r, c, r, c + 1); // 假装交换
+                if (!MatchFinder::findMatches(*m_board).empty()) {
+                    m_board->swapGem(r, c, r, c + 1); // 还原
+                    return { QPoint(r, c), QPoint(r, c + 1) }; // 找到啦！
+                }
+                m_board->swapGem(r, c, r, c + 1); // 还原
+            }
+
+            // 尝试向下交换
+            if (r + 1 < BOARD_ROWS) {
+                m_board->swapGem(r, c, r + 1, c); // 假装交换
+                if (!MatchFinder::findMatches(*m_board).empty()) {
+                    m_board->swapGem(r, c, r + 1, c); // 还原
+                    return { QPoint(r, c), QPoint(r + 1, c) }; // 找到啦！
+                }
+                m_board->swapGem(r, c, r + 1, c); // 还原
+            }
+        }
+    }
+    return {}; // 没找到任何可以消除的一步（死局）
+}
+
 void GameCore::resetGemStates() {
     for (int r = 0; r < BOARD_ROWS; ++r) {
         for (int c = 0; c < BOARD_COLS; ++c) {
@@ -153,16 +182,114 @@ void GameCore::shuffleBoard() {
 
 // 确保 findAndMarkMatches 安全
 bool GameCore::findAndMarkMatches(int* size) {
-    auto matches = MatchFinder::findMatches(*m_board);
-    if (size) *size = matches.size(); // 增加空指针保护
+    // 1. 定义一个局部变量，作为本次扫描的“临时开关”
+    // 只要发现一次4连，就把它设为 true，之后绝不改回 false
+    bool hasSpecialEffect = false;
 
-    if (matches.empty()) return false;
+    std::set<std::pair<int, int>> pointsToExplode;
 
-    for (const auto& p : matches) {
-        Gem g = m_board->getGem(p.r, p.c);
-        g.state = GemState::Exploding; // 仅改状态，不改 type
-        m_board->setGem(p.r, p.c, g);
+    // ==========================================
+    // 1. 横向扫描 (Rows)
+    // ==========================================
+    for (int r = 0; r < BOARD_ROWS; ++r) {
+        for (int c = 0; c < BOARD_COLS; ) {
+            GemType currentType = m_board->getGem(r, c).type;
+            if (currentType == GemType::Empty || m_board->getGem(r, c).state == GemState::Exploding) {
+                c++; continue;
+            }
+
+            int k = c + 1;
+            while (k < BOARD_COLS) {
+                if (m_board->getGem(r, k).type == currentType && m_board->getGem(r, k).state != GemState::Exploding) k++;
+                else break;
+            }
+
+            int matchLen = k - c;
+            if (matchLen >= 3) {
+                if (matchLen >= 4) {
+                    // --- 触发大招 ---
+                    hasSpecialEffect = true; // 【关键】标记为真！
+
+                    for (int col = 0; col < BOARD_COLS; ++col) {
+                        if (m_board->getGem(r, col).type != GemType::Empty)
+                            pointsToExplode.insert({ r, col });
+                    }
+                }
+                else {
+                    // --- 普通消除 ---
+                    // 【关键】这里只处理消除，绝对不要去修改 hasSpecialEffect
+                    // 不要写 hasSpecialEffect = false; 
+                    for (int j = c; j < k; ++j) {
+                        pointsToExplode.insert({ r, j });
+                    }
+                }
+            }
+            c = k;
+        }
     }
+
+    // ==========================================
+    // 2. 纵向扫描 (Cols)
+    // ==========================================
+    for (int c = 0; c < BOARD_COLS; ++c) {
+        for (int r = 0; r < BOARD_ROWS; ) {
+            GemType currentType = m_board->getGem(r, c).type;
+            if (currentType == GemType::Empty || m_board->getGem(r, c).state == GemState::Exploding) {
+                r++; continue;
+            }
+
+            int k = r + 1;
+            while (k < BOARD_ROWS) {
+                if (m_board->getGem(k, c).type == currentType && m_board->getGem(k, c).state != GemState::Exploding) k++;
+                else break;
+            }
+
+            int matchLen = k - r;
+            if (matchLen >= 3) {
+                if (matchLen >= 4) {
+                    // --- 触发大招 ---
+                    hasSpecialEffect = true; // 【关键】标记为真！
+
+                    for (int row = 0; row < BOARD_ROWS; ++row) {
+                        if (m_board->getGem(row, c).type != GemType::Empty)
+                            pointsToExplode.insert({ row, c });
+                    }
+                }
+                else {
+                    // --- 普通消除 ---
+                    // 【关键】这里不做任何状态改变，防止覆盖掉之前可能已经发现的大招
+                    for (int j = r; j < k; ++j) {
+                        pointsToExplode.insert({ j, c });
+                    }
+                }
+            }
+            r = k;
+        }
+    }
+
+    // ==========================================
+    // 3. 应用状态 (Commit)
+    // ==========================================
+    if (pointsToExplode.empty()) {
+        m_isSpecialMatch = false; // 没有消除，肯定是 false
+        return false;
+    }
+
+    // 【最终提交】
+    // 将本次扫描的最终结果赋值给成员变量
+    // 这样，只要上面的循环里有任何一次触发了 >=4，这里就是 true
+    m_isSpecialMatch = hasSpecialEffect;
+
+    if (size) *size = pointsToExplode.size();
+
+    for (const auto& p : pointsToExplode) {
+        int r = p.first;
+        int c = p.second;
+        Gem g = m_board->getGem(r, c);
+        g.state = GemState::Exploding;
+        m_board->setGem(r, c, g);
+    }
+
     return true;
 }
 

@@ -23,6 +23,7 @@ GameController::GameController(MainWindow* view, QObject* parent)
     connect(m_scene, &SceneGame::skillShuffle, this, &GameController::onSkillShuffle);
     connect(m_scene, &SceneGame::skillTime, this, &GameController::onSkillTime);
     connect(m_scene, &SceneGame::skillAll, this, &GameController::onSkillAll);
+    connect(m_scene, &SceneGame::hintRequested, this, &GameController::onHintClicked);
 
     // 初始化选中状态
     m_selectedPos = QPoint(-1, -1);
@@ -35,9 +36,29 @@ GameController::GameController(MainWindow* view, QObject* parent)
     m_soundClick->setSource(QUrl("qrc:/assets/sound/click.wav"));
     m_soundClick->setVolume(100.0f);
 
-    m_soundClear = new QSoundEffect(this);
-    m_soundClear->setSource(QUrl("qrc:/assets/sound/mouth.wav"));
-    m_soundClear->setVolume(1.0f);
+    m_soundMouth = new QSoundEffect(this);
+    m_soundMouth->setSource(QUrl("qrc:/assets/sound/mouth.wav"));
+    m_soundMouth->setVolume(1.0f);
+
+    m_soundBoom = new QSoundEffect(this);
+    m_soundBoom->setSource(QUrl("qrc:/assets/sound/boom.wav"));
+    m_soundBoom->setVolume(0.05f);
+
+    m_soundShuffle = new QSoundEffect(this);
+    m_soundShuffle->setSource(QUrl("qrc:/assets/sound/shuffle.wav"));
+    m_soundShuffle->setVolume(10.0f);
+
+    m_soundIce = new QSoundEffect(this);
+    m_soundIce->setSource(QUrl("qrc:/assets/sound/ice.wav"));
+    m_soundIce->setVolume(1.0f);
+
+    m_soundAll = new QSoundEffect(this);
+    m_soundAll->setSource(QUrl("qrc:/assets/sound/all.wav"));
+    m_soundAll->setVolume(1.0f);
+
+    m_soundLaser = new QSoundEffect(this);
+    m_soundLaser->setSource(QUrl("qrc:/assets/sound/laser.wav"));
+    m_soundLaser->setVolume(1.0f);
 
     // 初始化难度
     m_currentDifficulty = 3; // 默认简单难度
@@ -69,12 +90,13 @@ void GameController::onPauseClicked() {
     }
 }
 
-// 炸弹技能：随机炸掉 5 个宝石
+// 炸弹技能：随机炸掉 40 个宝石
 void GameController::onSkillBomb() {
     if (m_isPaused || m_isProcessing) return;
 
     m_remainBomb--;
     updateSkillButtons();
+    m_scene->stopHintAnimation();
 
     m_isProcessing = true; // 锁定输入
 
@@ -88,8 +110,8 @@ void GameController::onSkillBomb() {
         }
     }
 
-    // 2. 如果盘面上宝石少于 5 个（极端情况），就炸掉剩下的所有
-    int bombCount = std::min((int)candidates.size(), 5);
+    // 2. 如果盘面上宝石少于 40 个（极端情况），就炸掉剩下的所有
+    int bombCount = std::min((int)candidates.size(), 40);
 
     // 3. 使用标准库进行乱序（洗牌候选名单）
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -109,7 +131,7 @@ void GameController::onSkillBomb() {
     }
 
     m_scene->startShakeAnimation();
-    m_soundClear->play(); // 炸弹音效
+    m_soundBoom->play(); // 炸弹音效
 
     // 6. 播放动画并进入下落流程
     m_scene->animateExplosion(targets, [=]() {
@@ -127,6 +149,7 @@ void GameController::onSkillShuffle() {
 
     m_remainShuffle--;
     updateSkillButtons();
+    m_scene->stopHintAnimation();
 
     m_gameCore->shuffleBoard();
     m_scene->renderBoard(m_gameCore->getBoard());
@@ -138,7 +161,7 @@ void GameController::onSkillShuffle() {
         m_isProcessing = true; // 锁定输入，因为要开始播动画了
 
         // 播放音效
-        m_soundClear->play();
+        m_soundShuffle->play(); // 洗牌音效
         m_comboLevel = 1;
 
         // 加分
@@ -171,6 +194,9 @@ void GameController::onSkillTime() {
     m_remainTime--;
     updateSkillButtons();
 
+    m_soundIce->play(); // 冻结音效
+    m_scene->stopHintAnimation();
+
     m_isTimeFrozen = true;
     m_freezeCounter = 5; // 冻结 5 个 Tick
 
@@ -185,6 +211,7 @@ void GameController::onSkillAll() {
 
     m_remainAll--;
     updateSkillButtons();
+    m_scene->stopHintAnimation();
 
     // 2. 随机找一个非空的普通位置变成万能宝石
     // 更好的体验是：把它变在棋盘中央，或者变在玩家选中的位置（如果选了的话）
@@ -212,7 +239,29 @@ void GameController::updateSkillButtons() {
     m_scene->updateSkillButtonText(m_remainBomb, m_remainShuffle, m_remainTime, m_remainAll);
 }
 
+void GameController::onHintClicked() {
+    if (m_isPaused || m_isProcessing) return;
+
+    // 1. 问 Model 要提示
+    std::vector<QPoint> hint = m_gameCore->findHint();
+
+    if (!hint.empty()) {
+        // 2. 找到了，告诉 View 播放动画
+        // 扣除一点分数作为惩罚（可选）
+        // m_gameCore->addScoreSession(-50); 
+        // m_scene->updateScore(m_gameCore->getScore());
+
+        m_scene->showHintAnimation(hint[0], hint[1]);
+    }
+    else {
+        // 3. 没找到（说明是死局，通常应该自动洗牌，或者弹窗提示）
+        //qDebug() << "没有可移动的步数！";
+        QMessageBox::information(m_mainWindow, "提示", "当前没有可消除的宝石，建议使用洗牌技能！");
+    }
+}
+
 void GameController::startGame(int difficultyLevel) {
+    m_isTerminated = false;
     // 记录当前难度
     m_currentDifficulty = difficultyLevel;
 
@@ -310,7 +359,13 @@ void GameController::undo() {
 }
 
 void GameController::endGame() {
+    m_isTerminated = true;
     m_gameTimer->stop();
+    stopAllSounds();
+
+    if (m_scene) {
+        m_scene->stopHintAnimation();
+    }
 }
 
 void GameController::onGemClicked(int row, int col) {
@@ -318,6 +373,7 @@ void GameController::onGemClicked(int row, int col) {
     if (m_isPaused || m_isProcessing) return;
 
     m_soundClick->play();
+    m_scene->stopHintAnimation();
 
     QPoint currentClick(row, col);
 
@@ -360,6 +416,7 @@ void GameController::onGemClicked(int row, int col) {
 void GameController::attemptSwap(const QPoint& p1, const QPoint& p2) {
     // 【步骤 1】先让 View 播放交换动画（此时 Model 还没动）
     m_scene->animateSwap(p1.x(), p1.y(), p2.x(), p2.y(), [=]() {
+        if (m_isTerminated) return;
         // --- 动画结束后的回调 (Callback) ---
 
         //判断是否为万能宝石交换
@@ -395,7 +452,7 @@ void GameController::attemptSwap(const QPoint& p1, const QPoint& p2) {
             int count = m_gameCore->explodeAllColor(targetColor);
 
             // 5. 播放音效与加分
-            m_soundClear->play();
+			m_soundAll->play(); // 万能宝石消除音效
             m_comboLevel = 1;
             m_gameCore->addScoreSession(count * 10);
             m_scene->updateScore(m_gameCore->getScore());
@@ -425,7 +482,12 @@ void GameController::attemptSwap(const QPoint& p1, const QPoint& p2) {
 
         if (result == SwapResult::Success) {
             // 播放消除音效
-            m_soundClear->play();
+            if (m_gameCore->isSpecialMatch()) {
+                m_soundLaser->play();
+            }
+            else {
+                m_soundMouth->play(); 
+            }
 
             // A. 交换成功且消除了
             m_comboLevel = 1;  // 初始化为1连击
@@ -462,6 +524,7 @@ void GameController::attemptSwap(const QPoint& p1, const QPoint& p2) {
 }
 
 void GameController::processFallAndMatch() {
+    if (m_isTerminated) return;
     // 1. 【清理】把上一轮炸掉的宝石在数据层变为空
     m_gameCore->clearMatches();
 
@@ -478,7 +541,12 @@ void GameController::processFallAndMatch() {
 
         if (hasNewMatches) {
             // 连击消除音效
-            m_soundClear->play();
+            if (m_gameCore->isSpecialMatch()) {
+                m_soundLaser->play();
+            }
+            else {
+                m_soundMouth->play();
+            }
 
             m_comboLevel++;  // 连击层数增加
             int score = comboSize * 10 * m_comboLevel;  // 连击翻倍
@@ -506,4 +574,14 @@ void GameController::processFallAndMatch() {
             m_isProcessing = false;
         }
         });
+}
+
+void GameController::stopAllSounds() {
+    if (m_soundClick) m_soundClick->stop();
+    if (m_soundMouth) m_soundMouth->stop();
+    if (m_soundBoom) m_soundBoom->stop();
+    if (m_soundShuffle) m_soundShuffle->stop();
+    if (m_soundIce) m_soundIce->stop();
+    if (m_soundAll) m_soundAll->stop();
+    if (m_soundLaser) m_soundLaser->stop();
 }

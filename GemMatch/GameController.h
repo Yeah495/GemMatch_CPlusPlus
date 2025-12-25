@@ -28,6 +28,8 @@ public:
 
     bool isPaused() const { return m_isPaused; }
 
+    void stopAllSounds();
+
 public slots:
     // 响应 View 层的宝石点击
     void onGemClicked(int row, int col);
@@ -38,6 +40,7 @@ public slots:
     void onSkillShuffle();
     void onSkillTime();
     void onSkillAll();
+    void onHintClicked();
 
 private:
     // --- 内部流程控制函数 ---
@@ -73,7 +76,12 @@ private:
     int m_freezeCounter;   // 冻结倒计时
 
     QSoundEffect* m_soundClick;
-    QSoundEffect* m_soundClear;
+    QSoundEffect* m_soundMouth;
+    QSoundEffect* m_soundBoom;
+    QSoundEffect* m_soundShuffle;
+    QSoundEffect* m_soundIce;
+    QSoundEffect* m_soundAll;
+    QSoundEffect* m_soundLaser;
 
     int m_currentDifficulty; // 当前游戏难度（3=简单，5=普通，7=困难）
 
@@ -87,6 +95,7 @@ private:
     int m_remainShuffle;
     int m_remainTime;
     int m_remainAll;
+    bool m_isTerminated = false;
 };
 
 #endif // GAMECONTROLLER_H

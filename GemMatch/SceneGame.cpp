@@ -211,6 +211,7 @@ void SceneGame::setupUI() {
     connect(m_btnSkillShuffle, &QPushButton::clicked, this, &SceneGame::skillShuffle);
     connect(m_btnSkillTime, &QPushButton::clicked, this, &SceneGame::skillTime);
     connect(m_btnSkillAll, &QPushButton::clicked, this, &SceneGame::skillAll);
+    connect(m_btnHint, &QPushButton::clicked, this, &SceneGame::hintRequested);
     connect(m_btnExit, &QPushButton::clicked, this, &SceneGame::backToMenu);
 }
 
@@ -483,10 +484,44 @@ void SceneGame::hideEvent(QHideEvent* event) {
     if (m_player) { m_player->stop(); m_player->setSource(QUrl()); }
 }
 
-// 【新增】提示按钮响应
-void SceneGame::onHintClicked() {
-    qDebug() << "请求提示";
-    // 仿照 backToMenu，这里不弹窗，只发射信号
-    // 具体的提示逻辑（比如高亮某个宝石）在 GameController 或 Board 里处理
-    emit hintRequested();
+void SceneGame::stopHintAnimation() {
+    for (auto anim : m_hintAnims) {
+        if (anim) {
+            anim->stop();
+            delete anim;
+        }
+    }
+    m_hintAnims.clear();
+
+    // 确保所有宝石恢复原状 (scale 1.0)
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            if (m_items[i][j]) m_items[i][j]->setScale(1.0);
+        }
+    }
+}
+
+void SceneGame::showHintAnimation(const QPoint& p1, const QPoint& p2) {
+    stopHintAnimation(); // 先停止之前的
+
+    GemItem* item1 = m_items[p1.x()][p1.y()];
+    GemItem* item2 = m_items[p2.x()][p2.y()];
+
+    if (!item1 || !item2) return;
+
+    // 创建一个让宝石“呼吸”的缩放动画
+    auto createPulseAnim = [this](GemItem* item) {
+        QPropertyAnimation* anim = new QPropertyAnimation(item, "scale");
+        anim->setDuration(600);
+        anim->setStartValue(1.0);
+        anim->setKeyValueAt(0.5, 1.2); // 放大到 1.2 倍
+        anim->setEndValue(1.0);
+        anim->setLoopCount(-1); // 无限循环
+        anim->setEasingCurve(QEasingCurve::InOutQuad);
+        m_hintAnims.append(anim); // 存起来方便管理
+        anim->start();
+        };
+
+    createPulseAnim(item1);
+    createPulseAnim(item2);
 }
