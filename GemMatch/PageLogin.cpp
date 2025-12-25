@@ -90,7 +90,7 @@ void PageLogin::setupUI() {
     m_editEmail = new QLineEdit();
     m_editEmail->setPlaceholderText("邮箱");
     m_editEmail->setStyleSheet(editStyle);
-    m_editEmail->setFixedWidth(260);
+    m_editEmail->setFixedWidth(350);
 
     m_btnLogin = new GameButton("assets/images/登录1.png");
     m_btnReg = new GameButton("assets/images/注册1.png");
