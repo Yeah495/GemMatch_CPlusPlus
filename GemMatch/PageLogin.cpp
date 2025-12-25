@@ -9,6 +9,7 @@
 #include <QGraphicsProxyWidget>
 #include <QDebug>
 
+
 PageLogin::PageLogin(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWin) {
     setupUI();
 }
@@ -126,14 +127,11 @@ void PageLogin::setupUI() {
     m_backstageProxy = scene->addWidget(m_btnBackstage);
     m_backstageProxy->setZValue(2); // 确保在最上层
 
-    // 连接信号：点击进入新窗口
     connect(m_btnBackstage, &QPushButton::clicked, this, [this]() {
-        // 这里假设你要弹出一个新窗口，或者切换到新的 Page
-        // 如果有现成的窗口类，请在这里 new 并 show
-        QMessageBox::information(this, "后台", "正在进入后台管理系统...");
-        // 例如: 
-        // AdminWindow* admin = new AdminWindow();
-        // admin->show();
+        // 切换到后台管理页面
+        if (m_mainWin) {
+            m_mainWin->switchPage(6); // 假设 PageAdmin 是索引6
+        }
         });
 
 

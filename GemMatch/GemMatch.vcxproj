@@ -112,6 +112,7 @@ $(QTDIR)\lib;%(AdditionalLibraryDirectories)
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="MatchFinder.cpp" />
     <ClCompile Include="PageAbout.cpp" />
+    <ClCompile Include="PageAdmin.cpp" />
     <ClCompile Include="PageLogin.cpp" />
     <ClCompile Include="PageSettings.cpp" />
     <ClCompile Include="PlayerSession.cpp" />
@@ -137,6 +138,7 @@ $(QTDIR)\lib;%(AdditionalLibraryDirectories)
     <QtMoc Include="PageAbout.h" />
     <QtMoc Include="GameButton.h" />
     <QtMoc Include="GameLogo.h" />
+    <QtMoc Include="PageAdmin.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="UserManager.h" />
     <QtMoc Include="GameController.h" />
