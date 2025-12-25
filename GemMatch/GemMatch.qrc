@@ -17,5 +17,10 @@
         <file>assets/sound/click.wav</file>
         <file>assets/sound/mouth.wav</file>
         <file>assets/images/gem_99.png</file>
+        <file>assets/sound/boom.wav</file>
+        <file>assets/sound/ice.wav</file>
+        <file>assets/sound/shuffle.wav</file>
+        <file>assets/sound/laser.wav</file>
+		<file>assets/sound/all.wav</file>
     </qresource>
 </RCC>

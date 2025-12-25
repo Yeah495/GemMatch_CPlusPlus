@@ -38,6 +38,9 @@ public:
 
     void updateSkillButtonText(int bombCount, int shuffleCount, int timeCount, int allCount);
     void startShakeAnimation();
+
+    void stopHintAnimation(); // 停止提示动画
+    void showHintAnimation(const QPoint& p1, const QPoint& p2);  //显示提示动画
 protected:
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
@@ -53,8 +56,7 @@ signals:
     void skillShuffle();    // 洗牌技能信号
     void skillTime();       // 时间技能信号
     void skillAll();       // 万能技能信号
-    // 【新增】提示信号
-    void hintRequested();
+    void hintRequested();  //提示信号
 
 
 
@@ -102,8 +104,9 @@ private:
     const int CELL_SIZE = 65;
 
     QLabel* m_avatarLabel;// 新增：游戏界面头像
-    // 【新增】提示按钮点击
-    void onHintClicked();
+    
+
+    QList<QAbstractAnimation*> m_hintAnims;
 };
 
 #endif // SCENEGAME_H

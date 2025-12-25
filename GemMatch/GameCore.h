@@ -22,6 +22,8 @@ Model 层对外的唯一接口，封装了复杂的子系统交互。
 #include "GravitySystem.h"
 #include "PlayerSession.h"
 #include <memory>
+#include <qpoint.h>
+#include <set>
 
   // 交换结果反馈，用于 Controller 判断播放什么动画
 enum class SwapResult {
@@ -59,11 +61,16 @@ public:
     void addScoreSession(int score);
     void shuffleBoard();
 
+    std::vector<QPoint> findHint();
+
     Board* getBoardPtr() { return m_board.get(); }  //得到指针,不是常对象了,可以访问setGem这个非常函数
+
+    bool isSpecialMatch() const { return m_isSpecialMatch; }
 private:
     // 组合模式：持有各子模块
     std::unique_ptr<Board> m_board;
     std::unique_ptr<PlayerSession> m_session;
+    bool m_isSpecialMatch = false; // [新增] 状态标记
 };
 
 #endif // GAMECORE_H
