@@ -1149,3 +1149,12 @@ void PageAdmin::showStatistics()
     statsBox.setStyleSheet("QLabel{color: white;}");
     statsBox.exec();
 }
+
+bool PageAdmin::verifyAdminPassword(const QString& password)
+{
+    // 这里使用固定的管理员密码，你可以修改为你想要的密码
+    const QString adminPassword = "admin123"; // 默认管理员密码
+
+    // 在实际应用中，建议将密码加密存储或从配置文件中读取
+    return (password == adminPassword);
+}

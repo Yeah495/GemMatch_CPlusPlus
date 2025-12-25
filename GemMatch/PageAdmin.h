@@ -99,6 +99,8 @@ private:
         QMessageBox::Icon icon = QMessageBox::Information);
 
     int m_lastSelectedRow;
+    // 添加管理员密码验证方法
+    bool verifyAdminPassword(const QString& password);
 };
 
 #endif // PAGEADMIN_H
