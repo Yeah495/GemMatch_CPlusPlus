@@ -62,7 +62,7 @@ private:
 
     // 悬浮/覆盖控件
     QWidget* m_brightnessOverlay;
-    QPushButton* m_langBtn;
+   // QPushButton* m_langBtn;
 
     // 全局BGM播放器
     QMediaPlayer* m_bgmPlayer = nullptr;

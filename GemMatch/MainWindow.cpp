@@ -76,19 +76,19 @@ void MainWindow::setupGlobalUI() {
     //  关键：设置遮罩忽略鼠标事件
     m_brightnessOverlay->setAttribute(Qt::WA_TransparentForMouseEvents);
 
-    // 语言切换按钮
-    m_langBtn = new QPushButton("CN / EN", this);
-    m_langBtn->setGeometry(900, 20, 100, 40);
-    m_langBtn->setStyleSheet("background: gold; border-radius: 10px; font-weight: bold;");
-    connect(m_langBtn, &QPushButton::clicked, this, &MainWindow::toggleLanguage);
+    //// 语言切换按钮
+    //m_langBtn = new QPushButton("CN / EN", this);
+    //m_langBtn->setGeometry(900, 20, 100, 40);
+    //m_langBtn->setStyleSheet("background: gold; border-radius: 10px; font-weight: bold;");
+    //connect(m_langBtn, &QPushButton::clicked, this, &MainWindow::toggleLanguage);
 }
 
 void MainWindow::switchPage(int index) {
     if (index >= 0 && index < m_stack->count()) {
         m_stack->setCurrentIndex(index);
 
-        //  确保语言按钮在最上面
-        m_langBtn->raise();
+        ////  确保语言按钮在最上面
+        //m_langBtn->raise();
     }
 }
 
@@ -122,19 +122,19 @@ void MainWindow::updateBrightness() {
         m_brightnessOverlay->show();
         m_brightnessOverlay->setStyleSheet(QString("background-color: rgba(0,0,0,%1);").arg(alpha));
 
-        //  关键修改：确保遮罩的层级正确
-        // 将遮罩放在页面内容之上，但语言按钮在遮罩之上
-        m_brightnessOverlay->stackUnder(m_langBtn);
+        ////  关键修改：确保遮罩的层级正确
+        //// 将遮罩放在页面内容之上，但语言按钮在遮罩之上
+        //m_brightnessOverlay->stackUnder(m_langBtn);
     }
 
-    //  确保语言按钮始终在最上面
-    m_langBtn->raise();
+    ////  确保语言按钮始终在最上面
+    //m_langBtn->raise();
 }
 
-void MainWindow::toggleLanguage() {
-    m_language = (m_language == 0) ? 1 : 0;
-    m_langBtn->setText(m_language == 0 ? "中文" : "English");
-}
+//void MainWindow::toggleLanguage() {
+//    m_language = (m_language == 0) ? 1 : 0;
+//    m_langBtn->setText(m_language == 0 ? "中文" : "English");
+//}
 
 void MainWindow::setBGMVolume(float volume) {
     if (m_bgmAudioOutput) {
