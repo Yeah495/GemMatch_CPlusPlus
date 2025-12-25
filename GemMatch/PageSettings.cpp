@@ -3,6 +3,8 @@
 #include <QVBoxLayout>
 #include <QGraphicsScene>
 #include <QComboBox>
+#include <QDebug>
+#include <QEvent>
 
 PageSettings::PageSettings(MainWindow* mainWin)
     : QWidget(mainWin)
@@ -150,21 +152,41 @@ void PageSettings::setupUI() {
     // =================================================
     m_labelMusic = new QLabel("音乐音量");
     form->addWidget(m_labelMusic);
-    QSlider* musicSlider = new QSlider(Qt::Horizontal);
-    musicSlider->setRange(0, 100);
-    musicSlider->setValue(50);
-    musicSlider->setStyleSheet(
+    m_musicSlider = new QSlider(Qt::Horizontal); // 修改为成员变量
+    m_musicSlider->setRange(0, 100);
+    m_musicSlider->setValue(50);
+    m_musicSlider->setTracking(true); // 确保拖动时持续发送valueChanged
+    m_musicSlider->setEnabled(true);
+    m_musicSlider->setStyleSheet(
         "QSlider::groove:horizontal { height: 8px; background: rgba(0,0,0,0.2); border-radius: 4px; }"
         "QSlider::handle:horizontal { background: #00BFFF; width: 20px; margin: -6px 0; border-radius: 10px; }"
     );
-    form->addWidget(musicSlider);
+    qDebug() << "[Settings] musicSlider created:" << m_musicSlider;
+    // 移除调试用的eventFilter
+    // m_musicSlider->installEventFilter(this); 
+    form->addWidget(m_musicSlider);
+    // 连接音量滑块信号到槽函数
+    connect(m_musicSlider, &QSlider::valueChanged, this, &PageSettings::onMusicVolumeChanged);
+    // 直接联动：拖动过程中实时设置BGM音量
+    connect(m_musicSlider, &QSlider::sliderMoved, this, [this](int v){
+        if (m_mainWin) {
+            float vol = qBound(0, v, 100) / 100.0f;
+            m_mainWin->setBGMVolume(vol);
+        }
+    });
+    connect(m_musicSlider, &QSlider::sliderReleased, this, [this](){
+        if (m_mainWin) {
+            float vol = qBound(0, m_musicSlider->value(), 100) / 100.0f;
+            m_mainWin->setBGMVolume(vol);
+        }
+    });
 
     m_labelBrightness = new QLabel("屏幕亮度");
     form->addWidget(m_labelBrightness);
     QSlider* brightSlider = new QSlider(Qt::Horizontal);
     brightSlider->setRange(10, 100);
     brightSlider->setValue(100);
-    brightSlider->setStyleSheet(musicSlider->styleSheet());
+    brightSlider->setStyleSheet(m_musicSlider->styleSheet());
     form->addWidget(brightSlider);
     connect(brightSlider, &QSlider::valueChanged, [this](int v) {
         m_mainWin->setGlobalBrightness(v);
@@ -238,6 +260,15 @@ void PageSettings::showEvent(QShowEvent* event) {
     if (m_logo) {
         m_logo->startEntrance();
     }
+    // ✅ 同步滑块到当前BGM音量（0.0~1.0 -> 0~100）
+    if (m_mainWin && m_musicSlider) {
+        float vol = m_mainWin->getBGMVolume();
+        int sliderVal = static_cast<int>(vol * 100.0f + 0.5f);
+        m_musicSlider->blockSignals(true); // 避免触发回调
+        m_musicSlider->setValue(sliderVal);
+        m_musicSlider->blockSignals(false);
+        qDebug() << "[Settings] sync slider to BGM:" << vol << "->" << sliderVal;
+    }
 }
 
 void PageSettings::hideEvent(QHideEvent* event) {
@@ -278,5 +309,17 @@ void PageSettings::onToggleLanguage() {
     // 调用主窗口的切换接口（如果有的话）
     if (m_mainWin) {
         m_mainWin->toggleLanguage();
+    }
+}
+
+// 新增：音量滑块槽函数实现
+void PageSettings::onMusicVolumeChanged(int value) {
+    qDebug() << "[Settings] slider value:" << value;
+    if (m_mainWin) {
+        float volume = qBound(0, value, 100) / 100.0f;
+        qDebug() << "[Settings] mapped volume:" << volume;
+        m_mainWin->setBGMVolume(volume);
+    } else {
+        qDebug() << "[Settings] m_mainWin is null";
     }
 }

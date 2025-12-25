@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QStackedWidget>
 #include <QPushButton>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
 #include "GameController.h"
 
@@ -36,6 +38,8 @@ public:
     // 设置接口
     void setGlobalBrightness(int value);
     void toggleLanguage();
+    void setBGMVolume(float volume); // 设置BGM音量接口
+    float getBGMVolume() const;      // 获取当前BGM音量0.0~1.0
 
 private:
     void setupAllPages();
@@ -57,6 +61,10 @@ private:
     // 悬浮/覆盖控件
     QWidget* m_brightnessOverlay;
     QPushButton* m_langBtn;
+
+    // 全局BGM播放器
+    QMediaPlayer* m_bgmPlayer = nullptr;
+    QAudioOutput* m_bgmAudioOutput = nullptr;
 
     int m_brightness = 100;
     int m_language = 0; // 0: CN, 1: EN

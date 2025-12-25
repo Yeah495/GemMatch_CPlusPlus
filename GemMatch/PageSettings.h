@@ -4,16 +4,14 @@
 #include <QWidget>
 #include <QSlider>
 #include <QLabel>
-// ✅ 在文件开头添加
 #include <QGraphicsView>
 #include <QGraphicsVideoItem>
 #include <QMediaPlayer>
 #include <QAudioOutput>
-#include <QGraphicsProxyWidget>    
-#include <QComboBox> // 新增头文件
+#include <QGraphicsProxyWidget>
+#include <QComboBox>
 #include <QPushButton>
 
-// ✅ 引入自定义控件
 #include "GameButton.h"
 #include "GameLogo.h"
 
@@ -24,6 +22,9 @@ class PageSettings : public QWidget {
 public:
     explicit PageSettings(MainWindow* mainWin);
 
+private slots:
+    void onMusicVolumeChanged(int value);
+
 private:
     MainWindow* m_mainWin;
     void setupUI();
@@ -32,8 +33,8 @@ private:
     QLabel* m_labelMusic;
     QLabel* m_labelBrightness;
 
+    QSlider* m_musicSlider;
 
-    // ✅ 改用图片按钮
     GameButton* m_btnBack;
     GameButton* m_btnReLogin;
 
@@ -42,34 +43,20 @@ private:
     QMediaPlayer* m_player;
     QAudioOutput* m_audioOutput;
 
-
-
-    QString m_videoPath; // ✅ 新增
-
-    // ✅ 新增：Logo 相关
+    QString m_videoPath;
     GameLogo* m_logo;
-
-    // ✅ 新增：独立的代理控件（控制位置）
-    QGraphicsProxyWidget* m_boxProxy;  // 设置框代理
-    QGraphicsProxyWidget* m_logoProxy; // Logo 代理
-
-    // ✅ 修改：语言切换改为按钮，而不是下拉框
+    QGraphicsProxyWidget* m_boxProxy;
+    QGraphicsProxyWidget* m_logoProxy;
     QPushButton* m_btnLang;
-
-    // ✅ 新增：头像按钮（为了支持点击更换）
     QPushButton* m_btnAvatar;
 
-    // ✅ 新增：空函数
-    void onChangeAvatar();// 更换头像逻辑
-    void onToggleLanguage(); // ✅ 切换语言逻辑
+    void onChangeAvatar();
+    void onToggleLanguage();
 
 protected:
     void resizeEvent(QResizeEvent* event) override;
-
-    void showEvent(QShowEvent* event) override; // ✅ 新增
-    void hideEvent(QHideEvent* event) override; // ✅ 新增
-
-    
+    void showEvent(QShowEvent* event) override;
+    void hideEvent(QHideEvent* event) override;
 };
 
-#endif
+#endif#endif

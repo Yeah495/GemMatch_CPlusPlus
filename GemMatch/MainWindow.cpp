@@ -5,8 +5,11 @@
 #include "PageSettings.h"
 #include "PageAbout.h"
 #include "SceneRank.h"
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
-MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
+MainWindow::MainWindow(QWidget* parent)
+    : QMainWindow(parent) {
     this->setFixedSize(1280,800);
 
     m_stack = new QStackedWidget(this);
@@ -17,6 +20,16 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     // 2. 初始化遮罩和按钮
     setupGlobalUI();
+
+    // 初始化全局BGM播放器
+    m_bgmPlayer = new QMediaPlayer(this);
+    m_bgmAudioOutput = new QAudioOutput(this);
+    m_bgmPlayer->setAudioOutput(m_bgmAudioOutput);
+    m_bgmAudioOutput->setVolume(0.5f); // 默认音量50%
+    // 使用qrc资源路径：/assets/sound/bgpiano.wav
+    m_bgmPlayer->setSource(QUrl("qrc:/assets/sound/bgpiano.wav"));
+    m_bgmPlayer->setLoops(QMediaPlayer::Infinite);
+    m_bgmPlayer->play();
 
     // 进入默认页
     switchPage(0);
@@ -120,6 +133,23 @@ void MainWindow::updateBrightness() {
 void MainWindow::toggleLanguage() {
     m_language = (m_language == 0) ? 1 : 0;
     m_langBtn->setText(m_language == 0 ? "中文" : "English");
+}
+
+void MainWindow::setBGMVolume(float volume) {
+    if (m_bgmAudioOutput) {
+        float v = std::max(0.0f, std::min(1.0f, volume));
+        m_bgmAudioOutput->setVolume(v);
+        qDebug() << "[BGM] set volume:" << v;
+    } else {
+        qDebug() << "[BGM] audio output not initialized";
+    }
+}
+
+float MainWindow::getBGMVolume() const {
+    if (m_bgmAudioOutput) {
+        return m_bgmAudioOutput->volume();
+    }
+    return 0.0f;
 }
 
 MainWindow::~MainWindow() {}
