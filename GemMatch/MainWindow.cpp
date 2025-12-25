@@ -5,6 +5,7 @@
 #include "PageSettings.h"
 #include "PageAbout.h"
 #include "SceneRank.h"
+#include "PageAdmin.h"
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent) {
