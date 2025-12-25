@@ -136,7 +136,7 @@ void GameController::onSkillBomb() {
     // 6. 播放动画并进入下落流程
     m_scene->animateExplosion(targets, [=]() {
         // 增加一点分数作为奖励
-        m_gameCore->addScoreSession(100);
+        m_gameCore->addScoreSession(1000);
         m_scene->updateScore(m_gameCore->getScore());
 
         processFallAndMatch(); // 复用消除后的下落逻辑
@@ -345,6 +345,8 @@ void GameController::onGameTick() {
         QTimer::singleShot(500, [this]() {
             m_mainWindow->switchPage(1);
             });
+
+        endGame();
     }
 }
 
