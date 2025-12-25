@@ -39,6 +39,7 @@ private:
     QGraphicsProxyWidget* m_boxProxy;
     QGraphicsProxyWidget* m_logoProxy;
 
+
 protected:
     void resizeEvent(QResizeEvent* event) override;
     void showEvent(QShowEvent* event) override;

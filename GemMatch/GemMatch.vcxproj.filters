@@ -45,6 +45,12 @@
     <ClCompile Include="PageAbout.cpp">
       <Filter>view</Filter>
     </ClCompile>
+    <ClCompile Include="GameButton.cpp" />
+    <ClCompile Include="GameLogo.cpp" />
+    <ClCompile Include="VideoBackground.cpp" />
+    <ClCompile Include="PageAdmin.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="GemMatch.h" />
@@ -73,6 +79,12 @@
       <Filter>view</Filter>
     </QtMoc>
     <QtMoc Include="PageAbout.h">
+      <Filter>view</Filter>
+    </QtMoc>
+    <QtMoc Include="VideoBackground.h" />
+    <QtMoc Include="GameButton.h" />
+    <QtMoc Include="GameLogo.h" />
+    <QtMoc Include="PageAdmin.h">
       <Filter>view</Filter>
     </QtMoc>
   </ItemGroup>

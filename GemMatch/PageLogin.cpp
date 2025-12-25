@@ -9,6 +9,7 @@
 #include <QGraphicsProxyWidget>
 #include <QDebug>
 
+
 PageLogin::PageLogin(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWin) {
     setupUI();
 }
@@ -126,14 +127,150 @@ void PageLogin::setupUI() {
     m_backstageProxy = scene->addWidget(m_btnBackstage);
     m_backstageProxy->setZValue(2); // 确保在最上层
 
-    // 连接信号：点击进入新窗口
+    // 修改 PageLogin.cpp 中的后台按钮连接代码
     connect(m_btnBackstage, &QPushButton::clicked, this, [this]() {
-        // 这里假设你要弹出一个新窗口，或者切换到新的 Page
-        // 如果有现成的窗口类，请在这里 new 并 show
-        QMessageBox::information(this, "后台", "正在进入后台管理系统...");
-        // 例如: 
-        // AdminWindow* admin = new AdminWindow();
-        // admin->show();
+        // 创建管理员密码验证对话框
+        QDialog passwordDialog(this);
+        passwordDialog.setWindowTitle("🔐 管理员身份验证");
+        passwordDialog.setFixedSize(400, 200);
+
+        // 设置对话框样式
+        passwordDialog.setStyleSheet(
+            "QDialog {"
+            "   background-color: #1a1a1a;"  // 深色背景
+            "}"
+            "QLabel {"
+            "   color: white;"               // 白色字体
+            "   font-size: 14px;"
+            "}"
+            "QLineEdit {"
+            "   background-color: #333333;"  // 深灰色输入框
+            "   color: white;"               // 白色字体
+            "   border: 2px solid #444444;"
+            "   border-radius: 8px;"
+            "   padding: 10px;"
+            "   font-size: 14px;"
+            "}"
+            "QLineEdit:focus {"
+            "   border-color: #3498db;"      // 聚焦时边框颜色
+            "}"
+            "QPushButton {"
+            "   background-color: #333333;"  // 深灰色按钮
+            "   color: white;"
+            "   border: 2px solid #444444;"
+            "   border-radius: 8px;"
+            "   padding: 10px 20px;"
+            "   font-size: 14px;"
+            "   font-weight: bold;"
+            "   min-width: 100px;"
+            "}"
+            "QPushButton:hover {"
+            "   background-color: #444444;"  // 悬停时稍亮
+            "   border-color: #555555;"
+            "}"
+            "QPushButton:pressed {"
+            "   background-color: #222222;"  // 按下时更深
+            "}"
+            "QPushButton#confirmBtn {"
+            "   background-color: #27ae60;"  // 确认按钮绿色
+            "   border-color: #2ecc71;"
+            "}"
+            "QPushButton#confirmBtn:hover {"
+            "   background-color: #2ecc71;"
+            "}"
+            "QPushButton#cancelBtn {"
+            "   background-color: #c0392b;"  // 取消按钮红色
+            "   border-color: #e74c3c;"
+            "}"
+            "QPushButton#cancelBtn:hover {"
+            "   background-color: #e74c3c;"
+            "}"
+        );
+
+        QVBoxLayout* mainLayout = new QVBoxLayout(&passwordDialog);
+        mainLayout->setSpacing(15);
+        mainLayout->setContentsMargins(20, 20, 20, 20);
+
+        // 标题
+        QLabel* titleLabel = new QLabel("🔐 管理员身份验证", &passwordDialog);
+        titleLabel->setStyleSheet("font-size: 18px; font-weight: bold; color: white;");
+        titleLabel->setAlignment(Qt::AlignCenter);
+
+        // 说明文字
+        QLabel* instructionLabel = new QLabel("请输入管理员密码以进入后台管理系统", &passwordDialog);
+        instructionLabel->setAlignment(Qt::AlignCenter);
+        instructionLabel->setWordWrap(true);
+
+        // 密码输入框
+        QLabel* passwordLabel = new QLabel("管理员密码:", &passwordDialog);
+        QLineEdit* passwordEdit = new QLineEdit(&passwordDialog);
+        passwordEdit->setEchoMode(QLineEdit::Password);
+        passwordEdit->setPlaceholderText("请输入管理员密码...");
+
+ 
+
+        // 按钮
+        QHBoxLayout* buttonLayout = new QHBoxLayout();
+        QPushButton* confirmButton = new QPushButton("确定", &passwordDialog);
+        confirmButton->setObjectName("confirmBtn");
+        QPushButton* cancelButton = new QPushButton("取消", &passwordDialog);
+        cancelButton->setObjectName("cancelBtn");
+
+        buttonLayout->addWidget(confirmButton);
+        buttonLayout->addWidget(cancelButton);
+
+        // 布局
+        mainLayout->addWidget(titleLabel);
+        mainLayout->addWidget(instructionLabel);
+        mainLayout->addWidget(passwordLabel);
+        mainLayout->addWidget(passwordEdit);
+        mainLayout->addStretch();
+        mainLayout->addLayout(buttonLayout);
+
+        // 连接按钮信号
+        QObject::connect(confirmButton, &QPushButton::clicked, &passwordDialog, &QDialog::accept);
+        QObject::connect(cancelButton, &QPushButton::clicked, &passwordDialog, &QDialog::reject);
+
+        // 处理验证结果
+        if (passwordDialog.exec() == QDialog::Accepted) {
+            QString inputPassword = passwordEdit->text();
+
+            // 验证密码（这里使用简单的固定密码，实际应用中可以改为数据库验证或其他方式）
+            if (inputPassword == "admin123") { // 这里可以改为你想要的密码
+                // 密码正确，切换到后台管理页面
+                if (m_mainWin) {
+                    m_mainWin->switchPage(6); // 切换到PageAdmin页面
+                }
+            }
+            else {
+                // 密码错误提示
+                QMessageBox errorBox;
+                errorBox.setWindowTitle("❌ 验证失败");
+                errorBox.setText("管理员密码错误！");
+                errorBox.setIcon(QMessageBox::Critical);
+                errorBox.setStyleSheet(
+                    "QMessageBox {"
+                    "   background-color: black;"
+                    "}"
+                    "QMessageBox QLabel {"
+                    "   color: white;"
+                    "   font-size: 14px;"
+                    "}"
+                    "QMessageBox QPushButton {"
+                    "   background-color: #444444;"
+                    "   color: white;"
+                    "   border: 1px solid #666666;"
+                    "   border-radius: 5px;"
+                    "   padding: 8px 16px;"
+                    "   min-width: 80px;"
+                    "}"
+                    "QMessageBox QPushButton:hover {"
+                    "   background-color: #555555;"
+                    "}"
+                );
+                errorBox.exec();
+            }
+        }
         });
 
 
