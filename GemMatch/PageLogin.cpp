@@ -361,15 +361,12 @@ void PageLogin::onRegisterClicked() {
     // 3. 生成 6 位随机验证码
     QString code = QString::number(QRandomGenerator::global()->bounded(100000, 999999));
 
-    // 4. 配置发件人信息 (⚠️注意：这里需要填你自己的邮箱和授权码)
-    // 建议使用 163邮箱 或 QQ邮箱，开启 POP3/SMTP 服务获取"授权码"
-    QString senderEmail = "2546696700@qq.com"; // 【请修改这里】你的发送邮箱
-    QString senderPass = "ylujglbywznidjih";     // 【请修改这里】邮箱授权码 (不是登录密码!)
-    QString smtpHost = "smtp.qq.com";          // QQ邮箱是 smtp.qq.com, 163是 smtp.163.com
+    // 4. 配置发件人信息
+    QString senderEmail = "2546696700@qq.com";
+    QString senderPass = "ylujglbywznidjih";
+    QString smtpHost = "smtp.qq.com";
 
     // 5. 发送邮件
-    // 提示：发送邮件是异步网络操作，为了简单起见，我们这里直接发送并在下方弹窗等待用户输入
-    // 实际项目中可以加一个"发送中..."的等待动画
     Smtp* smtp = new Smtp(senderEmail, senderPass, smtpHost);
     QString subject = "【宝石迷阵】注册验证码";
     QString body = QString(
@@ -393,14 +390,22 @@ void PageLogin::onRegisterClicked() {
     if (ok && !text.isEmpty()) {
         if (text.trimmed() == code) {
             // 验证码正确，执行数据库注册
-            if (UserManager::instance().registerUser(user, pass, email)) {
+            UserManager::RegisterStatus result = UserManager::instance().registerUserEx(user, pass, email);
+
+            if (result == UserManager::REGISTER_SUCCESS) {
                 QMessageBox::information(this, "注册成功", "注册成功，请登录");
                 // 自动填入用户名，方便登录
                 m_editUser->setText(user);
                 m_editPass->setText("");
             }
+            else if (result == UserManager::USERNAME_EXISTS) {
+                QMessageBox::warning(this, "注册失败", "用户名已被注册");
+            }
+            else if (result == UserManager::EMAIL_EXISTS) {
+                QMessageBox::warning(this, "注册失败", "邮箱已被注册");
+            }
             else {
-                QMessageBox::warning(this, "错误", "该用户名已存在");
+                QMessageBox::warning(this, "注册失败", "数据库错误，请稍后重试");
             }
         }
         else {
@@ -408,52 +413,9 @@ void PageLogin::onRegisterClicked() {
         }
     }
 
-    // 清理 smtp 对象（Smtp类需要完善内存管理，这里为了简单直接new了，建议Smtp内部设为自动deleteLater）
-    // 或者将 smtp 设为成员变量管理
+    // 清理 smtp 对象
+    delete smtp;
 }
-
-//void PageLogin::onRegisterClicked() {
-//    QString user = m_editUser->text();
-//    QString pass = m_editPass->text();
-//    QString email = m_editEmail->text();
-//
-//    if (user.isEmpty()&& pass.isEmpty()&& email.isEmpty()) {
-//        QMessageBox::warning(this, "错误", "用户名,密码和邮箱不能为空");
-//        return;
-//    }
-//    else if(user.isEmpty() && pass.isEmpty() ) {
-//        QMessageBox::warning(this, "错误", "用户名和密码不能为空");
-//        return;
-//    }
-//    else if (user.isEmpty() && email.isEmpty()) {
-//        QMessageBox::warning(this, "错误", "用户名和邮箱不能为空");
-//        return;
-//    }
-//    else if (email.isEmpty() && pass.isEmpty()) {
-//        QMessageBox::warning(this, "错误", "密码和邮箱不能为空");
-//        return;
-//    }
-//    else if (user.isEmpty() ) {
-//        QMessageBox::warning(this, "错误", "用户名不能为空");
-//        return;
-//    }
-//    else if (pass.isEmpty()) {
-//        QMessageBox::warning(this, "错误", "密码不能为空");
-//        return;
-//    }
-//    else if (email.isEmpty()) {
-//        QMessageBox::warning(this, "错误", "邮箱不能为空");
-//        return;
-//    }
-//
-//    if (UserManager::instance().registerUser(user, pass, email)) {
-//        QMessageBox::information(this, "注册成功", "注册成功，请登录");
-//    }
-//    else {
-//        QMessageBox::warning(this, "错误", "该用户名已存在");
-//    }
-//}
-
 
 
 
