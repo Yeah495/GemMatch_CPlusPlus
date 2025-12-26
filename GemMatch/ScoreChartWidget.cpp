@@ -27,10 +27,11 @@ void ScoreChartWidget::setScores(const QList<int>& scores, const QString& title)
         // 自动计算Y轴范围
         int maxScore = *std::max_element(m_scores.begin(), m_scores.end());
         m_yMax = qMax(maxScore * 1.2, 100.0); // 留出20%空间
-        m_xMax = qMax(m_scores.size(), 10);
+        // 横轴最大值设置为数据点数量，最多10个
+        m_xMax = qMin(m_scores.size(), 10);
     }
     else {
-        m_xMax = 10;
+        m_xMax = 1;  // 最少显示1个点
         m_yMax = 1000;
     }
 
@@ -96,11 +97,18 @@ void ScoreChartWidget::paintEvent(QPaintEvent* event) {
     painter.setPen(QPen(QColor(64, 64, 64)));
     painter.setFont(QFont("Microsoft YaHei", 10));
 
-    // X轴标签（游戏场次）
-    for (int i = 1; i <= m_xMax; i++) {
-        if (i <= m_scores.size() || i % 2 == 0) {
-            int x = m_chartRect.left() + (m_chartRect.width() * (i - 1) / qMax(m_xMax - 1, 1));
-            QString label = QString::number(i);
+    // X轴标签（游戏场次）- 根据实际数据点数量显示
+    int dataCount = m_scores.size();
+    int maxDisplayPoints = 10;  // 最多显示10个点
+
+    // 确定实际显示的数据点数量
+    int displayCount = qMin(dataCount, maxDisplayPoints);
+
+    if (displayCount > 0) {
+        for (int i = 0; i < displayCount; i++) {
+            // 只显示每个数据点对应的标签
+            int x = m_chartRect.left() + (m_chartRect.width() * i / qMax(displayCount - 1, 1));
+            QString label = QString::number(i + 1);  // 游戏场次从1开始
             QRect textRect(x - 20, m_chartRect.bottom() + 5, 40, 20);
             painter.drawText(textRect, Qt::AlignCenter, label);
         }
@@ -115,12 +123,13 @@ void ScoreChartWidget::paintEvent(QPaintEvent* event) {
         painter.drawText(textRect, Qt::AlignRight | Qt::AlignVCenter, label);
     }
 
-    // 绘制折线
-    if (m_scores.size() >= 2) {
+    // 绘制折线 - 只绘制实际存在的数据点
+    if (dataCount >= 2) {
         QPainterPath linePath;
         QPainterPath fillPath;
 
-        for (int i = 0; i < m_scores.size(); i++) {
+        // 只绘制前 displayCount 个点
+        for (int i = 0; i < displayCount; i++) {
             QPoint p = scoreToPoint(i, m_scores[i]);
 
             if (i == 0) {
@@ -135,8 +144,8 @@ void ScoreChartWidget::paintEvent(QPaintEvent* event) {
         }
 
         // 闭合填充区域
-        if (m_scores.size() > 0) {
-            QPoint lastPoint = scoreToPoint(m_scores.size() - 1, m_scores.last());
+        if (displayCount > 0) {
+            QPoint lastPoint = scoreToPoint(displayCount - 1, m_scores[displayCount - 1]);
             fillPath.lineTo(lastPoint.x(), m_chartRect.bottom());
             fillPath.closeSubpath();
         }
@@ -156,10 +165,17 @@ void ScoreChartWidget::paintEvent(QPaintEvent* event) {
         // 绘制数据点
         painter.setBrush(QBrush(Qt::white));
         painter.setPen(QPen(m_chartColor, 2));
-        for (int i = 0; i < m_scores.size(); i++) {
+        for (int i = 0; i < displayCount; i++) {
             QPoint p = scoreToPoint(i, m_scores[i]);
             painter.drawEllipse(p, 6, 6);
         }
+    }
+    else if (dataCount == 1) {
+        // 只有一个数据点时显示点
+        QPoint p = scoreToPoint(0, m_scores[0]);
+        painter.setBrush(QBrush(Qt::white));
+        painter.setPen(QPen(m_chartColor, 2));
+        painter.drawEllipse(p, 6, 6);
     }
 
     // 绘制标题
@@ -186,7 +202,8 @@ void ScoreChartWidget::calculateLayout() {
 }
 
 QPoint ScoreChartWidget::scoreToPoint(int index, int score) const {
-    int x = m_chartRect.left() + (m_chartRect.width() * index / qMax(m_scores.size() - 1, 1));
+    int dataCount = qMin(m_scores.size(), 10);  // 最多显示10个点
+    int x = m_chartRect.left() + (m_chartRect.width() * index / qMax(dataCount - 1, 1));
     int y = m_chartRect.bottom() - (m_chartRect.height() * score / m_yMax);
 
     return QPoint(x, y);

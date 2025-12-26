@@ -1,0 +1,62 @@
+{
+    "combo_3": {
+        "progress": 0,
+        "unlocked": false
+    },
+    "combo_5": {
+        "progress": 0,
+        "unlocked": false
+    },
+    "easy_master": {
+        "progress": 300,
+        "unlocked": true
+    },
+    "first_game": {
+        "progress": 0,
+        "unlocked": true
+    },
+    "full_combo": {
+        "progress": 0,
+        "unlocked": false
+    },
+    "hard_master": {
+        "progress": 0,
+        "unlocked": false
+    },
+    "normal_master": {
+        "progress": 0,
+        "unlocked": false
+    },
+    "play_10_games": {
+        "progress": 1,
+        "unlocked": false
+    },
+    "play_50_games": {
+        "progress": 1,
+        "unlocked": false
+    },
+    "quick_win": {
+        "progress": 0,
+        "unlocked": false
+    },
+    "score_100": {
+        "progress": 0,
+        "unlocked": true
+    },
+    "score_1000": {
+        "progress": 0,
+        "unlocked": true
+    },
+    "score_500": {
+        "progress": 0,
+        "unlocked": true
+    },
+    "use_all_skills": {
+        "progress": 0,
+        "unlocked": false
+    },
+    "use_bomb": {
+        "progress": 0,
+        "unlocked": false
+    }
+}

@@ -85,17 +85,49 @@ void PageStatistics::setupUI() {
 
     // 难度选择按钮
     QHBoxLayout* difficultyLayout = new QHBoxLayout();
+    difficultyLayout->setSpacing(30);  // 增加按钮之间的间距
+
+    // 创建按钮并设置固定大小
     m_btnEasy = new GameButton("assets/images/简单1.png");
-    m_btnNormal = new GameButton("assets/images/普通1.png");
-    m_btnHard = new GameButton("assets/images/困难1.png");
+    m_btnNormal = new GameButton("assets/images/困难1.png");
+    m_btnHard = new GameButton("assets/images/极限1.png");
 
-    difficultyLayout->addStretch();
+    // 设置按钮大小
+    m_btnEasy->setFixedSize(150, 60);
+    m_btnNormal->setFixedSize(150, 60);
+    m_btnHard->setFixedSize(150, 60);
+
+    // 为按钮添加悬停效果（如果需要）
+    QString buttonStyle =
+        "QPushButton {"
+        "   border: 2px solid #044BB7;"
+        "   border-radius: 15px;"
+        "   background-color: rgba(255, 255, 255, 200);"
+        "}"
+        "QPushButton:hover {"
+        "   background-color: rgba(4, 75, 183, 150);"
+        "   border: 2px solid #FFD700;"
+        "}";
+
+    m_btnEasy->setStyleSheet(buttonStyle);
+    m_btnNormal->setStyleSheet(buttonStyle);
+    m_btnHard->setStyleSheet(buttonStyle);
+
+    // 添加按钮到布局，使用比例控制
+    difficultyLayout->addStretch(1);
     difficultyLayout->addWidget(m_btnEasy);
+    difficultyLayout->addSpacing(20);  // 添加间距
     difficultyLayout->addWidget(m_btnNormal);
+    difficultyLayout->addSpacing(20);  // 添加间距
     difficultyLayout->addWidget(m_btnHard);
-    difficultyLayout->addStretch();
+    difficultyLayout->addStretch(1);
 
-    leftLayout->addLayout(difficultyLayout);
+    // 创建一个容器来包装难度按钮，确保它们不会被压缩
+    QWidget* difficultyContainer = new QWidget();
+    difficultyContainer->setLayout(difficultyLayout);
+    difficultyContainer->setFixedHeight(80);  // 固定高度
+
+    leftLayout->addWidget(difficultyContainer);
 
     // 连接难度切换信号
     connect(m_btnEasy, &QPushButton::clicked, [this]() { onDifficultyChanged(3); });
@@ -178,12 +210,8 @@ void PageStatistics::setupUI() {
     m_containerProxy = scene->addWidget(mainContainer);
     m_containerProxy->setZValue(1);
 
-    // 3. Logo
-    m_logo = new GameLogo("assets/images/logo_宝石迷阵.png");
-    m_logoProxy = scene->addWidget(m_logo);
-    m_logoProxy->setZValue(2);
 
-    // 4. 返回按钮（放在底部）
+    // 3. 返回按钮（放在底部）
     m_btnBack = new GameButton("assets/images/返回主菜单.png");
     m_btnBack->setFixedSize(200, 60);
 
