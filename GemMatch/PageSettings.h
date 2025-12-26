@@ -32,6 +32,7 @@ private:
     QLabel* m_labelTitle;
     QLabel* m_labelMusic;
     QLabel* m_labelBrightness;
+    QLabel* m_lblLang; // Added member variable
 
     QSlider* m_musicSlider;
 

@@ -117,7 +117,7 @@ void PageSettings::setupUI() {
         // 【模块 2】语言切换 (改为按钮)
         // ---------------------------------------------------------
     QHBoxLayout* langLayout = new QHBoxLayout();
-    QLabel* lblLang = new QLabel("中英文切换");
+    m_lblLang = new QLabel("中英文切换");
 
     m_btnLang = new QPushButton("简体中文");
     m_btnLang->setFixedSize(140, 40);
@@ -143,7 +143,7 @@ void PageSettings::setupUI() {
     // 连接切换信号
     connect(m_btnLang, &QPushButton::clicked, this, &PageSettings::onToggleLanguage);
 
-    langLayout->addWidget(lblLang);
+    langLayout->addWidget(m_lblLang);
     langLayout->addWidget(m_btnLang);
     form->addLayout(langLayout);
 
@@ -295,6 +295,11 @@ void PageSettings::onToggleLanguage() {
     if (currentTxt == "简体中文") {
         // 切换到英文状态
         m_btnLang->setText("English");
+        m_lblLang->setText("Language");
+        m_labelTitle->setText("Settings");
+        m_labelMusic->setText("Music Volume");
+        m_labelBrightness->setText("Brightness");
+        
         // TODO: 这里可以调用 MainWindow 的翻译函数，或者直接发信号
         // m_mainWin->toggleLanguage(); 
         qDebug() << "Language switched to English";
@@ -302,6 +307,11 @@ void PageSettings::onToggleLanguage() {
     else {
         // 切换回中文状态
         m_btnLang->setText("简体中文");
+        m_lblLang->setText("中英文切换");
+        m_labelTitle->setText("系统设置");
+        m_labelMusic->setText("音乐音量");
+        m_labelBrightness->setText("屏幕亮度");
+
         // m_mainWin->toggleLanguage(); 
         qDebug() << "Language switched to Chinese";
     }
