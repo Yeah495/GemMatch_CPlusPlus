@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #ifndef GAMECONTROLLER_H
 #define GAMECONTROLLER_H
 
@@ -18,10 +18,10 @@ class GameController : public QObject {
 public:
     explicit GameController(MainWindow* view, QObject* parent = nullptr);
 
-    // Æô¶¯ÓÎÏ·
+    // å¯åŠ¨æ¸¸æˆ
     void startGame(int difficultyLevel);
 
-    // ³·Ïú²Ù×÷
+    // æ’¤é”€æ“ä½œ
     void undo();
 
     void endGame();
@@ -31,49 +31,54 @@ public:
     void stopAllSounds();
 
 public slots:
-    // ÏìÓ¦ View ²ãµÄ±¦Ê¯µã»÷
+    // å“åº” View å±‚çš„å®çŸ³ç‚¹å‡»
     void onGemClicked(int row, int col);
-    void onGameTick(); //¶¨Ê±Æ÷²Ûº¯Êı
+    void onGameTick(); //å®šæ—¶å™¨æ§½å‡½æ•°
 
     void onPauseClicked();
     void onSkillBomb();
     void onSkillShuffle();
     void onSkillTime();
     void onSkillAll();
-    void onHintClicked();
+    void onHintClicked();   
+
+
+    // âœ… ä¿®å¤ï¼šå°† gameOver ç§»åˆ°è¿™é‡Œ
+signals:
+    void gameOver(int finalScore); // Game over signal
 
 private:
-    // --- ÄÚ²¿Á÷³Ì¿ØÖÆº¯Êı ---
+    // --- å†…éƒ¨æµç¨‹æ§åˆ¶å‡½æ•° ---
 
-    // ³¢ÊÔ½»»»Á½¸ö±¦Ê¯
+    // å°è¯•äº¤æ¢ä¸¤ä¸ªå®çŸ³
     void attemptSwap(const QPoint& p1, const QPoint& p2);
 
-    // ´¦ÀíÏû³ıºóµÄÏÂÂäºÍÁ¬Ëø·´Ó¦ (µİ¹éºËĞÄ)
+    // å¤„ç†æ¶ˆé™¤åçš„ä¸‹è½å’Œè¿é”ååº” (é€’å½’æ ¸å¿ƒ)
     void processFallAndMatch();
 
-    // ¸¨Öúº¯Êı£º»ñÈ¡ÄÑ¶ÈÃû³Æ
+    // è¾…åŠ©å‡½æ•°ï¼šè·å–éš¾åº¦åç§°
     QString getDifficultyName(int difficulty);
 
-    // ¸¨Öúº¯Êı£ºÍ³Ò»Ë¢ĞÂ°´Å¥ÎÄ×Ö
+    // è¾…åŠ©å‡½æ•°ï¼šç»Ÿä¸€åˆ·æ–°æŒ‰é’®æ–‡å­—
     void updateSkillButtons();
 
-    // --- ³ÉÔ±±äÁ¿ ---
+    // --- æˆå‘˜å˜é‡ ---
 
-    GameCore* m_gameCore;   // Model ¶ÔÏó
-    SceneGame* m_scene;     // View ¶ÔÏó (Í¨¹ı MainWindow »ñÈ¡)
+    GameCore* m_gameCore;   // Model å¯¹è±¡
+    SceneGame* m_scene;     // View å¯¹è±¡ (é€šè¿‡ MainWindow è·å–)
     MainWindow* m_mainWindow;
 
-    QPoint m_selectedPos;   // µ±Ç°Ñ¡ÖĞµÄ±¦Ê¯×ø±ê (-1, -1 ±íÊ¾Î´Ñ¡)
-    bool m_isProcessing;    // Ëø£ºÊÇ·ñÕıÔÚ²¥·Å¶¯»­£¨½ûÖ¹Íæ¼Òµã»÷£©
+    QPoint m_selectedPos;   // å½“å‰é€‰ä¸­çš„å®çŸ³åæ ‡ (-1, -1 è¡¨ç¤ºæœªé€‰)
+    bool m_isProcessing;    // é”ï¼šæ˜¯å¦æ­£åœ¨æ’­æ”¾åŠ¨ç”»ï¼ˆç¦æ­¢ç©å®¶ç‚¹å‡»ï¼‰
 
-    int m_comboLevel; // ¼ÇÂ¼µ±Ç°µÄÁ¬»÷²ãÊı
+    int m_comboLevel; // è®°å½•å½“å‰çš„è¿å‡»å±‚æ•°
     QTimer* m_gameTimer;
     int m_remainingTime;
-    const int GAME_DURATION = 60; // ÓÎÏ·Ê±³¤³£Á¿
+    const int GAME_DURATION = 60; // æ¸¸æˆæ—¶é•¿å¸¸é‡
 
-    bool m_isPaused;       // ÔİÍ£×´Ì¬
-    bool m_isTimeFrozen;   // Ê±¼ä¶³½á×´Ì¬
-    int m_freezeCounter;   // ¶³½áµ¹¼ÆÊ±
+    bool m_isPaused;       // æš‚åœçŠ¶æ€
+    bool m_isTimeFrozen;   // æ—¶é—´å†»ç»“çŠ¶æ€
+    int m_freezeCounter;   // å†»ç»“å€’è®¡æ—¶
 
     QSoundEffect* m_soundClick;
     QSoundEffect* m_soundMouth;
@@ -83,19 +88,21 @@ private:
     QSoundEffect* m_soundAll;
     QSoundEffect* m_soundLaser;
 
-    int m_currentDifficulty; // µ±Ç°ÓÎÏ·ÄÑ¶È£¨3=¼òµ¥£¬5=ÆÕÍ¨£¬7=À§ÄÑ£©
+    int m_currentDifficulty; // å½“å‰æ¸¸æˆéš¾åº¦ï¼ˆ3=ç®€å•ï¼Œ5=æ™®é€šï¼Œ7=å›°éš¾ï¼‰
 
     const int MAX_BOMB_COUNT = 3;
     const int MAX_SHUFFLE_COUNT = 1;
     const int MAX_TIME_COUNT = 2;
     const int MAX_ALL_COUNT = 1;
 
-    //µ±Ç°Ê£Óà´ÎÊı
+    //å½“å‰å‰©ä½™æ¬¡æ•°
     int m_remainBomb;
     int m_remainShuffle;
     int m_remainTime;
     int m_remainAll;
     bool m_isTerminated = false;
+
+
 };
 
 #endif // GAMECONTROLLER_H

@@ -5,7 +5,8 @@
 #include "PageSettings.h"
 #include "PageAbout.h"
 #include "SceneRank.h"
-#include "PageAdmin.h" //
+#include "PageAdmin.h"
+#include "PageStatistics.h" 
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent) {
@@ -42,8 +43,12 @@ void MainWindow::setupAllPages() {
     m_pageAbout = new PageAbout(this);
     m_pageRank = new SceneRank(this);
     m_pageAdmin = new PageAdmin(this);
+    m_pageStatistics = new PageStatistics(this);
 
     m_controller = new GameController(this);  //必须在m_pageGame创建之后创建
+
+    connect(m_controller, &GameController::gameOver,
+        this, &MainWindow::onGameOver);
 
     // 2. 按索引顺序添加到 Stack
     m_stack->addWidget(m_pageLogin);    // Index 0
@@ -53,6 +58,7 @@ void MainWindow::setupAllPages() {
     m_stack->addWidget(m_pageAbout);    // Index 4
     m_stack->addWidget(m_pageRank);     // Index 5
     m_stack->addWidget(m_pageAdmin);
+    m_stack->addWidget(m_pageStatistics);
 
     // 3. 处理游戏页面的“返回主菜单”信号
     connect(m_pageGame, &SceneGame::backToMenu, [this]() {
@@ -76,19 +82,19 @@ void MainWindow::setupGlobalUI() {
     //  关键：设置遮罩忽略鼠标事件
     m_brightnessOverlay->setAttribute(Qt::WA_TransparentForMouseEvents);
 
-    // 语言切换按钮
-    m_langBtn = new QPushButton("CN / EN", this);
-    m_langBtn->setGeometry(900, 20, 100, 40);
-    m_langBtn->setStyleSheet("background: gold; border-radius: 10px; font-weight: bold;");
-    connect(m_langBtn, &QPushButton::clicked, this, &MainWindow::toggleLanguage);
+    //// 语言切换按钮
+    //m_langBtn = new QPushButton("CN / EN", this);
+    //m_langBtn->setGeometry(900, 20, 100, 40);
+    //m_langBtn->setStyleSheet("background: gold; border-radius: 10px; font-weight: bold;");
+    //connect(m_langBtn, &QPushButton::clicked, this, &MainWindow::toggleLanguage);
 }
 
 void MainWindow::switchPage(int index) {
     if (index >= 0 && index < m_stack->count()) {
         m_stack->setCurrentIndex(index);
 
-        //  确保语言按钮在最上面
-        m_langBtn->raise();
+        ////  确保语言按钮在最上面
+        //m_langBtn->raise();
     }
 }
 
@@ -122,19 +128,19 @@ void MainWindow::updateBrightness() {
         m_brightnessOverlay->show();
         m_brightnessOverlay->setStyleSheet(QString("background-color: rgba(0,0,0,%1);").arg(alpha));
 
-        //  关键修改：确保遮罩的层级正确
-        // 将遮罩放在页面内容之上，但语言按钮在遮罩之上
-        m_brightnessOverlay->stackUnder(m_langBtn);
+        ////  关键修改：确保遮罩的层级正确
+        //// 将遮罩放在页面内容之上，但语言按钮在遮罩之上
+        //m_brightnessOverlay->stackUnder(m_langBtn);
     }
 
-    //  确保语言按钮始终在最上面
-    m_langBtn->raise();
+    ////  确保语言按钮始终在最上面
+    //m_langBtn->raise();
 }
 
-void MainWindow::toggleLanguage() {
-    m_language = (m_language == 0) ? 1 : 0;
-    m_langBtn->setText(m_language == 0 ? "中文" : "English");
-}
+//void MainWindow::toggleLanguage() {
+//    m_language = (m_language == 0) ? 1 : 0;
+//    m_langBtn->setText(m_language == 0 ? "中文" : "English");
+//}
 
 void MainWindow::setBGMVolume(float volume) {
     if (m_bgmAudioOutput) {
@@ -165,4 +171,25 @@ void MainWindow::startNewGame(int difficulty) {
     // 2. 命令控制器开始一局新游戏
     // 这会触发：重置分数、重置时间、生成新棋盘、启动定时器
     m_controller->startGame(difficulty);
+}
+
+// 实现槽函数
+void MainWindow::onGameOver(int score) {
+    // 创建并显示游戏结束对话框
+    GameOverDialog* dialog = new GameOverDialog(score, this);
+
+    // 连接对话框信号
+    connect(dialog, &GameOverDialog::restartGame, [this, dialog]() {
+        dialog->accept();
+        this->startNewGame(); // 重新开始游戏
+        });
+
+    connect(dialog, &GameOverDialog::backToMenu, [this, dialog]() {
+        dialog->accept();
+        m_controller->endGame();
+        this->switchPage(1); // 返回主菜单
+        });
+
+    dialog->exec();
+    delete dialog;
 }

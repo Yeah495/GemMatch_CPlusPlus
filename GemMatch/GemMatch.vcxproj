@@ -103,10 +103,17 @@ $(QTDIR)\lib;%(AdditionalLibraryDirectories)
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Email.cpp">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
+    </ClCompile>
     <ClCompile Include="GameButton.cpp" />
     <ClCompile Include="GameController.cpp" />
     <ClCompile Include="GameCore.cpp" />
     <ClCompile Include="GameLogo.cpp" />
+    <ClCompile Include="GameOverDialog.cpp" />
     <ClCompile Include="GemItem.cpp" />
     <ClCompile Include="GravitySystem.cpp" />
     <ClCompile Include="MainWindow.cpp" />
@@ -115,10 +122,13 @@ $(QTDIR)\lib;%(AdditionalLibraryDirectories)
     <ClCompile Include="PageAdmin.cpp" />
     <ClCompile Include="PageLogin.cpp" />
     <ClCompile Include="PageSettings.cpp" />
+    <ClCompile Include="PageStatistics.cpp" />
     <ClCompile Include="PlayerSession.cpp" />
+    <ClCompile Include="qrcodegen.cpp" />
     <ClCompile Include="SceneGame.cpp" />
     <ClCompile Include="SceneRank.cpp" />
     <ClCompile Include="SceneStart.cpp" />
+    <ClCompile Include="ScoreChartWidget.cpp" />
     <ClCompile Include="VideoBackground.cpp" />
     <QtRcc Include="GemMatch.qrc" />
     <QtUic Include="GemMatch.ui" />
@@ -139,7 +149,12 @@ $(QTDIR)\lib;%(AdditionalLibraryDirectories)
     <QtMoc Include="GameButton.h" />
     <QtMoc Include="GameLogo.h" />
     <QtMoc Include="PageAdmin.h" />
+    <QtMoc Include="Email.h" />
+    <QtMoc Include="GameOverDialog.h" />
+    <QtMoc Include="PageStatistics.h" />
+    <ClInclude Include="qrcodegen.hpp" />
     <ClInclude Include="resource.h" />
+    <QtMoc Include="ScoreChartWidget.h" />
     <ClInclude Include="UserManager.h" />
     <QtMoc Include="GameController.h" />
     <ClInclude Include="GameCore.h" />

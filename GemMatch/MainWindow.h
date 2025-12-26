@@ -8,6 +8,7 @@
 #include <QAudioOutput>
 
 #include "GameController.h"
+#include "GameOverDialog.h"
 
 // 前向声明所有子页面类，避免头文件互相包含
 class PageLogin;
@@ -17,6 +18,7 @@ class PageSettings;
 class PageAbout;
 class SceneRank;
 class PageAdmin;
+class PageStatistics;
 
 
 class GameController; // 前置声明
@@ -57,12 +59,13 @@ private:
     PageAbout* m_pageAbout;
     SceneRank* m_pageRank;
     PageAdmin* m_pageAdmin;
+    PageStatistics* m_pageStatistics;
 
     GameController* m_controller;
 
     // 悬浮/覆盖控件
     QWidget* m_brightnessOverlay;
-    QPushButton* m_langBtn;
+   // QPushButton* m_langBtn;
 
     // 全局BGM播放器
     QMediaPlayer* m_bgmPlayer = nullptr;
@@ -70,6 +73,8 @@ private:
 
     int m_brightness = 100;
     int m_language = 0; // 0: CN, 1: EN
+
+    void onGameOver(int score);
 };
 
 #endif
