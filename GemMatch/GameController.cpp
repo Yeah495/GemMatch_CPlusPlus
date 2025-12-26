@@ -330,21 +330,8 @@ void GameController::onGameTick() {
             qDebug() << "游戏结束，但用户未登录，分数不保存";
         }
 
-        // 弹出游戏结束提示
-        QString difficultyName = getDifficultyName(m_currentDifficulty);
-        QString msg = QString("时间到！\n\n游戏难度: %1\n本局最终得分: %2")
-            .arg(difficultyName)
-            .arg(finalScore);
-
-        // 使用非阻塞的方式显示消息框
-        QTimer::singleShot(100, [this, msg]() {
-            QMessageBox::information(m_mainWindow, "游戏结束", msg);
-            });
-
-        // 延迟切换页面，确保消息框显示
-        QTimer::singleShot(500, [this]() {
-            m_mainWindow->switchPage(1);
-            });
+        // ✅ 修改：发出 gameOver 信号，而不是直接显示 MessageBox
+        emit gameOver(finalScore);
 
         endGame();
     }
@@ -587,3 +574,5 @@ void GameController::stopAllSounds() {
     if (m_soundAll) m_soundAll->stop();
     if (m_soundLaser) m_soundLaser->stop();
 }
+
+
