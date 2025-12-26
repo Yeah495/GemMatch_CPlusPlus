@@ -371,9 +371,14 @@ void PageLogin::onRegisterClicked() {
     // 提示：发送邮件是异步网络操作，为了简单起见，我们这里直接发送并在下方弹窗等待用户输入
     // 实际项目中可以加一个"发送中..."的等待动画
     Smtp* smtp = new Smtp(senderEmail, senderPass, smtpHost);
-    QString subject = "【GenMatch】注册验证码";
-    QString body = QString("亲爱的用户 <b>%1</b>：<br>您的注册验证码是：<h2 style='color:blue'>%2</h2><br>请在界面输入此验证码完成注册。")
-        .arg(user).arg(code);
+    QString subject = "【宝石迷阵】注册验证码";
+    QString body = QString(
+        "亲爱的用户 <b>%1</b>：<br><br>"
+        "欢迎您注册宝石迷阵！<br><br>"
+        "您的注册验证码是：<h2 style='color:#FF6B35'>%2</h2>"
+        "验证码 <span style='color:red;font-weight:bold'>15分钟内有效</span>，请勿泄露给他人。<br><br>"
+        "如非本人操作，请忽略此邮件。"
+    ).arg(user).arg(code);
 
     smtp->sendMail(email, subject, body);
 

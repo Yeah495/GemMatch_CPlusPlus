@@ -51,6 +51,11 @@
     <ClCompile Include="PageAdmin.cpp">
       <Filter>view</Filter>
     </ClCompile>
+    <ClCompile Include="Email.cpp" />
+    <ClCompile Include="qrcodegen.cpp" />
+    <ClCompile Include="GameOverDialog.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="GemMatch.h" />
@@ -85,6 +90,10 @@
     <QtMoc Include="GameButton.h" />
     <QtMoc Include="GameLogo.h" />
     <QtMoc Include="PageAdmin.h">
+      <Filter>view</Filter>
+    </QtMoc>
+    <QtMoc Include="Email.h" />
+    <QtMoc Include="GameOverDialog.h">
       <Filter>view</Filter>
     </QtMoc>
   </ItemGroup>
@@ -137,6 +146,7 @@
       <Filter>model</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="qrcodegen.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\images\bg_login.jpg" />

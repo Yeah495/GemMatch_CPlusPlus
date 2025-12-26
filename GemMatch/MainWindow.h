@@ -8,6 +8,7 @@
 #include <QAudioOutput>
 
 #include "GameController.h"
+#include "GameOverDialog.h"
 
 // 前向声明所有子页面类，避免头文件互相包含
 class PageLogin;
@@ -70,6 +71,8 @@ private:
 
     int m_brightness = 100;
     int m_language = 0; // 0: CN, 1: EN
+
+    void onGameOver(int score);
 };
 
 #endif
