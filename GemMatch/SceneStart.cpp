@@ -188,6 +188,12 @@ void SceneStart::setupUI() {
         m_mainWin->startNewGame(m_currentDifficulty);
         });
 
+    connect(m_btnHistory, &QPushButton::clicked, [this]() {
+        if (m_mainWin) {
+            m_mainWin->switchPage(7); // 切换到PageStatistics页面
+        }
+        });
+
     mainLayout->addWidget(m_view);
 }
 

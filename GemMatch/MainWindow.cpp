@@ -6,6 +6,7 @@
 #include "PageAbout.h"
 #include "SceneRank.h"
 #include "PageAdmin.h"
+#include "PageStatistics.h" 
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent) {
@@ -42,6 +43,7 @@ void MainWindow::setupAllPages() {
     m_pageAbout = new PageAbout(this);
     m_pageRank = new SceneRank(this);
     m_pageAdmin = new PageAdmin(this);
+    m_pageStatistics = new PageStatistics(this);
 
     m_controller = new GameController(this);  //必须在m_pageGame创建之后创建
 
@@ -56,6 +58,7 @@ void MainWindow::setupAllPages() {
     m_stack->addWidget(m_pageAbout);    // Index 4
     m_stack->addWidget(m_pageRank);     // Index 5
     m_stack->addWidget(m_pageAdmin);
+    m_stack->addWidget(m_pageStatistics);
 
     // 3. 处理游戏页面的“返回主菜单”信号
     connect(m_pageGame, &SceneGame::backToMenu, [this]() {

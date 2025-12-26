@@ -122,11 +122,13 @@ $(QTDIR)\lib;%(AdditionalLibraryDirectories)
     <ClCompile Include="PageAdmin.cpp" />
     <ClCompile Include="PageLogin.cpp" />
     <ClCompile Include="PageSettings.cpp" />
+    <ClCompile Include="PageStatistics.cpp" />
     <ClCompile Include="PlayerSession.cpp" />
     <ClCompile Include="qrcodegen.cpp" />
     <ClCompile Include="SceneGame.cpp" />
     <ClCompile Include="SceneRank.cpp" />
     <ClCompile Include="SceneStart.cpp" />
+    <ClCompile Include="ScoreChartWidget.cpp" />
     <ClCompile Include="VideoBackground.cpp" />
     <QtRcc Include="GemMatch.qrc" />
     <QtUic Include="GemMatch.ui" />
@@ -149,8 +151,10 @@ $(QTDIR)\lib;%(AdditionalLibraryDirectories)
     <QtMoc Include="PageAdmin.h" />
     <QtMoc Include="Email.h" />
     <QtMoc Include="GameOverDialog.h" />
+    <QtMoc Include="PageStatistics.h" />
     <ClInclude Include="qrcodegen.hpp" />
     <ClInclude Include="resource.h" />
+    <QtMoc Include="ScoreChartWidget.h" />
     <ClInclude Include="UserManager.h" />
     <QtMoc Include="GameController.h" />
     <ClInclude Include="GameCore.h" />
