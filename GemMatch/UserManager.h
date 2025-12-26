@@ -31,6 +31,9 @@ struct UserData {
     QString hardRecentScores;
 };
 
+
+
+
 class UserManager {
 public:
     static UserManager& instance() {
@@ -38,8 +41,16 @@ public:
         return i;
     }
 
-    // 注册：返回是否成功
-    bool registerUser(const QString& user, const QString& pass, const QString& email) {
+    // 在 UserManager 类中添加枚举和方法的声明
+    enum RegisterStatus {
+        REGISTER_SUCCESS,
+        USERNAME_EXISTS,
+        EMAIL_EXISTS,
+        DATABASE_ERROR
+    };
+
+    // 修改 registerUser 方法，让它返回 RegisterStatus
+    RegisterStatus registerUserEx(const QString& user, const QString& pass, const QString& email) {
         // 检查用户名是否已存在
         QSqlQuery checkQuery(m_db);
         checkQuery.prepare("SELECT COUNT(*) FROM users WHERE username = :username");
@@ -47,7 +58,18 @@ public:
 
         if (checkQuery.exec() && checkQuery.next()) {
             if (checkQuery.value(0).toInt() > 0) {
-                return false; // 用户名已存在
+                return USERNAME_EXISTS;
+            }
+        }
+
+        // 检查邮箱是否已存在
+        QSqlQuery checkEmailQuery(m_db);
+        checkEmailQuery.prepare("SELECT COUNT(*) FROM users WHERE email = :email");
+        checkEmailQuery.bindValue(":email", email);
+
+        if (checkEmailQuery.exec() && checkEmailQuery.next()) {
+            if (checkEmailQuery.value(0).toInt() > 0) {
+                return EMAIL_EXISTS;
             }
         }
 
@@ -65,7 +87,12 @@ public:
         insertQuery.bindValue(":password", pass);
         insertQuery.bindValue(":email", email);
 
-        return insertQuery.exec();
+        if (insertQuery.exec()) {
+            return REGISTER_SUCCESS;
+        }
+        else {
+            return DATABASE_ERROR;
+        }
     }
 
     // 登录：验证密码

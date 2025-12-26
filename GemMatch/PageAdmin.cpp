@@ -186,6 +186,7 @@ void PageAdmin::setupUI()
 
     m_showInactiveCheck = new QCheckBox("显示零分用户");
     m_showInactiveCheck->setStyleSheet("font-weight: bold;");
+    m_showInactiveCheck->setChecked(true);  // 关键：默认勾选！
 
     m_btnSearch = new QPushButton("🔍 搜索");
     m_btnSearch->setStyleSheet(
@@ -577,32 +578,40 @@ QList<QStringList> PageAdmin::getAllUsers()
 
     QString sql = "SELECT id, username, email, "
         "easy_high_score, normal_high_score, hard_high_score, "
-        "created_at FROM users";
+        "created_at FROM users WHERE 1=1";  // 添加 WHERE 1=1 方便拼接条件
+
+    // ============= 关键：添加搜索条件 =============
+    QString searchText = m_searchEdit->text().trimmed();
+    if (!searchText.isEmpty()) {
+        // 搜索用户名或邮箱
+        sql += QString(" AND (username LIKE '%%1%' OR email LIKE '%%1%')")
+            .arg(searchText);
+    }
 
     // 根据复选框决定是否显示零分用户
     if (!m_showInactiveCheck->isChecked()) {
-        sql += " WHERE (easy_high_score > 0 OR normal_high_score > 0 OR hard_high_score > 0)";
+        sql += " AND (easy_high_score > 0 OR normal_high_score > 0 OR hard_high_score > 0)";
     }
 
     // 根据筛选器添加条件
     int filterIndex = m_filterCombo->currentIndex();
     if (filterIndex > 0) {
-        QString condition = (sql.contains("WHERE") ? " AND " : " WHERE ");
         switch (filterIndex) {
         case 1: // 简单模式玩家
-            condition += "easy_high_score > 0";
+            sql += " AND easy_high_score > 0";
             break;
         case 2: // 普通模式玩家
-            condition += "normal_high_score > 0";
+            sql += " AND normal_high_score > 0";
             break;
         case 3: // 困难模式玩家
-            condition += "hard_high_score > 0";
+            sql += " AND hard_high_score > 0";
             break;
         }
-        sql += condition;
     }
 
     sql += " ORDER BY created_at DESC";
+
+    qDebug() << "执行SQL查询：" << sql;  // 调试用
 
     QSqlQuery query(sql, m_db);
 
