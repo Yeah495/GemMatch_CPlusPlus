@@ -12,10 +12,12 @@
 #include <QMediaPlayer>       
 #include <QAudioOutput> 
 #include <QGraphicsProxyWidget> // 新增
+#include <QVariantAnimation>
 
 #include "Board.h" 
 #include "GemItem.h" 
 #include "GameButton.h" // ✅ 引入
+
 
 class MainWindow;
 
@@ -41,6 +43,8 @@ public:
 
     void stopHintAnimation(); // 停止提示动画
     void showHintAnimation(const QPoint& p1, const QPoint& p2);  //显示提示动画
+
+    void playNewRecordAnimation(int recordType, std::function<void()> callback);
 protected:
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
@@ -107,6 +111,8 @@ private:
     
 
     QList<QAbstractAnimation*> m_hintAnims;
+
+    QGraphicsPixmapItem* m_recordItem = nullptr; // 用于显示破纪录图片的图元
 };
 
 #endif // SCENEGAME_H

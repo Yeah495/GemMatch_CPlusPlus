@@ -112,101 +112,177 @@ public:
     }
 
     // 更新分数（根据难度）
-    void updateScore(int score, int difficultyLevel) {
-        if (m_currentUser.isEmpty()) return;
+    //int updateScore(int score, int difficultyLevel) {
+    //    if (m_currentUser.isEmpty()) return 0;
 
-        QString scoreField, recentField;
-        switch (difficultyLevel) {
-        case 3: // 简单
-            scoreField = "easy_high_score";
-            recentField = "easy_recent_scores";
-            break;
-        case 5: // 普通
-            scoreField = "normal_high_score";
-            recentField = "normal_recent_scores";
-            break;
-        case 7: // 困难
-            scoreField = "hard_high_score";
-            recentField = "hard_recent_scores";
-            break;
-        default:
-            return; // 无效难度
-        }
+    //    QString scoreField, recentField;
+    //    switch (difficultyLevel) {
+    //    case 3: // 简单
+    //        scoreField = "easy_high_score";
+    //        recentField = "easy_recent_scores";
+    //        break;
+    //    case 5: // 普通
+    //        scoreField = "normal_high_score";
+    //        recentField = "normal_recent_scores";
+    //        break;
+    //    case 7: // 困难
+    //        scoreField = "hard_high_score";
+    //        recentField = "hard_recent_scores";
+    //        break;
+    //    default:
+    //        return 0; // 无效难度
+    //    }
+    //    int recordStatus = 0; // 默认无纪录
 
-        // 开启事务
-        m_db.transaction();
+    //    // 开启事务
+    //    m_db.transaction();
 
-        try {
-            // 1. 获取当前最高分和最近得分列表
-            QSqlQuery selectQuery(m_db);
-            selectQuery.prepare(
-                QString("SELECT %1, %2 FROM users WHERE username = :username")
-                .arg(scoreField).arg(recentField)
-            );
-            selectQuery.bindValue(":username", m_currentUser);
+    //    try {
+    //        // 1. 获取当前最高分和最近得分列表
+    //        QSqlQuery selectQuery(m_db);
+    //        selectQuery.prepare(
+    //            QString("SELECT %1, %2 FROM users WHERE username = :username")
+    //            .arg(scoreField).arg(recentField)
+    //        );
+    //        selectQuery.bindValue(":username", m_currentUser);
 
-            int currentHighScore = 0;
-            QString recentScoresJson = "[]";
+    //        int currentHighScore = 0;
+    //        QString recentScoresJson = "[]";
 
-            if (selectQuery.exec() && selectQuery.next()) {
-                currentHighScore = selectQuery.value(0).toInt();
-                recentScoresJson = selectQuery.value(1).toString();
-            }
+    //        if (selectQuery.exec() && selectQuery.next()) {
+    //            currentHighScore = selectQuery.value(0).toInt();
+    //            recentScoresJson = selectQuery.value(1).toString();
+    //        }
 
-            // 2. 更新最高分（如果新分数更高）
-            bool updateHighScore = false;
-            if (score > currentHighScore) {
-                QSqlQuery updateHighQuery(m_db);
-                updateHighQuery.prepare(
-                    QString("UPDATE users SET %1 = :score WHERE username = :username")
-                    .arg(scoreField)
-                );
-                updateHighQuery.bindValue(":score", score);
-                updateHighQuery.bindValue(":username", m_currentUser);
-                updateHighQuery.exec();
-                updateHighScore = true;
-            }
+    //        // 2. 更新最高分（如果新分数更高）
+    //        bool updateHighScore = false;
+    //        if (score > currentHighScore) {
+    //            QSqlQuery updateHighQuery(m_db);
+    //            updateHighQuery.prepare(
+    //                QString("UPDATE users SET %1 = :score WHERE username = :username")
+    //                .arg(scoreField)
+    //            );
+    //            updateHighQuery.bindValue(":score", score);
+    //            updateHighQuery.bindValue(":username", m_currentUser);
+    //            updateHighQuery.exec();
+    //            updateHighScore = true;
+    //        }
 
-            // 3. 更新最近得分列表
-            QJsonDocument doc = QJsonDocument::fromJson(recentScoresJson.toUtf8());
-            QJsonArray scoresArray = doc.array();
+    //        // 3. 更新最近得分列表
+    //        QJsonDocument doc = QJsonDocument::fromJson(recentScoresJson.toUtf8());
+    //        QJsonArray scoresArray = doc.array();
 
-            // 添加新得分到数组开头
-            scoresArray.prepend(score);
+    //        // 添加新得分到数组开头
+    //        scoresArray.prepend(score);
 
-            // 保持最多10个得分
-            while (scoresArray.size() > 10) {
-                scoresArray.removeLast();
-            }
+    //        // 保持最多10个得分
+    //        while (scoresArray.size() > 10) {
+    //            scoresArray.removeLast();
+    //        }
 
-            // 转换为JSON字符串
-            QJsonDocument newDoc(scoresArray);
-            QString newScoresJson = newDoc.toJson(QJsonDocument::Compact);
+    //        // 转换为JSON字符串
+    //        QJsonDocument newDoc(scoresArray);
+    //        QString newScoresJson = newDoc.toJson(QJsonDocument::Compact);
 
-            // 更新数据库
-            QSqlQuery updateRecentQuery(m_db);
-            updateRecentQuery.prepare(
-                QString("UPDATE users SET %1 = :scores WHERE username = :username")
-                .arg(recentField)
-            );
-            updateRecentQuery.bindValue(":scores", newScoresJson);
-            updateRecentQuery.bindValue(":username", m_currentUser);
-            updateRecentQuery.exec();
+    //        // 更新数据库
+    //        QSqlQuery updateRecentQuery(m_db);
+    //        updateRecentQuery.prepare(
+    //            QString("UPDATE users SET %1 = :scores WHERE username = :username")
+    //            .arg(recentField)
+    //        );
+    //        updateRecentQuery.bindValue(":scores", newScoresJson);
+    //        updateRecentQuery.bindValue(":username", m_currentUser);
+    //        updateRecentQuery.exec();
 
-            // 提交事务
-            m_db.commit();
+    //        // 提交事务
+    //        m_db.commit();
 
-            qDebug() << "分数更新成功！难度：" << difficultyLevel
-                << "，本次得分：" << score
-                << "，最高分更新：" << updateHighScore;
+    //        qDebug() << "分数更新成功！难度：" << difficultyLevel
+    //            << "，本次得分：" << score
+    //            << "，最高分更新：" << updateHighScore;
 
-        }
-        catch (...) {
-            // 发生错误，回滚事务
-            m_db.rollback();
-            qDebug() << "更新分数时发生错误！";
-        }
+    //    }
+    //    catch (...) {
+    //        // 发生错误，回滚事务
+    //        m_db.rollback();
+    //        qDebug() << "更新分数时发生错误！";
+    //    }
+    //}
+
+
+
+int updateScore(int score, int difficultyLevel) {
+    if (m_currentUser.isEmpty()) return 0;
+
+    QString scoreField, recentField;
+    switch (difficultyLevel) {
+    case 3: scoreField = "easy_high_score"; recentField = "easy_recent_scores"; break;
+    case 5: scoreField = "normal_high_score"; recentField = "normal_recent_scores"; break;
+    case 7: scoreField = "hard_high_score"; recentField = "hard_recent_scores"; break;
+    default: return 0;
     }
+
+    int recordStatus = 0; // 默认无纪录
+
+    m_db.transaction();
+    try {
+        QSqlQuery query(m_db);
+
+        // 1. 检查【全服最高分】 (在更新前检查)
+        query.exec(QString("SELECT MAX(%1) FROM users").arg(scoreField));
+        int globalMax = 0;
+        if (query.next()) globalMax = query.value(0).toInt();
+
+        // 2. 检查【个人最高分】
+        query.prepare(QString("SELECT %1, %2 FROM users WHERE username = :u").arg(scoreField).arg(recentField));
+        query.bindValue(":u", m_currentUser);
+
+        int currentPersonalMax = 0;
+        QString recentJson = "[]";
+        if (query.exec() && query.next()) {
+            currentPersonalMax = query.value(0).toInt();
+            recentJson = query.value(1).toString();
+        }
+
+        // 3. 判定纪录类型
+        if (score > globalMax) {
+            recordStatus = 2; // 打破全服纪录！
+        }
+        else if (score > currentPersonalMax) {
+            recordStatus = 1; // 打破个人纪录
+        }
+
+        // 4. 执行更新 (逻辑保持不变)
+        if (score > currentPersonalMax) {
+            QSqlQuery updateHigh(m_db);
+            updateHigh.prepare(QString("UPDATE users SET %1 = :s WHERE username = :u").arg(scoreField));
+            updateHigh.bindValue(":s", score);
+            updateHigh.bindValue(":u", m_currentUser);
+            updateHigh.exec();
+        }
+
+        // 更新最近得分数组 (逻辑保持不变)
+        QJsonDocument doc = QJsonDocument::fromJson(recentJson.toUtf8());
+        QJsonArray arr = doc.array();
+        arr.prepend(score);
+        while (arr.size() > 10) arr.removeLast();
+        QJsonDocument newDoc(arr);
+
+        QSqlQuery updateRecent(m_db);
+        updateRecent.prepare(QString("UPDATE users SET %1 = :j WHERE username = :u").arg(recentField));
+        updateRecent.bindValue(":j", newDoc.toJson(QJsonDocument::Compact));
+        updateRecent.bindValue(":u", m_currentUser);
+        updateRecent.exec();
+
+        m_db.commit();
+    }
+    catch (...) {
+        m_db.rollback();
+        return 0;
+    }
+
+    return recordStatus;
+}
 
     QList<UserData> getRanking(int difficultyLevel) {
         QList<UserData> list;
