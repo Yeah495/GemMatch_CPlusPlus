@@ -166,12 +166,11 @@ QPixmap GameOverDialog::generateQRCode(const QString& text, int size) {
 QString GameOverDialog::generateShareUrl(int score) {
     // 方案1：生成一个包含分数的分享链接
     // 这里可以是你的游戏网站地址 + 参数
-    QString baseUrl = "https://github.com/Yeah495/GemMatch_CPlusPlus";
-    //QString shareUrl = QString("%1?score=%2&time=%3")
-    //    .arg(baseUrl)
-    //    .arg(score)
-    //    .arg(QDateTime::currentDateTime().toSecsSinceEpoch());
-    return baseUrl;
+    QString baseUrl = "https://zhitongliu061115-cpu.github.io/-ATM-/";
+    QString shareurl = QString("%1?score=%2")
+        .arg(baseUrl)
+        .arg(score);
+    return shareurl;
 
 
     //// 按照要求格式化字符串

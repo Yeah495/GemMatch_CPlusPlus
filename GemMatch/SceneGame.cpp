@@ -525,3 +525,114 @@ void SceneGame::showHintAnimation(const QPoint& p1, const QPoint& p2) {
     createPulseAnim(item1);
     createPulseAnim(item2);
 }
+
+//void SceneGame::playNewRecordAnimation(int recordType, std::function<void()> callback) {
+//    // 1. 准备图片 (确保 assets/images/破纪录.png 存在)
+//    QString imagePath;
+//    if (recordType == 2) {
+//        imagePath = "assets/images/全国新纪录.png"; // 全服纪录图片
+//    }
+//    else {
+//        imagePath = "assets/images/破纪录.png"; // 个人纪录图片
+//    }
+//
+//    QPixmap pix(imagePath);
+//    if (pix.isNull()) {
+//        qDebug() << "错误：找不到破纪录图片 -> " << imagePath;
+//        if (callback) callback();
+//        return;
+//    }
+//
+//    // 2. 创建或重置图元
+//    if (!m_recordItem) {
+//        m_recordItem = new QGraphicsPixmapItem(pix);
+//        m_bgScene->addItem(m_recordItem); // 添加到背景 Scene 最上层
+//        m_recordItem->setZValue(100);     // 确保在最前面
+//    }
+//    else {
+//        m_recordItem->setPixmap(pix);
+//        m_recordItem->setVisible(true);
+//    }
+//
+//    // 3. 设置初始位置 (屏幕正上方外部)
+//    // 假设窗口宽度 this->width()，让图片水平居中
+//    qreal targetX = (this->width() - pix.width()) / 2.0;
+//    qreal targetY = (this->height() - pix.height()) / 2.0; // 最终停在屏幕中央
+//    qreal startY = -pix.height() - 100; // 从屏幕上方看不到的地方开始
+//
+//    m_recordItem->setPos(targetX, startY);
+//
+//    // 4. ✅ 【关键修复】使用 QVariantAnimation 代替 QPropertyAnimation
+//        // 因为 QGraphicsPixmapItem 不是 QObject，不能直接用 QPropertyAnimation
+//    QVariantAnimation* anim = new QVariantAnimation(this);
+//    anim->setDuration(5000); // 1秒
+//    anim->setStartValue(QPointF(targetX, startY));
+//    anim->setEndValue(QPointF(targetX, targetY));
+//    anim->setEasingCurve(QEasingCurve::OutBounce); // 弹跳效果
+//
+//    // 5. 动画结束后调用回调
+//    connect(anim, &QAbstractAnimation::finished, this, [anim, callback]() {
+//        anim->deleteLater();
+//        if (callback) callback();
+//        });
+//
+//    anim->start();
+//}
+
+
+
+void SceneGame::playNewRecordAnimation(int recordType, std::function<void()> callback) {
+    QString imageName = (recordType == 2) ? "全国新纪录.png" : "破纪录.png";
+    QString imagePath = "assets/images/" + imageName;
+
+    // 尝试加载图片
+    QPixmap pix(imagePath);
+
+    // 安全检查：如果图片加载失败，直接执行回调，避免卡住流程
+    if (pix.isNull()) {
+        if (callback) callback();
+        return;
+    }
+
+    // 2. 创建或重置图元
+    if (!m_recordItem) {
+        m_recordItem = new QGraphicsPixmapItem(pix);
+        m_bgScene->addItem(m_recordItem);
+        m_recordItem->setZValue(9999); // 确保在最前面
+    }
+    else {
+        m_recordItem->setPixmap(pix);
+        m_recordItem->setVisible(true);
+        m_recordItem->setZValue(9999);
+    }
+
+    // 3. 计算位置
+    qreal targetX = (this->width() - pix.width()) / 2.0;
+    qreal targetY = (this->height() - pix.height()) / 2.0;
+    qreal startY = -pix.height() - 100;
+
+    // 初始位置
+    m_recordItem->setPos(targetX, startY);
+
+    // 4. 使用 QVariantAnimation 驱动
+    QVariantAnimation* anim = new QVariantAnimation(this);
+    anim->setDuration(1000);
+    anim->setStartValue(QPointF(targetX, startY));
+    anim->setEndValue(QPointF(targetX, targetY));
+    anim->setEasingCurve(QEasingCurve::OutBounce);
+
+    // 关键：监听每一帧的变化，手动更新图元位置
+    connect(anim, &QVariantAnimation::valueChanged, this, [this](const QVariant& val) {
+        if (m_recordItem) {
+            m_recordItem->setPos(val.toPointF());
+        }
+        });
+
+    // 动画结束
+    connect(anim, &QAbstractAnimation::finished, this, [anim, callback]() {
+        anim->deleteLater();
+        if (callback) callback();
+        });
+
+    anim->start();
+}

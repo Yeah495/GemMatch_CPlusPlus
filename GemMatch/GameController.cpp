@@ -311,29 +311,43 @@ void GameController::onGameTick() {
 
         // 获取最终得分
         int finalScore = m_gameCore->getScore();
+        int recordType = 0; // 0=无纪录, 1=个人, 2=全服
 
-        // 更新数据库中的用户分数（根据难度）
+        // 1. 更新数据库并获取纪录状态
         if (!UserManager::instance().getCurrentUser().isEmpty()) {
-            QString currentUser = UserManager::instance().getCurrentUser();
-            qDebug() << "游戏结束，用户：" << currentUser
-                << "，难度：" << m_currentDifficulty
-                << "，得分：" << finalScore;
+            // 注意：这里假设您已经修改了 UserManager::updateScore 让它返回 int
+            // 如果您的 updateScore 还是 void，这里会报错，请先修改 UserManager
+            recordType = UserManager::instance().updateScore(finalScore, m_currentDifficulty);
 
-            UserManager::instance().updateScore(finalScore, m_currentDifficulty);
+            qDebug() << "游戏结束 - 难度:" << m_currentDifficulty
+                << " 分数:" << finalScore
+                << " 纪录状态(recordType):" << recordType;
+        }
 
-            // 立即验证分数是否保存成功
-            int savedScore = UserManager::instance().getCurrentUserHighScore(m_currentDifficulty);
-            qDebug() << "数据库保存验证 - 难度" << m_currentDifficulty
-                << "的最高分：" << savedScore;
+        // 定义结束流程：延迟显示弹窗
+        auto showGameOverDialog = [this, finalScore]() {
+            emit gameOver(finalScore);
+            endGame();
+            };
+
+        // 2. 判断是否播放动画
+        if (recordType > 0) {
+            qDebug() << "触发破纪录动画！类型：" << recordType;
+
+            // 调用 SceneGame 的动画接口
+            // 请确保 SceneGame::playNewRecordAnimation 已经按之前的建议修改好
+            m_scene->playNewRecordAnimation(recordType, [this, showGameOverDialog]() {
+                // 动画播放完毕（图片落地）后，再等 2 秒，然后弹窗
+                QTimer::singleShot(3000, this, [showGameOverDialog]() {
+                    showGameOverDialog();
+                    });
+                });
         }
         else {
-            qDebug() << "游戏结束，但用户未登录，分数不保存";
+            // 没有破纪录，直接弹窗（稍作延迟体验更好）
+            qDebug() << "未破纪录，直接结算";
+            QTimer::singleShot(500, this, showGameOverDialog);
         }
-
-        // ✅ 修改：发出 gameOver 信号，而不是直接显示 MessageBox
-        emit gameOver(finalScore);
-
-        endGame();
     }
 }
 

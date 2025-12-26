@@ -369,11 +369,12 @@ void PageLogin::onRegisterClicked() {
     // 5. 发送邮件
     Smtp* smtp = new Smtp(senderEmail, senderPass, smtpHost);
     QString subject = "【宝石迷阵】注册验证码";
+    // 使用 \n 代替 <br> 实现换行，删除所有 HTML 样式标签
     QString body = QString(
-        "亲爱的用户 <b>%1</b>：<br><br>"
-        "欢迎您注册宝石迷阵！<br><br>"
-        "您的注册验证码是：<h2 style='color:#FF6B35'>%2</h2>"
-        "验证码 <span style='color:red;font-weight:bold'>15分钟内有效</span>，请勿泄露给他人。<br><br>"
+        "亲爱的用户 %1：\n\n"
+        "欢迎您注册宝石迷阵！\n\n"
+        "您的注册验证码是：%2\n\n"
+        "验证码 15分钟内有效，请勿泄露给他人。\n\n"
         "如非本人操作，请忽略此邮件。"
     ).arg(user).arg(code);
 
