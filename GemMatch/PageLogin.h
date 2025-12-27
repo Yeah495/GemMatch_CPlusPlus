@@ -3,10 +3,14 @@
 
 #include <QWidget>
 #include <QLineEdit>
+#include <QLabel>
 #include <QGraphicsView>
 #include <QGraphicsVideoItem>
 #include <QMediaPlayer>
 #include <QAudioOutput>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 #include "GameButton.h"
 #include "GameLogo.h"
 
@@ -39,6 +43,10 @@ private:
     // 【新增】后台按键
     GameButton* m_btnBackstage;
 
+    // 【新增】头像显示和网络请求
+    QLabel* m_avatarLabel;
+    QNetworkAccessManager* m_networkManager;
+
     // --- 关键修改：保存两个代理对象，以便独立控制位置 ---
     QGraphicsProxyWidget* m_loginBoxProxy; // 登录框（输入框+按钮）的代理
     QGraphicsProxyWidget* m_logoProxy;     // Logo 的独立代理
@@ -51,6 +59,8 @@ private:
     void setupUI();
     void onLoginClicked();
     void onRegisterClicked();
+    void onUserTextChanged(const QString& text);
+    void onAvatarDownloaded(QNetworkReply* reply);
 
 protected:
     void resizeEvent(QResizeEvent* event) override;
