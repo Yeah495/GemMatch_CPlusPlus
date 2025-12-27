@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -63,4 +64,71 @@
         else if(score > 20000) document.getElementById('rankText').innerText = "神迹！你已经登峰造极了！";
     </script>
 </body>
+=======
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的《宝石迷阵》战报</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Microsoft YaHei', sans-serif;
+            color: white;
+            text-align: center;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .score {
+            font-size: 64px;
+            font-weight: bold;
+            color: #FFD700;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(255,215,0,0.5);
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 25px;
+            background: white;
+            color: #764ba2;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🎉 挑战成功 🎉</h1>
+        <p>我在《宝石迷阵》中获得了</p>
+        <div class="score" id="scoreDisplay">0</div>
+        <p id="rankText">超越了全球 99% 的玩家！</p>
+        <a href="https://github.com/Yeah495/GemMatch_CPlusPlus" class="btn">我也要玩</a>
+    </div>
+
+    <script>
+        // 获取 URL 中的 score 参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const score = urlParams.get('score') || 0;
+        document.getElementById('scoreDisplay').innerText = score;
+
+        // 简单的逻辑：分数越高，评价越牛
+        if(score < 5000) document.getElementById('rankText').innerText = "再接再厉，你是最有潜力的！";
+        else if(score > 20000) document.getElementById('rankText').innerText = "神迹！你已经登峰造极了！";
+    </script>
+</body>
+>>>>>>> main
 </html>

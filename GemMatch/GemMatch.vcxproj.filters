@@ -56,6 +56,8 @@
     <ClCompile Include="GameOverDialog.cpp">
       <Filter>view</Filter>
     </ClCompile>
+    <ClCompile Include="PageStatistics.cpp" />
+    <ClCompile Include="ScoreChartWidget.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="GemMatch.h" />
@@ -96,6 +98,8 @@
     <QtMoc Include="GameOverDialog.h">
       <Filter>view</Filter>
     </QtMoc>
+    <QtMoc Include="PageStatistics.h" />
+    <QtMoc Include="ScoreChartWidget.h" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="GemMatch.qrc" />
