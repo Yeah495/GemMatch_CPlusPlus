@@ -329,11 +329,11 @@ void GameController::onGameTick() {
         else {
             qDebug() << "游戏结束，但用户未登录，分数不保存";
         }
-
+        endGame();
         // ✅ 修改：发出 gameOver 信号，而不是直接显示 MessageBox
         emit gameOver(finalScore);
 
-        endGame();
+        
     }
 }
 
@@ -348,6 +348,7 @@ void GameController::undo() {
 }
 
 void GameController::endGame() {
+    m_isPaused = true;
     m_isTerminated = true;
     m_gameTimer->stop();
     stopAllSounds();
