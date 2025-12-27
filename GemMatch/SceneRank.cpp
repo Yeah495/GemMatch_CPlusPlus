@@ -207,14 +207,7 @@ void SceneRank::loadRankData(int difficultyLevel) {
                 difficultyLevel == 5 ? user.normalHighScore :
                 user.hardHighScore);
 
-        QList<QColor> rankColors = {
-            QColor(255, 215, 0),   // 金牌色
-            QColor(192, 192, 192), // 银牌色
-            QColor(205, 127, 50),  // 铜牌色
-            QColor(50, 50, 50)     // 深灰色（其他名次）
-        };
-
-        QColor textColor = (i < 3) ? rankColors[i] : rankColors[3];
+        QColor textColor = QColor("#044BB7");
 
         // 排名
         QTableWidgetItem* itemRank = new QTableWidgetItem(QString::number(i + 1));
@@ -222,19 +215,8 @@ void SceneRank::loadRankData(int difficultyLevel) {
         itemRank->setForeground(QBrush(textColor));
         itemRank->setFlags(itemRank->flags() & ~Qt::ItemIsEditable);
 
-        // 为前三名添加图标（如果有资源）
-        if (i == 0) {
-            // itemRank->setIcon(QIcon(":/icons/gold_medal.png"));
-            itemRank->setFont(QFont("Arial", 14, QFont::Bold));
-        }
-        else if (i == 1) {
-            // itemRank->setIcon(QIcon(":/icons/silver_medal.png"));
-            itemRank->setFont(QFont("Arial", 12, QFont::Bold));
-        }
-        else if (i == 2) {
-            // itemRank->setIcon(QIcon(":/icons/bronze_medal.png"));
-            itemRank->setFont(QFont("Arial", 11, QFont::Bold));
-        }
+        // 统一字体（去掉前三名的特殊字体）
+        itemRank->setFont(QFont("Microsoft YaHei", 11, QFont::Bold));
 
         m_table->setItem(i, 0, itemRank);
 
@@ -243,7 +225,10 @@ void SceneRank::loadRankData(int difficultyLevel) {
         itemName->setTextAlignment(Qt::AlignCenter);
         itemName->setForeground(QBrush(textColor));
         itemName->setFlags(itemName->flags() & ~Qt::ItemIsEditable);
+        // 统一字体
+        itemName->setFont(QFont("Microsoft YaHei", 11, QFont::Bold));
         m_table->setItem(i, 1, itemName);
+
 
         // 分数（根据难度显示对应分数）
         int score = 0;
@@ -256,19 +241,9 @@ void SceneRank::loadRankData(int difficultyLevel) {
         QTableWidgetItem* itemScore = new QTableWidgetItem(QString::number(score));
         itemScore->setTextAlignment(Qt::AlignCenter);
 
-        // 根据分数设置颜色
-        if (score >= 1000) {
-            itemScore->setForeground(QBrush(QColor(255, 69, 0))); // 橙色红色
-            itemScore->setFont(QFont("Arial", 14, QFont::Bold));
-        }
-        else if (score >= 500) {
-            itemScore->setForeground(QBrush(QColor(30, 144, 255))); // 亮蓝色
-            itemScore->setFont(QFont("Microsoft YaHei", 12, QFont::Bold));
-        }
-        else {
-            itemScore->setForeground(QBrush(QColor("#044BB7"))); // 深蓝色
-            itemScore->setFont(QFont("Microsoft YaHei", 10, QFont::Bold));
-        }
+        // 统一分数颜色为深蓝色（#044BB7）
+        itemScore->setForeground(QBrush(QColor("#044BB7"))); // 统一颜色
+        itemScore->setFont(QFont("Microsoft YaHei", 11, QFont::Bold)); // 统一字体
 
         itemScore->setFlags(itemScore->flags() & ~Qt::ItemIsEditable);
         m_table->setItem(i, 2, itemScore);

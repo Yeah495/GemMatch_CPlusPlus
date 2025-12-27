@@ -172,7 +172,7 @@ void PageStatistics::setupUI() {
     QLabel* achTitle = new QLabel("🏆 成就系统");
     achTitle->setStyleSheet(
         "QLabel {"
-        "   color: #044BB7;"
+        "   color: #2a5493;"
         "   font-size: 24px;"
         "   font-weight: bold;"
         "   background-color: rgba(255, 255, 255, 150);"
@@ -277,9 +277,6 @@ void PageStatistics::loadStatisticsData() {
     ach = { "full_combo", "完美连击", "一局游戏中无失误交换", false, 0, 1 };
     m_achievements.append(ach);
 
-    ach = { "quick_win", "速战速决", "30秒内完成一局游戏", false, 0, 1 };
-    m_achievements.append(ach);
-
     // 从数据库或文件加载成就解锁状态
     loadAchievementProgress();
 
@@ -357,6 +354,8 @@ void PageStatistics::updateAchievements() {
     QListWidgetItem* titleItem = new QListWidgetItem(QString("成就进度: %1/%2").arg(unlockedCount).arg(m_achievements.size()));
     titleItem->setTextAlignment(Qt::AlignCenter);
     titleItem->setFlags(Qt::NoItemFlags);
+    titleItem->setForeground(QBrush(QColor("#2a5493"))); // 添加这行，设置字体颜色为 #2a5493
+    titleItem->setFont(QFont("Microsoft YaHei", 12, QFont::Bold)); // 可以设置字体
     m_achievementsList->addItem(titleItem);
 
     // 添加分割线
@@ -383,11 +382,15 @@ void PageStatistics::updateAchievements() {
         QListWidgetItem* item = new QListWidgetItem(displayText);
 
         if (ach.unlocked) {
-            item->setForeground(QBrush(QColor(255, 215, 0))); // 金色
+            item->setForeground(QBrush(QColor("#2a5493"))); // 修改为 #2a5493
             item->setIcon(QIcon(":/icons/achievement_unlocked.png"));
+            // 已解锁成就可以加粗显示
+            QFont font = item->font();
+            font.setBold(true);
+            item->setFont(font);
         }
         else {
-            item->setForeground(QBrush(QColor(128, 128, 128))); // 灰色
+            item->setForeground(QBrush(QColor("#2a5493"))); // 修改为 #2a5493
             item->setIcon(QIcon(":/icons/achievement_locked.png"));
         }
 
