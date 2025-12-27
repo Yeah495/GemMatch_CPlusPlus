@@ -4,7 +4,7 @@
 #include <QHBoxLayout>
 #include <QGraphicsScene>
 #include <QApplication>
-#include <QPainterPath> // 需要引入
+#include <QPainterPath>
 #include <QGraphicsDropShadowEffect>
 
 SceneStart::SceneStart(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWin) {
@@ -126,35 +126,7 @@ void SceneStart::setupUI() {
     m_avatar->setFixedSize(100, 100); // 稍微调小一点，显得更精致
     m_avatar->setStyleSheet("background: transparent;");
 
-    // 处理圆形图片 + 描边
-    QPixmap rawPix("assets/images/1.png"); // 读取你的头像图片
-    if (!rawPix.isNull()) {
-        // 创建一个透明画布
-        QPixmap circularPix(100, 100);
-        circularPix.fill(Qt::transparent);
-
-        QPainter painter(&circularPix);
-        painter.setRenderHint(QPainter::Antialiasing);           // 抗锯齿
-        painter.setRenderHint(QPainter::SmoothPixmapTransform);  // 平滑变换
-
-        // 1. 绘制圆形路径（作为裁剪区域）
-        QPainterPath path;
-        // 留出 2px 边距给描边，防止边缘被切掉
-        path.addEllipse(2, 2, 96, 96);
-        painter.setClipPath(path);
-
-        // 2. 绘制图片
-        painter.drawPixmap(0, 0, 100, 100, rawPix);
-
-        // 3. 绘制白色描边 (重置裁剪，否则描边会被切掉一半)
-        painter.setClipping(false);
-        QPen pen(Qt::white, 4); // 白色，4像素宽度
-        painter.setPen(pen);
-        painter.setBrush(Qt::NoBrush);
-        painter.drawEllipse(2, 2, 96, 96); // 这里的圆要和上面的路径一致
-
-        m_avatar->setPixmap(circularPix);
-    }
+    // 初始时不设置默认头像；后续从 MainWindow 同步
 
     m_avatarProxy = scene->addWidget(m_avatar);
     m_avatarProxy->setZValue(2);
@@ -240,6 +212,14 @@ void SceneStart::showEvent(QShowEvent* event) {
     QWidget::showEvent(event);
 
     selectDifficulty(0);
+
+    // 每次进入主菜单时，从 MainWindow 同步头像
+    if (m_mainWin && m_avatar) {
+        const QPixmap& pix = m_mainWin->getAvatarPixmap();
+        if (!pix.isNull()) {
+            m_avatar->setPixmap(pix);
+        }
+    }
 
     if (m_player) {
         m_player->setSource(QUrl::fromLocalFile(m_videoPath));

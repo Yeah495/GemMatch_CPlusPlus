@@ -15,6 +15,7 @@
 #include <QStyleOption>
 #include <QGraphicsProxyWidget>
 #include <QUrl>
+#include <QPainterPath>
 
 SceneGame::SceneGame(MainWindow* mainWin)
     : QWidget(mainWin), m_mainWin(mainWin), m_boardProxy(nullptr), m_rightPanelProxy(nullptr)
@@ -108,25 +109,7 @@ void SceneGame::setupUI() {
     m_avatarLabel->setFixedSize(100, 100);
     m_avatarLabel->setStyleSheet("background: transparent; border: none;");
 
-    // 生成圆形头像 (同上)
-    QPixmap rawPix("assets/images/1.png");
-    if (!rawPix.isNull()) {
-        QPixmap circularPix(100, 100);
-        circularPix.fill(Qt::transparent);
-        QPainter painter(&circularPix);
-        painter.setRenderHint(QPainter::Antialiasing);
-        painter.setRenderHint(QPainter::SmoothPixmapTransform);
-        QPainterPath path;
-        path.addEllipse(2, 2, 96, 96);
-        painter.setClipPath(path);
-        painter.drawPixmap(0, 0, 100, 100, rawPix);
-        painter.setClipping(false);
-        QPen pen(Qt::white, 4);
-        painter.setPen(pen);
-        painter.setBrush(Qt::NoBrush);
-        painter.drawEllipse(2, 2, 96, 96);
-        m_avatarLabel->setPixmap(circularPix);
-    }
+    // 初始不设置默认头像；在 showEvent 中按需同步
 
     // 居中添加到布局顶部
     sideLayout->addWidget(m_avatarLabel, 0, Qt::AlignHCenter);
@@ -253,7 +236,7 @@ void SceneGame::resizeEvent(QResizeEvent* event) {
 
 // 其余函数 (getScreenPos, renderBoard, animate..., update...) 保持不变
 // ...
-// 务必保留 animateSwap, animateExplosion 等所有动画逻辑
+// 努必保留 animateSwap, animateExplosion 等所有动画逻辑
 // ...
 
 QPointF SceneGame::getScreenPos(int row, int col) const {
@@ -476,6 +459,13 @@ void SceneGame::startShakeAnimation() {
 
 void SceneGame::showEvent(QShowEvent* event) {
     QWidget::showEvent(event);
+    // 每次进入游戏界面时，从 MainWindow 同步头像
+    if (m_mainWin && m_avatarLabel) {
+        const QPixmap& pix = m_mainWin->getAvatarPixmap();
+        if (!pix.isNull()) {
+            m_avatarLabel->setPixmap(pix);
+        }
+    }
     if (m_player) { m_player->setSource(QUrl::fromLocalFile(m_videoPath)); m_player->play(); }
 }
 

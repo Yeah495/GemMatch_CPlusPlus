@@ -44,6 +44,11 @@ public:
     void setBGMVolume(float volume); // 设置BGM音量接口
     float getBGMVolume() const;      // 获取当前BGM音量0.0~1.0
 
+    // 头像相关接口
+    void setAvatarFromFile(const QString& filePath);
+    void setAvatarFromPixmap(const QPixmap& pixmap);
+    const QPixmap& getAvatarPixmap() const;
+
 private:
     void setupAllPages();
     void setupGlobalUI();
@@ -74,7 +79,10 @@ private:
     int m_brightness = 100;
     int m_language = 0; // 0: CN, 1: EN
 
+    // 全局头像（已裁剪为圆形的100x100像素）
+    QPixmap m_avatarPixmap;
+
     void onGameOver(int score);
 };
 
-#endif
+#endif#endif
