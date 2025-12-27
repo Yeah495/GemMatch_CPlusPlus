@@ -22,8 +22,13 @@ class PageSettings : public QWidget {
 public:
     explicit PageSettings(MainWindow* mainWin);
 
+signals:
+    void avatarChanged();
+
 private slots:
     void onMusicVolumeChanged(int value);
+    void onChangeAvatar();
+    void onToggleLanguage();
 
 private:
     MainWindow* m_mainWin;
@@ -51,13 +56,10 @@ private:
     QPushButton* m_btnLang;
     QPushButton* m_btnAvatar;
 
-    void onChangeAvatar();
-    void onToggleLanguage();
-
 protected:
     void resizeEvent(QResizeEvent* event) override;
     void showEvent(QShowEvent* event) override;
     void hideEvent(QHideEvent* event) override;
 };
 
-#endif#endif
+#endif

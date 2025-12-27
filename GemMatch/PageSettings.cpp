@@ -5,6 +5,10 @@
 #include <QComboBox>
 #include <QDebug>
 #include <QEvent>
+#include <QFileDialog>
+#include <QMenu>
+#include <QAction>
+#include <QRandomGenerator>
 
 PageSettings::PageSettings(MainWindow* mainWin)
     : QWidget(mainWin)
@@ -78,26 +82,13 @@ void PageSettings::setupUI() {
     m_btnAvatar->setFixedSize(100, 100);
     m_btnAvatar->setStyleSheet("border: none; background: transparent;"); // 去掉默认按钮样式
 
-    // 生成圆形头像 (同 SceneStart 逻辑)
-    QPixmap rawPix("assets/images/1.png");
-    if (!rawPix.isNull()) {
-        QPixmap circularPix(100, 100);
-        circularPix.fill(Qt::transparent);
-        QPainter painter(&circularPix);
-        painter.setRenderHint(QPainter::Antialiasing);
-        painter.setRenderHint(QPainter::SmoothPixmapTransform);
-        QPainterPath path;
-        path.addEllipse(2, 2, 96, 96);
-        painter.setClipPath(path);
-        painter.drawPixmap(0, 0, 100, 100, rawPix);
-        painter.setClipping(false);
-        QPen pen(Qt::white, 4);
-        painter.setPen(pen);
-        painter.setBrush(Qt::NoBrush);
-        painter.drawEllipse(2, 2, 96, 96);
-
-        m_btnAvatar->setIcon(QIcon(circularPix));
-        m_btnAvatar->setIconSize(QSize(100, 100));
+    // 初始时不强制设置默认头像，只有在 Settings 中操作才会改头像
+    if (m_mainWin) {
+        const QPixmap& existing = m_mainWin->getAvatarPixmap();
+        if (!existing.isNull()) {
+            m_btnAvatar->setIcon(QIcon(existing));
+            m_btnAvatar->setIconSize(QSize(100, 100));
+        }
     }
     // 连接点击信号
     connect(m_btnAvatar, &QPushButton::clicked, this, &PageSettings::onChangeAvatar);
@@ -283,8 +274,55 @@ void PageSettings::hideEvent(QHideEvent* event) {
 
 // 实现空函数
 void PageSettings::onChangeAvatar() {
-    // TODO: 后续实现选择图片逻辑
-    qDebug() << "点击了更换头像";
+    if (!m_mainWin) return;
+
+    // 弹出菜单：1 上传本地，2 使用随机头像
+    QMenu menu(this);
+    QAction* actUpload = menu.addAction("上传本地头像");
+    QAction* actRandom = menu.addAction("随机头像");
+
+    QAction* chosen = menu.exec(QCursor::pos());
+    if (!chosen) return;
+
+    if (chosen == actUpload) {
+        QString filePath = QFileDialog::getOpenFileName(
+            this,
+            tr("选择头像图片"),
+            QString(),
+            tr("Images (*.png *.jpg *.jpeg *.bmp)")
+        );
+        if (filePath.isEmpty()) return;
+
+        QPixmap pix(filePath);
+        if (pix.isNull()) return;
+
+        m_mainWin->setAvatarFromPixmap(pix);
+
+        // 同步到当前设置页头像按钮
+        const QPixmap& circular = m_mainWin->getAvatarPixmap();
+        if (!circular.isNull()) {
+            m_btnAvatar->setIcon(QIcon(circular));
+            m_btnAvatar->setIconSize(QSize(100, 100));
+        }
+
+        emit avatarChanged();
+    } else if (chosen == actRandom) {
+        // 在 assets/images/avatars/1.jpeg ~ 6.jpeg 中随机选一张
+        int index = QRandomGenerator::global()->bounded(1, 7); // [1,6]
+        QString path = QString("assets/images/avatars/%1.jpeg").arg(index);
+        QPixmap pix(path);
+        if (pix.isNull()) return;
+
+        m_mainWin->setAvatarFromPixmap(pix);
+
+        const QPixmap& circular = m_mainWin->getAvatarPixmap();
+        if (!circular.isNull()) {
+            m_btnAvatar->setIcon(QIcon(circular));
+            m_btnAvatar->setIconSize(QSize(100, 100));
+        }
+
+        emit avatarChanged();
+    }
 }
 
 // 切换语言的逻辑

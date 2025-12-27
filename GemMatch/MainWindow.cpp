@@ -7,6 +7,10 @@
 #include "SceneRank.h"
 #include "PageAdmin.h"
 #include "PageStatistics.h" 
+#include <QFile>
+#include <QFileInfo>
+#include <QPainter>
+#include <QPainterPath>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent) {
@@ -33,6 +37,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     // 进入默认页
     switchPage(0);
+
+    // 初始化头像为空（不加载默认），等进入设置页后再设置
 }
 
 void MainWindow::setupAllPages() {
@@ -192,4 +198,41 @@ void MainWindow::onGameOver(int score) {
 
     dialog->exec();
     delete dialog;
+}
+
+void MainWindow::setAvatarFromFile(const QString& filePath) {
+    QPixmap pix(filePath);
+    if (pix.isNull()) return;
+    setAvatarFromPixmap(pix);
+}
+
+void MainWindow::setAvatarFromPixmap(const QPixmap& pixmap) {
+    if (pixmap.isNull()) return;
+
+    // 裁剪为100x100圆形，并加白色描边，保持与各页面一致
+    const int size = 100;
+    QPixmap target(size, size);
+    target.fill(Qt::transparent);
+
+    QPainter painter(&target);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+    QPainterPath path;
+    path.addEllipse(2, 2, size - 4, size - 4);
+    painter.setClipPath(path);
+
+    painter.drawPixmap(0, 0, size, size, pixmap);
+
+    painter.setClipping(false);
+    QPen pen(Qt::white, 4);
+    painter.setPen(pen);
+    painter.setBrush(Qt::NoBrush);
+    painter.drawEllipse(2, 2, size - 4, size - 4);
+
+    m_avatarPixmap = target;
+}
+
+const QPixmap& MainWindow::getAvatarPixmap() const {
+    return m_avatarPixmap;
 }
