@@ -582,17 +582,21 @@ void SceneGame::showHintAnimation(const QPoint& p1, const QPoint& p2) {
 
 
 void SceneGame::playNewRecordAnimation(int recordType, std::function<void()> callback) {
-    QString imageName = (recordType == 2) ? "全国新纪录.png" : "破纪录.png";
-    QString imagePath = "assets/images/" + imageName;
-
-    // 尝试加载图片
-    QPixmap pix(imagePath);
-
-    // 安全检查：如果图片加载失败，直接执行回调，避免卡住流程
-    if (pix.isNull()) {
-        if (callback) callback();
-        return;
-    }
+        // 1. 准备图片 (确保 assets/images/破纪录.png 存在)
+        QString imagePath;
+        if (recordType == 2) {
+            imagePath = "assets/images/全国新纪录.png"; // 全服纪录图片
+        }
+        else {
+            imagePath = "assets/images/新纪录.png"; // 个人纪录图片
+        }
+    
+        QPixmap pix(imagePath);
+        if (pix.isNull()) {
+            qDebug() << "错误：找不到破纪录图片 -> " << imagePath;
+            if (callback) callback();
+            return;
+        }
 
     // 2. 创建或重置图元
     if (!m_recordItem) {
@@ -635,4 +639,10 @@ void SceneGame::playNewRecordAnimation(int recordType, std::function<void()> cal
         });
 
     anim->start();
+}
+
+void SceneGame::hideRecordAnimation() {
+    if (m_recordItem) {
+        m_recordItem->setVisible(false);
+    }
 }

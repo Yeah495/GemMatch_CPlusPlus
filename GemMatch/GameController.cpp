@@ -265,6 +265,9 @@ void GameController::startGame(int difficultyLevel) {
     // 记录当前难度
     m_currentDifficulty = difficultyLevel;
 
+    // 【新增】确保清理掉上一次的破纪录图片
+    m_scene->hideRecordAnimation();
+
     // Model 初始化数据
     m_gameCore->initGame(difficultyLevel);
 
@@ -337,7 +340,7 @@ void GameController::onGameTick() {
             // 调用 SceneGame 的动画接口
             // 请确保 SceneGame::playNewRecordAnimation 已经按之前的建议修改好
             m_scene->playNewRecordAnimation(recordType, [this, showGameOverDialog]() {
-                // 动画播放完毕（图片落地）后，再等 2 秒，然后弹窗
+                // 动画播放完毕（图片落地）后，再等 3 秒，然后弹窗
                 QTimer::singleShot(3000, this, [showGameOverDialog]() {
                     showGameOverDialog();
                     });
@@ -348,9 +351,9 @@ void GameController::onGameTick() {
             qDebug() << "未破纪录，直接结算";
             QTimer::singleShot(500, this, showGameOverDialog);
         }
-        endGame();
-        // ✅ 修改：发出 gameOver 信号，而不是直接显示 MessageBox
-        emit gameOver(finalScore);
+        //endGame();
+        //// ✅ 修改：发出 gameOver 信号，而不是直接显示 MessageBox
+        //emit gameOver(finalScore);
 
         
     }
