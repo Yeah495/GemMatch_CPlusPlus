@@ -45,6 +45,7 @@ public:
     void showHintAnimation(const QPoint& p1, const QPoint& p2);  //显示提示动画
 
     void playNewRecordAnimation(int recordType, std::function<void()> callback);
+    void hideRecordAnimation();
 protected:
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
