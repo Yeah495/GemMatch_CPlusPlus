@@ -348,6 +348,11 @@ void GameController::onGameTick() {
             qDebug() << "未破纪录，直接结算";
             QTimer::singleShot(500, this, showGameOverDialog);
         }
+        endGame();
+        // ✅ 修改：发出 gameOver 信号，而不是直接显示 MessageBox
+        emit gameOver(finalScore);
+
+        
     }
 }
 
@@ -362,6 +367,7 @@ void GameController::undo() {
 }
 
 void GameController::endGame() {
+    m_isPaused = true;
     m_isTerminated = true;
     m_gameTimer->stop();
     stopAllSounds();

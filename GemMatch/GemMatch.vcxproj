@@ -41,8 +41,8 @@
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
-    <QtInstall>Qt_6.9.2_msvc2022</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
+    <QtInstall>6.9.2_msvc2022_64</QtInstall>
+    <QtModules>core;gui;widgets;multimedia;multimediawidgets;sql</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
