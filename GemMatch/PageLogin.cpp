@@ -11,10 +11,17 @@
 #include "Email.h"
 #include <QInputDialog>     
 #include <QRandomGenerator>
-
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QPixmap>
+#include <QPainter>
+#include <QPainterPath>
 
 
 PageLogin::PageLogin(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWin) {
+    m_networkManager = new QNetworkAccessManager(this);
+    connect(m_networkManager, &QNetworkAccessManager::finished, this, &PageLogin::onAvatarDownloaded);
     setupUI();
 }
 
@@ -62,6 +69,13 @@ void PageLogin::setupUI() {
     formLayout->setSpacing(15);
     formLayout->setAlignment(Qt::AlignHCenter);
 
+    // 头像显示
+    m_avatarLabel = new QLabel();
+    m_avatarLabel->setFixedSize(100, 100);
+    m_avatarLabel->setStyleSheet("border: 2px solid #ccc; border-radius: 50px; background-color: #f0f0f0;");
+    m_avatarLabel->setAlignment(Qt::AlignCenter);
+    formLayout->addWidget(m_avatarLabel, 0, Qt::AlignHCenter);
+
     // 输入框样式
     QString editStyle =
         "QLineEdit {"
@@ -84,6 +98,7 @@ void PageLogin::setupUI() {
     m_editUser->setPlaceholderText("用户名");
     m_editUser->setStyleSheet(editStyle);
     m_editUser->setFixedWidth(350);
+    connect(m_editUser, &QLineEdit::textChanged, this, &PageLogin::onUserTextChanged);
 
     m_editPass = new QLineEdit();
     m_editPass->setPlaceholderText("密码");
@@ -284,6 +299,43 @@ void PageLogin::setupUI() {
     // 连接信号
     connect(m_btnLogin, &QPushButton::clicked, this, &PageLogin::onLoginClicked);
     connect(m_btnReg, &QPushButton::clicked, this, &PageLogin::onRegisterClicked);
+}
+
+void PageLogin::onUserTextChanged(const QString& text) {
+    if (text.isEmpty()) {
+        m_avatarLabel->clear();
+        m_avatarLabel->setText("Avatar");
+        return;
+    }
+
+    // Robohash API: 输入任何字符串，返回一个唯一的机器人图
+    // set 1=机器人, set 2=怪兽, set 4=猫咪
+    QString url = "https://robohash.org/" + text + ".png?set=set4&size=100x100";
+
+    // 发送请求下载图片
+    QNetworkRequest req(url);
+    m_networkManager->get(req);
+}
+
+void PageLogin::onAvatarDownloaded(QNetworkReply* reply) {
+    if (reply->error() == QNetworkReply::NoError) {
+        QByteArray data = reply->readAll();
+        QPixmap pixmap;
+        pixmap.loadFromData(data);
+        
+        // 设置圆形遮罩
+        QPixmap rounded(100, 100);
+        rounded.fill(Qt::transparent);
+        QPainter painter(&rounded);
+        painter.setRenderHint(QPainter::Antialiasing);
+        QPainterPath path;
+        path.addEllipse(0, 0, 100, 100);
+        painter.setClipPath(path);
+        painter.drawPixmap(0, 0, pixmap);
+        
+        m_avatarLabel->setPixmap(rounded);
+    }
+    reply->deleteLater();
 }
 
 void PageLogin::resizeEvent(QResizeEvent* event) {
