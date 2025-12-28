@@ -286,10 +286,11 @@ void PageStatistics::loadStatisticsData() {
     updateAchievements();
 }
 
+// 修改 updateChart 方法中的统计部分
 void PageStatistics::updateChart(int difficultyLevel) {
     m_currentDifficulty = difficultyLevel;
 
-    // 从UserManager获取最近得分数据
+    // 从UserManager获取最近得分数据（最多10场）
     QList<int> recentScores = UserManager::instance().getCurrentUserRecentScores(difficultyLevel);
 
     // 设置图表数据
@@ -307,15 +308,15 @@ void PageStatistics::updateChart(int difficultyLevel) {
     if (recentScores.isEmpty()) {
         // 没有数据，显示提示
         m_lblTotalGames->setText("总游戏场次: 0");
-        m_lblAverageScore->setText("平均得分: 0");
+        m_lblAverageScore->setText("最近10场平均得分: 0");
         m_lblMaxScore->setText("最高得分: 0");
         m_lblWinRate->setText("胜率: 0%");
 
         return;
     }
 
-    // 计算统计数据
-    int totalGames = recentScores.size();
+    // 计算统计数据（基于最近10场）
+    int totalGamesInChart = recentScores.size();  // 图表显示的游戏场次（最多10）
     int totalScore = 0;
     int maxScore = 0;
     int winCount = 0;
@@ -323,16 +324,19 @@ void PageStatistics::updateChart(int difficultyLevel) {
     for (int score : recentScores) {
         totalScore += score;
         if (score > maxScore) maxScore = score;
-        if (score > 50) winCount++; 
+        if (score > 50) winCount++;
     }
 
-    int averageScore = totalScore / totalGames;
-    int winRate = (winCount * 100) / totalGames;
+    int averageScore = totalGamesInChart > 0 ? totalScore / totalGamesInChart : 0;
+    int winRate = totalGamesInChart > 0 ? (winCount * 100) / totalGamesInChart : 0;
     int highScore = UserManager::instance().getCurrentUserHighScore(difficultyLevel);
 
+    // 获取该难度的真实总游戏场次（新增）
+    int realTotalGames = UserManager::instance().getCurrentUserTotalGames(difficultyLevel);
+
     // 更新统计标签
-    m_lblTotalGames->setText(QString("总游戏场次: %1").arg(totalGames));
-    m_lblAverageScore->setText(QString("平均得分: %1").arg(averageScore));
+    m_lblTotalGames->setText(QString("总游戏场次: %1").arg(realTotalGames));  // 显示真实总场次
+    m_lblAverageScore->setText(QString("最近10场平均得分: %1").arg(averageScore));
     m_lblMaxScore->setText(QString("最高得分: %1").arg(highScore));
     m_lblWinRate->setText(QString("胜率: %1%").arg(winRate));
 
@@ -351,12 +355,19 @@ void PageStatistics::updateAchievements() {
         if (ach.unlocked) unlockedCount++;
     }
 
+    // 计算总游戏场次（使用新方法）
+    int totalGames = UserManager::instance().getCurrentUserAllTotalGames();
+
     // 添加成就标题（带进度）
-    QListWidgetItem* titleItem = new QListWidgetItem(QString("成就进度: %1/%2").arg(unlockedCount).arg(m_achievements.size()));
+    QListWidgetItem* titleItem = new QListWidgetItem(
+        QString("成就进度: %1/%2 (总游戏场次: %3)")
+        .arg(unlockedCount)
+        .arg(m_achievements.size())
+        .arg(totalGames));  // 显示真实总场次
     titleItem->setTextAlignment(Qt::AlignCenter);
     titleItem->setFlags(Qt::NoItemFlags);
-    titleItem->setForeground(QBrush(QColor("#2a5493"))); // 添加这行，设置字体颜色为 #2a5493
-    titleItem->setFont(QFont("Microsoft YaHei", 12, QFont::Bold)); // 可以设置字体
+    titleItem->setForeground(QBrush(QColor("#2a5493")));
+    titleItem->setFont(QFont("Microsoft YaHei", 12, QFont::Bold));
     m_achievementsList->addItem(titleItem);
 
     // 添加分割线
@@ -366,10 +377,36 @@ void PageStatistics::updateAchievements() {
     separator->setSizeHint(QSize(0, 2));
     m_achievementsList->addItem(separator);
 
-    // 添加每个成就项
+    // 添加每个成就项（其余代码保持不变）
     for (const auto& ach : m_achievements) {
         QString displayText;
-        if (ach.target > 1) {
+
+        // 对于游戏次数成就，显示当前进度
+        if (ach.id == "play_10_games" || ach.id == "play_50_games" || ach.id == "play_100_games") {
+            // 获取真实总场次作为进度
+            int totalGames = UserManager::instance().getCurrentUserAllTotalGames();
+            displayText = QString("%1\n%2 [%3/%4]")
+                .arg(ach.name)
+                .arg(ach.description)
+                .arg(std::min(totalGames, ach.target))  // 使用真实总场次
+                .arg(ach.target);
+        }
+        // 对于分数成就，显示最高分进度（如果适用）
+        else if (ach.id == "easy_master" || ach.id == "normal_master" || ach.id == "hard_master") {
+            // 获取当前难度
+            int difficulty = 3;
+            if (ach.id == "normal_master") difficulty = 5;
+            else if (ach.id == "hard_master") difficulty = 7;
+
+            int highScore = UserManager::instance().getCurrentUserHighScore(difficulty);
+            displayText = QString("%1\n%2 [%3/%4]")
+                .arg(ach.name)
+                .arg(ach.description)
+                .arg(highScore)
+                .arg(ach.target);
+        }
+        // 其他成就
+        else if (ach.target > 1) {
             displayText = QString("%1\n%2 [%3/%4]")
                 .arg(ach.name)
                 .arg(ach.description)
@@ -383,16 +420,28 @@ void PageStatistics::updateAchievements() {
         QListWidgetItem* item = new QListWidgetItem(displayText);
 
         if (ach.unlocked) {
-            item->setForeground(QBrush(QColor("#2a5493"))); // 修改为 #2a5493
+            item->setForeground(QBrush(QColor("#2a5493")));
             item->setIcon(QIcon(":/icons/achievement_unlocked.png"));
+
             // 已解锁成就可以加粗显示
             QFont font = item->font();
             font.setBold(true);
             item->setFont(font);
+
+            // 对于100场游戏成就，可以显示特殊图标
+            if (ach.id == "play_100_games") {
+                item->setForeground(QBrush(QColor("#FFD700"))); // 金色
+            }
         }
         else {
-            item->setForeground(QBrush(QColor("#2a5493"))); // 修改为 #2a5493
+            item->setForeground(QBrush(QColor("#666666"))); // 灰色表示未解锁
             item->setIcon(QIcon(":/icons/achievement_locked.png"));
+
+            // 对于100场游戏成就，可以显示进度条效果
+            if (ach.id == "play_100_games" && ach.progress > 0) {
+                QString progressPercent = QString::number((ach.progress * 100) / ach.target);
+                item->setText(displayText + QString(" (%1%)").arg(progressPercent));
+            }
         }
 
         m_achievementsList->addItem(item);
@@ -403,32 +452,32 @@ void PageStatistics::checkBasicAchievements() {
     QString currentUser = UserManager::instance().getCurrentUser();
     if (currentUser.isEmpty()) return;
 
-    // 计算总游戏场次
-    int totalGames = 0;
-    for (int difficulty : {3, 5, 7}) {
-        QList<int> scores = UserManager::instance().getCurrentUserRecentScores(difficulty);
-        totalGames += scores.size();
-    }
+    // 计算总游戏场次（使用新方法获取所有难度的总场次）
+    int totalGames = UserManager::instance().getCurrentUserAllTotalGames();
 
-    // 检查"第一局游戏"成就
-    if (totalGames >= 1 && !isAchievementUnlocked("first_game")) {
-        unlockAchievement("first_game", "初出茅庐", "完成第一局游戏");
-    }
-
-    // 检查"10局游戏"成就
-    if (totalGames >= 10 && !isAchievementUnlocked("play_10_games")) {
-        unlockAchievement("play_10_games", "持之以恒", "累计完成10局游戏");
-    }
-
-    // 更新进度
+    // 检查并更新所有基础游戏次数成就
     for (auto& ach : m_achievements) {
-        if (ach.id == "play_10_games") {
-            ach.progress = std::min(totalGames, ach.target);
+        if (ach.id == "first_game") {
+            if (totalGames >= 1 && !ach.unlocked) {
+                unlockAchievement("first_game", "初出茅庐", "完成第1局游戏");
+            }
         }
-        if (ach.id == "play_50_games") {
+        else if (ach.id == "play_10_games") {
+            ach.progress = std::min(totalGames, ach.target);
+            if (totalGames >= 10 && !ach.unlocked) {
+                unlockAchievement("play_10_games", "持之以恒", "累计完成10局游戏");
+            }
+        }
+        else if (ach.id == "play_50_games") {
             ach.progress = std::min(totalGames, ach.target);
             if (totalGames >= 50 && !ach.unlocked) {
                 unlockAchievement("play_50_games", "游戏达人", "累计完成50局游戏");
+            }
+        }
+        else if (ach.id == "play_100_games") {
+            ach.progress = std::min(totalGames, ach.target);
+            if (totalGames >= 100 && !ach.unlocked) {
+                unlockAchievement("play_100_games", "百战不殆", "累计完成100局游戏");
             }
         }
     }
@@ -437,11 +486,8 @@ void PageStatistics::checkBasicAchievements() {
 void PageStatistics::checkScoreAchievements() {
     // 检查各难度最高分成就
     for (int difficulty : {3, 5, 7}) {
-        // 使用正确的函数名 - 根据实际情况调整
-        // 以下是几种可能的函数名，请根据 UserManager 的实际定义选择
-        int highScore = 0;
-
-        highScore = UserManager::instance().getCurrentUserHighScore(difficulty);
+        // 使用原始的函数调用
+        int highScore = UserManager::instance().getCurrentUserHighScore(difficulty);
 
         QString achId;
         if (difficulty == 3) achId = "easy_master";
@@ -466,7 +512,7 @@ void PageStatistics::checkScoreAchievements() {
 
     // 检查单局得分成就
     for (int difficulty : {3, 5, 7}) {
-        // 同样使用正确的函数名
+        // 使用原始的函数调用
         QList<int> scores = UserManager::instance().getCurrentUserRecentScores(difficulty);
         for (int score : scores) {
             // 检查得分成就（从低到高）
