@@ -85,4 +85,4 @@ private:
     void onGameOver(int score);
 };
 
-#endif#endif
+#endif // MAINWINDOW_H

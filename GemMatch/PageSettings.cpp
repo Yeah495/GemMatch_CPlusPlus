@@ -260,6 +260,15 @@ void PageSettings::showEvent(QShowEvent* event) {
         m_musicSlider->blockSignals(false);
         qDebug() << "[Settings] sync slider to BGM:" << vol << "->" << sliderVal;
     }
+
+    // ✅ 每次打开设置页时，同步当前头像按钮为全局头像
+    if (m_mainWin && m_btnAvatar) {
+        const QPixmap& circular = m_mainWin->getAvatarPixmap();
+        if (!circular.isNull()) {
+            m_btnAvatar->setIcon(QIcon(circular));
+            m_btnAvatar->setIconSize(QSize(100, 100));
+        }
+    }
 }
 
 void PageSettings::hideEvent(QHideEvent* event) {

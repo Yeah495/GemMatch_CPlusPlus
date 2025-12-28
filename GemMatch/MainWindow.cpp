@@ -175,7 +175,6 @@ void MainWindow::startNewGame(int difficulty) {
     switchPage(2);
 
     // 2. 命令控制器开始一局新游戏
-    // 这会触发：重置分数、重置时间、生成新棋盘、启动定时器
     m_controller->startGame(difficulty);
 }
 

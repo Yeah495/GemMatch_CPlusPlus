@@ -334,6 +334,14 @@ void PageLogin::onAvatarDownloaded(QNetworkReply* reply) {
         painter.drawPixmap(0, 0, pixmap);
         
         m_avatarLabel->setPixmap(rounded);
+
+        // 将最新头像保存到 MainWindow 的全局头像中
+        if (m_mainWin) {
+            m_mainWin->setAvatarFromPixmap(rounded);
+        }
+
+        // 通知其他对象（如果有需要连接这个信号）
+        emit avatarGenerated(rounded);
     }
     reply->deleteLater();
 }
@@ -373,7 +381,7 @@ void PageLogin::onLoginClicked() {
         QMessageBox::warning(this, "错误", "用户名和密码不能为空");
         return;
     }
-    else if (user.isEmpty() ) {
+    else if (user.isEmpty()) {
         QMessageBox::warning(this, "错误", "用户名不能为空");
         return;
     }
@@ -384,6 +392,14 @@ void PageLogin::onLoginClicked() {
    
 
     if (UserManager::instance().login(user, pass)) {
+        // 登录成功时，确保根据当前用户名再请求一次 Robohash 头像，
+        // 这样 MainWindow 的全局头像在第一次进入主菜单时就已经就绪。
+        if (!user.isEmpty()) {
+            QString url = "https://robohash.org/" + user + ".png?set=set4&size=100x100";
+            QNetworkRequest req(url);
+            m_networkManager->get(req); // 下载完成后会进入 onAvatarDownloaded
+        }
+
         m_mainWin->switchPage(1);
     }
     else {
