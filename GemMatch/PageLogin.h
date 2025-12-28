@@ -21,6 +21,9 @@ class PageLogin : public QWidget {
 public:
     explicit PageLogin(MainWindow* mainWin);
 
+signals:
+    void avatarGenerated(const QPixmap& pixmap);
+
 private:
     MainWindow* m_mainWin;
     QLineEdit* m_editUser;

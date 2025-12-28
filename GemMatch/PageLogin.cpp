@@ -334,6 +334,14 @@ void PageLogin::onAvatarDownloaded(QNetworkReply* reply) {
         painter.drawPixmap(0, 0, pixmap);
         
         m_avatarLabel->setPixmap(rounded);
+
+        // 将最新头像保存到 MainWindow 的全局头像中
+        if (m_mainWin) {
+            m_mainWin->setAvatarFromPixmap(rounded);
+        }
+
+        // 通知其他对象（如果有需要连接这个信号）
+        emit avatarGenerated(rounded);
     }
     reply->deleteLater();
 }
