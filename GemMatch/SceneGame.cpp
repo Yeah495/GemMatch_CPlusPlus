@@ -205,6 +205,12 @@ void SceneGame::setPauseButtonText(const QString& path) {
     m_btnPause->setPixmap(path);
 }
 
+void SceneGame::setPauseButtonEnabled(bool enabled) {
+    if (m_btnPause) {
+        m_btnPause->setEnabled(enabled);
+    }
+}
+
 void SceneGame::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
 

@@ -36,6 +36,7 @@ public:
     void updateScore(int score);
 
     void setPauseButtonText(const QString& path);
+    void setPauseButtonEnabled(bool enabled);
     void updateTime(int seconds, bool isFrozen = false);
 
     void updateSkillButtonText(int bombCount, int shuffleCount, int timeCount, int allCount);

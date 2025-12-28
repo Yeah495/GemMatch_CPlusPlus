@@ -77,6 +77,9 @@ QString GameController::getDifficultyName(int difficulty) {
 
 // 1. 暂停功能
 void GameController::onPauseClicked() {
+    if (m_isProcessing) {
+		return; // 正在处理动画时不允许暂停
+    }
     if (m_isPaused) {
         // 恢复游戏
         m_isPaused = false;
@@ -293,6 +296,7 @@ void GameController::startGame(int difficultyLevel) {
     m_gameTimer->start(1000); // 每 1000ms (1秒) 触发一次
     m_isTimeFrozen = false;
     m_isPaused = false;
+    m_scene->setPauseButtonEnabled(true);
     m_scene->setPauseButtonText("assets/images/暂停游戏.png");
 }
 
@@ -316,6 +320,7 @@ void GameController::onGameTick() {
         // 获取最终得分
         int finalScore = m_gameCore->getScore();
         int recordType = 0; // 0=无纪录, 1=个人, 2=全服
+        endGame();
 
 
         //// --- 【新增语音播报逻辑】 ---
@@ -379,7 +384,6 @@ void GameController::onGameTick() {
             qDebug() << "未破纪录，直接结算";
             QTimer::singleShot(500, this, showGameOverDialog);
         }
-        //endGame();
         //// ✅ 修改：发出 gameOver 信号，而不是直接显示 MessageBox
         //emit gameOver(finalScore);
 
@@ -405,6 +409,8 @@ void GameController::endGame() {
 
     if (m_scene) {
         m_scene->stopHintAnimation();
+
+        m_scene->setPauseButtonEnabled(false);
     }
 }
 
