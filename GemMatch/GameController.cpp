@@ -4,6 +4,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include "UserManager.h"
+#include "SpeechManager.h" 
 
 GameController::GameController(MainWindow* view, QObject* parent)
     : QObject(parent), m_mainWindow(view), m_isProcessing(false)
@@ -316,6 +317,22 @@ void GameController::onGameTick() {
         int finalScore = m_gameCore->getScore();
         int recordType = 0; // 0=无纪录, 1=个人, 2=全服
 
+
+        //// --- 【新增语音播报逻辑】 ---
+        //QString announcement = QString("游戏结束。您的最终得分是 %1 分。").arg(finalScore);
+
+        //if (recordType == 1) {
+        //    announcement += "恭喜你，打破了个人纪录！";
+        //}
+        //else if (recordType == 2) {
+        //    announcement += "太厉害了！你创造了新的全服纪录！";
+        //}
+
+        //// 调用语音播报
+        //SpeechManager::instance().speak(announcement);
+
+
+
         // 1. 更新数据库并获取纪录状态
         if (!UserManager::instance().getCurrentUser().isEmpty()) {
             // 注意：这里假设您已经修改了 UserManager::updateScore 让它返回 int
@@ -325,6 +342,17 @@ void GameController::onGameTick() {
             qDebug() << "游戏结束 - 难度:" << m_currentDifficulty
                 << " 分数:" << finalScore
                 << " 纪录状态(recordType):" << recordType;
+        }
+        QString recordVoice;
+        if (recordType == 2) {
+            recordVoice = QStringLiteral("恭喜！你打破了全国纪录！");
+        }
+        else if (recordType == 1) {
+            recordVoice = QStringLiteral("恭喜你，刷新了个人最好成绩！");
+        }
+
+        if (!recordVoice.isEmpty()) {
+            SpeechManager::instance().speak(recordVoice);
         }
 
         // 定义结束流程：延迟显示弹窗
@@ -341,7 +369,7 @@ void GameController::onGameTick() {
             // 请确保 SceneGame::playNewRecordAnimation 已经按之前的建议修改好
             m_scene->playNewRecordAnimation(recordType, [this, showGameOverDialog]() {
                 // 动画播放完毕（图片落地）后，再等 3 秒，然后弹窗
-                QTimer::singleShot(3000, this, [showGameOverDialog]() {
+                QTimer::singleShot(5000, this, [showGameOverDialog]() {
                     showGameOverDialog();
                     });
                 });
