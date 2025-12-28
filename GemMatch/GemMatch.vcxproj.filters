@@ -46,7 +46,6 @@
       <Filter>view</Filter>
     </ClCompile>
     <ClCompile Include="GameButton.cpp" />
-    <ClCompile Include="GameLogo.cpp" />
     <ClCompile Include="VideoBackground.cpp" />
     <ClCompile Include="PageAdmin.cpp">
       <Filter>view</Filter>
@@ -58,6 +57,9 @@
     </ClCompile>
     <ClCompile Include="PageStatistics.cpp" />
     <ClCompile Include="ScoreChartWidget.cpp" />
+    <ClCompile Include="GameLogo.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="GemMatch.h" />
@@ -89,8 +91,6 @@
       <Filter>view</Filter>
     </QtMoc>
     <QtMoc Include="VideoBackground.h" />
-    <QtMoc Include="GameButton.h" />
-    <QtMoc Include="GameLogo.h" />
     <QtMoc Include="PageAdmin.h">
       <Filter>view</Filter>
     </QtMoc>
@@ -100,6 +100,15 @@
     </QtMoc>
     <QtMoc Include="PageStatistics.h" />
     <QtMoc Include="ScoreChartWidget.h" />
+    <QtMoc Include="GameLogo.h">
+      <Filter>view</Filter>
+    </QtMoc>
+    <QtMoc Include="GameButton.h">
+      <Filter>view</Filter>
+    </QtMoc>
+    <QtMoc Include="SpeechManager.cpp">
+      <Filter>utils</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="GemMatch.qrc" />
@@ -149,6 +158,9 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="qrcodegen.hpp" />
     <ClInclude Include="UserManager.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="SpeechManager.h">
       <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>

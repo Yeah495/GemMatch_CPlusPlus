@@ -129,6 +129,12 @@ $(QTDIR)\lib;%(AdditionalLibraryDirectories)
     <ClCompile Include="SceneRank.cpp" />
     <ClCompile Include="SceneStart.cpp" />
     <ClCompile Include="ScoreChartWidget.cpp" />
+    <QtMoc Include="SpeechManager.cpp">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
+    </QtMoc>
     <ClCompile Include="VideoBackground.cpp" />
     <QtRcc Include="GemMatch.qrc" />
     <QtUic Include="GemMatch.ui" />
@@ -155,6 +161,7 @@ $(QTDIR)\lib;%(AdditionalLibraryDirectories)
     <ClInclude Include="qrcodegen.hpp" />
     <ClInclude Include="resource.h" />
     <QtMoc Include="ScoreChartWidget.h" />
+    <ClInclude Include="SpeechManager.h" />
     <ClInclude Include="UserManager.h" />
     <QtMoc Include="GameController.h" />
     <ClInclude Include="GameCore.h" />

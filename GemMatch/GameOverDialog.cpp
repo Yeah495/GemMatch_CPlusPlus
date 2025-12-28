@@ -3,6 +3,9 @@
 #include <QPainter>
 #include <QDebug>
 #include <QDateTime> 
+#include <QShowEvent>
+#include <QTimer>
+#include "SpeechManager.h"
 
 
 // 引入QR Code生成库
@@ -179,4 +182,26 @@ QString GameOverDialog::generateShareUrl(int score) {
     //    .arg(score);
 
     //return shareText;
+}
+
+
+void GameOverDialog::showEvent(QShowEvent* e)
+{
+    QDialog::showEvent(e);
+    QTimer::singleShot(0, this, [this] {
+        QString message;
+        if (m_score >= 100000) {
+            message = QStringLiteral("恭喜！你竟然拿到了 %1 分，简直是宝石迷阵的大师！").arg(m_score);
+        }
+        else if (m_score >= 20000) {
+            message = QStringLiteral("表现出色！你获得了 %1 分，距离巅峰只有一步之遥！").arg(m_score);
+        }
+        else if (m_score >= 3000) {
+            message = QStringLiteral("游戏结束，你的得分是 %1 分，继续努力，下次一定会更好！").arg(m_score);
+        }
+        else {
+            message = QStringLiteral("别灰心，虽然这次只拿到了 %1 分，但好戏才刚刚开始！").arg(m_score);
+        }
+
+        SpeechManager::instance().speak(message);        });
 }

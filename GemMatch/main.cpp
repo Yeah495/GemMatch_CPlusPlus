@@ -1,27 +1,30 @@
-#include "MainWindow.h"
+ï»¿#include "MainWindow.h"
 #include <QtWidgets/QApplication>
 #include <QMediaPlayer>
 #include <QAudioOutput>
+
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    // 1. ´´½¨Ö÷´°¿Ú (View)
+    // 1. åˆ›å»ºä¸»çª—å£ (View)
     MainWindow w;
     w.show();
 
-    // ÉèÖÃ²¢²¥·Å±³¾°ÒôÀÖ£¨´Ó qrc ×ÊÔ´£©
+
+
+    // è®¾ç½®å¹¶æ’­æ”¾èƒŒæ™¯éŸ³ä¹ï¼ˆä»Ž qrc èµ„æºï¼‰
     QMediaPlayer* bgPlayer = new QMediaPlayer(&a);
     QAudioOutput* bgOutput = new QAudioOutput(&a);
     bgPlayer->setAudioOutput(bgOutput);
-    bgOutput->setVolume(0.5); // Ä¬ÈÏ 50%
+    bgOutput->setVolume(0.5); // é»˜è®¤ 50%
     bgPlayer->setLoops(QMediaPlayer::Infinite);
-    // Ê¹ÓÃ qrc Â·¾¶£¬×¢Òâ GemMatch.qrc ÖÐÐèÒª°üº¬¶ÔÓ¦ÌõÄ¿
+    // ä½¿ç”¨ qrc è·¯å¾„ï¼Œæ³¨æ„ GemMatch.qrc ä¸­éœ€è¦åŒ…å«å¯¹åº”æ¡ç›®
     bgPlayer->setSource(QUrl("qrc:/assets/sound/bgpiano.wav"));
     bgPlayer->play();
 
-    // ÍË³öÊ±Í£Ö¹²¢ÊÍ·Å£¨parent Îª QApplication »áÔÚÍË³öÊ±É¾³ý£©
+    // é€€å‡ºæ—¶åœæ­¢å¹¶é‡Šæ”¾ï¼ˆparent ä¸º QApplication ä¼šåœ¨é€€å‡ºæ—¶åˆ é™¤ï¼‰
     QObject::connect(&a, &QApplication::aboutToQuit, [bgPlayer, bgOutput]() {
         if (bgPlayer) {
             bgPlayer->stop();

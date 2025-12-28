@@ -31,6 +31,9 @@ private:
 signals:
     void restartGame();
     void backToMenu();
+
+protected:
+    void showEvent(QShowEvent* event) override;
 };
 
 #endif // GAMEOVERDIALOG_H
