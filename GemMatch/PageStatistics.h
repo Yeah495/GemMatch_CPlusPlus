@@ -11,6 +11,8 @@
 #include <QListWidget>
 #include <QLabel>
 #include <QGridLayout>
+#include <QTimer>
+#include <QPair>
 
 #include "ScoreChartWidget.h"
 #include "GameButton.h"
@@ -48,6 +50,10 @@ private:
     void loadAchievementProgress();
     void saveAchievementProgress();
 
+    // 成就显示函数
+    void initAchievementDisplay();
+    void showNextAchievement();
+
 private:
     MainWindow* m_mainWin;
 
@@ -76,6 +82,10 @@ private:
 
     // 成就系统
     QListWidget* m_achievementsList;
+    QLabel* m_achievementDisplay;  // 成就解锁显示标签
+    QTimer* m_achievementTimer;    // 成就显示定时器
+    QList<QPair<QString, QString>> m_achievementQueue;  // 成就队列
+    QString m_lastUnlockedId;      // 记录最后解锁的成就ID
 
     // 代理对象
     QGraphicsProxyWidget* m_containerProxy;
@@ -95,6 +105,7 @@ private:
     };
 
     QList<Achievement> m_achievements;
+    QString getAchievementDescriptionById(const QString& id);
 };
 
 #endif // PAGESTATISTICS_H

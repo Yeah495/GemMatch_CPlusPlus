@@ -663,21 +663,103 @@ void PageAdmin::deleteSelectedUser()
 
     QString username = m_table->item(row, 1)->text();
 
-    QMessageBox msgBox;
-    msgBox.setWindowTitle("确认删除");
-    msgBox.setText(QString("确定要删除用户 '%1' 吗？此操作不可恢复！").arg(username));
-    msgBox.setIcon(QMessageBox::Question);
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msgBox.setStyleSheet("QLabel{color: white;}");
-    int reply = msgBox.exec();
+    // 创建黑底白字的确认删除对话框
+    QMessageBox confirmBox;
+    confirmBox.setWindowTitle("确认删除");
+    confirmBox.setText(QString("确定要删除用户 '%1' 吗？\n此操作不可恢复！").arg(username));
+    confirmBox.setIcon(QMessageBox::Question);
+    confirmBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+
+    // 设置黑底白字样式
+    confirmBox.setStyleSheet(
+        "QMessageBox {"
+        "   background-color: black;"  // 背景为黑色
+        "}"
+        "QMessageBox QLabel {"
+        "   color: white;"  // 字体为白色
+        "   font-size: 14px;"
+        "}"
+        "QMessageBox QPushButton {"
+        "   background-color: #444444;"  // 按钮深灰色背景
+        "   color: white;"               // 按钮白色字体
+        "   border: 1px solid #666666;"
+        "   border-radius: 5px;"
+        "   padding: 8px 16px;"
+        "   min-width: 80px;"
+        "   font-size: 14px;"
+        "}"
+        "QMessageBox QPushButton:hover {"
+        "   background-color: #555555;"  // 悬停时稍亮的灰色
+        "   border-color: #777777;"
+        "}"
+        "QMessageBox QPushButton:pressed {"
+        "   background-color: #333333;"  // 按下时更深的灰色
+        "}"
+    );
+
+    int reply = confirmBox.exec();
 
     if (reply == QMessageBox::Yes) {
         if (deleteUser(username)) {
-            QMessageBox::information(this, "成功", "用户删除成功！");
+            // 成功提示框 - 也改为黑底白字
+            QMessageBox successBox;
+            successBox.setWindowTitle("成功");
+            successBox.setText("用户删除成功！");
+            successBox.setIcon(QMessageBox::Information);
+            successBox.setStyleSheet(
+                "QMessageBox {"
+                "   background-color: black;"
+                "}"
+                "QMessageBox QLabel {"
+                "   color: white;"
+                "   font-size: 14px;"
+                "}"
+                "QMessageBox QPushButton {"
+                "   background-color: #444444;"
+                "   color: white;"
+                "   border: 1px solid #666666;"
+                "   border-radius: 5px;"
+                "   padding: 8px 16px;"
+                "   min-width: 80px;"
+                "   font-size: 14px;"
+                "}"
+                "QMessageBox QPushButton:hover {"
+                "   background-color: #555555;"
+                "   border-color: #777777;"
+                "}"
+            );
+            successBox.exec();
             loadUserData();
         }
         else {
-            QMessageBox::critical(this, "错误", "删除失败！");
+            // 错误提示框 - 黑底白字
+            QMessageBox errorBox;
+            errorBox.setWindowTitle("错误");
+            errorBox.setText("删除失败！");
+            errorBox.setIcon(QMessageBox::Critical);
+            errorBox.setStyleSheet(
+                "QMessageBox {"
+                "   background-color: black;"
+                "}"
+                "QMessageBox QLabel {"
+                "   color: white;"
+                "   font-size: 14px;"
+                "}"
+                "QMessageBox QPushButton {"
+                "   background-color: #444444;"
+                "   color: white;"
+                "   border: 1px solid #666666;"
+                "   border-radius: 5px;"
+                "   padding: 8px 16px;"
+                "   min-width: 80px;"
+                "   font-size: 14px;"
+                "}"
+                "QMessageBox QPushButton:hover {"
+                "   background-color: #555555;"
+                "   border-color: #777777;"
+                "}"
+            );
+            errorBox.exec();
         }
     }
 }

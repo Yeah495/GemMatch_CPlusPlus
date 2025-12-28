@@ -30,6 +30,9 @@ PageStatistics::PageStatistics(MainWindow* mainWin)
     : QWidget(mainWin), m_mainWin(mainWin), m_currentDifficulty(3) {
     setupUI();
     loadStatisticsData();
+
+    // 初始化成就显示
+    initAchievementDisplay();
 }
 
 PageStatistics::~PageStatistics() {
@@ -240,7 +243,10 @@ void PageStatistics::loadStatisticsData() {
     ach = { "play_50_games", "游戏达人", "累计完成50局游戏", false, 0, 50 };
     m_achievements.append(ach);
 
-    // 得分成就
+    ach = { "play_100_games", "百战不殆", "累计完成100局游戏", false, 0, 100 };
+    m_achievements.append(ach);
+
+    // 得分成就（从小到大，保持合理的难度梯度）
     ach = { "score_100", "百分达人", "单局得分超过100分", false, 0, 1 };
     m_achievements.append(ach);
 
@@ -248,6 +254,18 @@ void PageStatistics::loadStatisticsData() {
     m_achievements.append(ach);
 
     ach = { "score_1000", "千分大师", "单局得分超过1000分", false, 0, 1 };
+    m_achievements.append(ach);
+
+    ach = { "score_2000", "两千分精英", "单局得分超过2000分", false, 0, 1 };
+    m_achievements.append(ach);
+
+    ach = { "score_5000", "五千分宗师", "单局得分超过5000分", false, 0, 1 };
+    m_achievements.append(ach);
+
+    ach = { "score_10000", "万分王者", "单局得分超过10000分", false, 0, 1 };
+    m_achievements.append(ach);
+
+    ach = { "score_20000", "两万分传奇", "单局得分超过20000分", false, 0, 1 };
     m_achievements.append(ach);
 
     // 难度成就
@@ -258,23 +276,6 @@ void PageStatistics::loadStatisticsData() {
     m_achievements.append(ach);
 
     ach = { "hard_master", "困难模式大师", "困难模式最高分达到800分", false, 0, 800 };
-    m_achievements.append(ach);
-
-    // 连击成就
-    ach = { "combo_3", "三连击", "达成3连击", false, 0, 1 };
-    m_achievements.append(ach);
-
-    ach = { "combo_5", "五连击", "达成5连击", false, 0, 1 };
-    m_achievements.append(ach);
-
-    // 道具成就
-    ach = { "use_bomb", "炸弹专家", "使用炸弹道具", false, 0, 1 };
-    m_achievements.append(ach);
-
-    ach = { "use_all_skills", "道具大师", "使用所有类型的道具", false, 0, 4 };
-    m_achievements.append(ach);
-
-    ach = { "full_combo", "完美连击", "一局游戏中无失误交换", false, 0, 1 };
     m_achievements.append(ach);
 
     // 从数据库或文件加载成就解锁状态
@@ -322,7 +323,7 @@ void PageStatistics::updateChart(int difficultyLevel) {
     for (int score : recentScores) {
         totalScore += score;
         if (score > maxScore) maxScore = score;
-        if (score > 50) winCount++; // 假设得分超过50分算胜利
+        if (score > 50) winCount++; 
     }
 
     int averageScore = totalScore / totalGames;
@@ -436,7 +437,11 @@ void PageStatistics::checkBasicAchievements() {
 void PageStatistics::checkScoreAchievements() {
     // 检查各难度最高分成就
     for (int difficulty : {3, 5, 7}) {
-        int highScore = UserManager::instance().getCurrentUserHighScore(difficulty);
+        // 使用正确的函数名 - 根据实际情况调整
+        // 以下是几种可能的函数名，请根据 UserManager 的实际定义选择
+        int highScore = 0;
+
+        highScore = UserManager::instance().getCurrentUserHighScore(difficulty);
 
         QString achId;
         if (difficulty == 3) achId = "easy_master";
@@ -461,8 +466,10 @@ void PageStatistics::checkScoreAchievements() {
 
     // 检查单局得分成就
     for (int difficulty : {3, 5, 7}) {
+        // 同样使用正确的函数名
         QList<int> scores = UserManager::instance().getCurrentUserRecentScores(difficulty);
         for (int score : scores) {
+            // 检查得分成就（从低到高）
             if (score >= 100 && !isAchievementUnlocked("score_100")) {
                 unlockAchievement("score_100", "百分达人", "单局得分超过100分");
             }
@@ -472,22 +479,40 @@ void PageStatistics::checkScoreAchievements() {
             if (score >= 1000 && !isAchievementUnlocked("score_1000")) {
                 unlockAchievement("score_1000", "千分大师", "单局得分超过1000分");
             }
+            if (score >= 2000 && !isAchievementUnlocked("score_2000")) {
+                unlockAchievement("score_2000", "两千分精英", "单局得分超过2000分");
+            }
+            if (score >= 5000 && !isAchievementUnlocked("score_5000")) {
+                unlockAchievement("score_5000", "五千分宗师", "单局得分超过5000分");
+            }
+            if (score >= 10000 && !isAchievementUnlocked("score_10000")) {
+                unlockAchievement("score_10000", "万分王者", "单局得分超过10000分");
+            }
+            if (score >= 20000 && !isAchievementUnlocked("score_20000")) {
+                unlockAchievement("score_20000", "两万分传奇", "单局得分超过20000分");
+            }
         }
     }
 }
 
 void PageStatistics::unlockAchievement(const QString& id, const QString& name, const QString& desc) {
     for (auto& ach : m_achievements) {
-        if (ach.id == id) {
+        if (ach.id == id && !ach.unlocked) {
             ach.unlocked = true;
-            qDebug() << "成就解锁:" << name;
+            ach.progress = ach.target; // 设置进度为完成
+            qDebug() << "成就解锁:" << name << "(" << id << ")";
 
             // 保存到文件
             saveAchievementProgress();
 
-            // 显示解锁通知（可选）
-            QMessageBox::information(this, "🎉 成就解锁",
-                QString("恭喜解锁成就：%1\n%2").arg(name).arg(desc));
+            // 将成就添加到队列（id在前，name在后）
+            m_achievementQueue.append(qMakePair(id, name));
+
+            // 如果没有正在显示成就，则立即显示
+            if (!m_achievementTimer->isActive() && m_achievementDisplay->isHidden()) {
+                showNextAchievement();
+            }
+
 
             break;
         }
@@ -570,12 +595,12 @@ void PageStatistics::resizeEvent(QResizeEvent* event) {
         if (m_containerProxy) {
             QWidget* w = m_containerProxy->widget();
             if (w) m_containerProxy->setPos((width() - w->width()) / 2, (height() - w->height()) / 2);
-        }
 
-        // 定位Logo
-        if (m_logoProxy) {
-            QWidget* w = m_logoProxy->widget();
-            if (w) m_logoProxy->setPos((width() - w->width()) / 2, height() * 0.02);
+            // 定位成就显示
+            if (m_achievementDisplay && m_achievementDisplay->isVisible()) {
+                m_achievementDisplay->move(m_containerProxy->pos().x() + (1200 - 400) / 2,
+                    m_containerProxy->pos().y() + 20);
+            }
         }
 
         // 定位返回按钮
@@ -600,14 +625,14 @@ void PageStatistics::showEvent(QShowEvent* event) {
         m_player->play();
     }
 
-    // 启动Logo动画
-    if (m_logo) {
-        m_logo->startEntrance();
-    }
-
     // 刷新数据
     loadStatisticsData();
     updateChart(m_currentDifficulty);
+
+    // 显示队列中的成就
+    if (!m_achievementQueue.isEmpty()) {
+        showNextAchievement();
+    }
 }
 
 void PageStatistics::hideEvent(QHideEvent* event) {
@@ -618,4 +643,110 @@ void PageStatistics::hideEvent(QHideEvent* event) {
         m_player->stop();
         m_player->setSource(QUrl());
     }
+
+    // 隐藏成就显示
+    if (m_achievementDisplay) {
+        m_achievementDisplay->hide();
+    }
+
+    // 停止定时器
+    if (m_achievementTimer) {
+        m_achievementTimer->stop();
+    }
 }
+
+void PageStatistics::initAchievementDisplay() {
+    // 创建成就显示标签（放在页面顶部）
+    m_achievementDisplay = new QLabel(this);
+    m_achievementDisplay->setFixedSize(450, 120);  // 稍微调大一点以容纳图片
+    m_achievementDisplay->setAlignment(Qt::AlignCenter);
+    m_achievementDisplay->setStyleSheet(
+        "QLabel {"
+        "   background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0,"
+        "       stop:0 rgba(74, 144, 226, 220),"
+        "       stop:1 rgba(42, 84, 147, 220));"
+        "   border-radius: 15px;"
+        "   border: 3px solid #FFD700;"
+        "   color: white;"
+        "   font-size: 16px;"
+        "   font-weight: bold;"
+        "}"
+    );
+    m_achievementDisplay->setWordWrap(true);
+    m_achievementDisplay->hide();
+
+    // 添加图标显示能力
+    m_achievementDisplay->setScaledContents(false);
+    m_achievementDisplay->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+
+    // 创建定时器
+    m_achievementTimer = new QTimer(this);
+    m_achievementTimer->setSingleShot(true);
+    connect(m_achievementTimer, &QTimer::timeout, [this]() {
+        m_achievementDisplay->hide();
+        showNextAchievement();
+        });
+}
+
+void PageStatistics::showNextAchievement() {
+    if (m_achievementQueue.isEmpty()) {
+        return;
+    }
+
+    // 获取第一个成就
+    auto achievement = m_achievementQueue.takeFirst();
+    QString id = achievement.first;  // 现在id在first位置
+    QString name = achievement.second; // 名称在second位置
+
+    // 根据成就ID选择不同的图片
+    QString imagePath = ":/icons/achievement_unlocked.png"; // 默认图片
+
+    // 根据成就的重要程度设置不同的图片
+    if (id.contains("10000") || id.contains("20000") || id.contains("宗师") || id.contains("王者")) {
+        imagePath = "assets/achievement/achievement_gold.png"; // 高级成就
+    }
+    else if (id.contains("1000") || id.contains("2000") || id.contains("5000")) {
+        imagePath = "assets/achievement/achievement_silver.png"; // 中级成就
+    }
+    else {
+        imagePath = "assets/achievement/achievement_bronze.png"; // 基础成就
+    }
+
+    // 设置显示内容（图片+文字）
+    QString displayHtml = QString(
+        "<html>"
+        "<div align='center'>"
+        "<img src='%1' width='64' height='64'><br>"
+        "<b style='font-size:18px; color:#FFD700;'>🎉 成就解锁 🎉</b><br>"
+        "<span style='font-size:16px;'>%2</span><br>"
+        "<span style='font-size:14px;'>%3</span>"
+        "</div>"
+        "</html>"
+    ).arg(imagePath).arg(name).arg(getAchievementDescriptionById(id));
+
+    m_achievementDisplay->setText(displayHtml);
+
+    // 显示位置（页面顶部居中）
+    if (m_containerProxy) {
+        QPointF containerPos = m_containerProxy->pos();
+        m_achievementDisplay->move(containerPos.x() + (1200 - 450) / 2, containerPos.y() + 20);
+    }
+
+    // 显示
+    m_achievementDisplay->show();
+    m_achievementDisplay->raise();
+
+    // 3秒后自动关闭
+    m_achievementTimer->start(3000);
+}
+
+// 新增辅助函数：根据成就ID获取描述
+QString PageStatistics::getAchievementDescriptionById(const QString& id) {
+    for (const auto& ach : m_achievements) {
+        if (ach.id == id) {
+            return ach.description;
+        }
+    }
+    return "";
+}
+
