@@ -56,7 +56,7 @@ void PageLogin::setupUI() {
     // 3. 登录框容器 (不包含 Logo 了)
     // =========================================================
     QWidget* loginContainer = new QWidget();
-    loginContainer->setFixedSize(500, 400); // 高度减小了，因为移走了Logo
+    loginContainer->setFixedSize(500, 550); // 高度减小了，因为移走了Logo
     loginContainer->setStyleSheet(
         "QWidget {"
         "   background-color: rgba(255, 255, 255, 100);" /* 白色，70%不透明 */
@@ -360,7 +360,7 @@ void PageLogin::resizeEvent(QResizeEvent* event) {
             qreal logoW = m_logoProxy->widget()->width();
             // Y轴位置：屏幕高度 * 0.10 (放在上面)
             m_logoProxy->setPos((this->width() - logoW) / 2,
-                this->height() * 0.10);
+                this->height() * 0.06);
         }
     }
 }
