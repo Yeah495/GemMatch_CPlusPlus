@@ -443,7 +443,8 @@ void PageLogin::onRegisterClicked() {
     if (ok && !text.isEmpty()) {
         if (text.trimmed() == code) {
             // 验证码正确，执行数据库注册
-            UserManager::RegisterStatus result = UserManager::instance().registerUserEx(user, pass, email);
+            // ========== 这里修改了：使用 registerUser 而不是 registerUserEx ==========
+            UserManager::RegisterStatus result = UserManager::instance().registerUser(user, pass, email);
 
             if (result == UserManager::REGISTER_SUCCESS) {
                 QMessageBox::information(this, "注册成功", "注册成功，请登录");
