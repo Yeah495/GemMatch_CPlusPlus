@@ -146,11 +146,11 @@
     <ClInclude Include="ResourceLoader.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="UserManager.h">
-      <Filter>model</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h" />
     <ClInclude Include="qrcodegen.hpp" />
+    <ClInclude Include="UserManager.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\images\bg_login.jpg" />
