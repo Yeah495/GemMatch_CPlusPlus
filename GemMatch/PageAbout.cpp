@@ -99,6 +99,42 @@ void PageAbout::setupUI() {
     m_logoProxy = scene->addWidget(m_logo);
     m_logoProxy->setZValue(2);
 
+
+    // =========================================================
+    // ✅ 新增：开发文档按钮 (Z=3, 保证在背景框之上)
+    // =========================================================
+    // 假设图片放在 assets/images/ 下
+    m_btnDoc = new GameButton("assets/images/开发文档.png");
+    m_docProxy = scene->addWidget(m_btnDoc);
+    m_docProxy->setZValue(3); // 确保比背景框(Z可能为1)高
+
+    // 点击打开 Word 文档
+    connect(m_btnDoc, &QPushButton::clicked, this, [=]() {
+        // 假设文档在运行目录的 doc 文件夹下，或者直接在根目录
+        // QCoreApplication::applicationDirPath() 获取 exe 所在目录
+        QString path = QCoreApplication::applicationDirPath() + "/test.docx";
+
+        // 如果是 Windows 且文件路径包含中文，QUrl::fromLocalFile 处理最稳妥
+        QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+        });
+
+    // =========================================================
+    // ✅ 新增：代码仓库按钮 (Z=3)
+    // =========================================================
+    m_btnRepo = new GameButton("assets/images/代码仓库.png");
+    m_repoProxy = scene->addWidget(m_btnRepo);
+    m_repoProxy->setZValue(3);
+
+    // 点击打开 GitHub 仓库
+    connect(m_btnRepo, &QPushButton::clicked, this, [=]() {
+        QDesktopServices::openUrl(QUrl("https://github.com/Yeah495/GemMatch_CPlusPlus"));
+        });
+
+
+
+
+
+
     mainLayout->addWidget(m_view);
 }
 
@@ -120,6 +156,23 @@ void PageAbout::resizeEvent(QResizeEvent* event) {
             QWidget* w = m_logoProxy->widget();
             if (w) m_logoProxy->setPos((this->width() - w->width()) / 2,
                 this->height() * 0.06);
+        }
+
+
+        int centerX = this->width() / 2;
+        int centerY = this->height() / 2;
+        int buttonY = centerY + 100; // 垂直高度：比中心点低 100 像素，落入框内
+
+        // 1. 开发文档按钮（放在左边）
+        if (m_docProxy) {
+            QWidget* w = m_docProxy->widget();
+            if (w) m_docProxy->setPos(centerX - w->width() - 20, buttonY); // 中心向左偏移 20
+        }
+
+        // 2. 代码仓库按钮（放在右边）
+        if (m_repoProxy) {
+            QWidget* w = m_repoProxy->widget();
+            if (w) m_repoProxy->setPos(centerX + 20, buttonY); // 中心向右偏移 20
         }
     }
 }
