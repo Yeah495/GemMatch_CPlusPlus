@@ -426,6 +426,16 @@ void PageLogin::onRegisterClicked() {
         return;
     }
 
+    UserManager::RegisterStatus result1 = UserManager::instance().registerUser(user, pass, email);
+    if (result1 == UserManager::USERNAME_EXISTS) {
+        QMessageBox::warning(this, "注册失败", "用户名已被注册");
+        return;
+    }
+    else if (result1 == UserManager::EMAIL_EXISTS) {
+        QMessageBox::warning(this, "注册失败", "邮箱已被注册");
+        return;
+    }
+
     // 3. 生成 6 位随机验证码
     QString code = QString::number(QRandomGenerator::global()->bounded(100000, 999999));
 
