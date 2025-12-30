@@ -22,7 +22,7 @@ const QString STATS_LABEL_STYLE =
 "   padding: 10px;"
 "   color: #044BB7;"
 "   font-weight: bold;"
-"   font-size: 14px;"
+"   font-size: 20px;"
 "   min-height: 40px;"
 "}";
 
@@ -367,7 +367,7 @@ void PageStatistics::updateAchievements() {
     titleItem->setTextAlignment(Qt::AlignCenter);
     titleItem->setFlags(Qt::NoItemFlags);
     titleItem->setForeground(QBrush(QColor("#2a5493")));
-    titleItem->setFont(QFont("Microsoft YaHei", 12, QFont::Bold));
+    titleItem->setFont(QFont("Microsoft YaHei", 18, QFont::Bold));
     m_achievementsList->addItem(titleItem);
 
     // 添加分割线
@@ -714,7 +714,7 @@ void PageStatistics::initAchievementDisplay() {
         "   border-radius: 15px;"
         "   border: 3px solid #FFD700;"
         "   color: white;"
-        "   font-size: 16px;"
+        "   font-size: 100px;"
         "   font-weight: bold;"
         "}"
     );
