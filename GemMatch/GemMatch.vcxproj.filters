@@ -55,9 +55,13 @@
     <ClCompile Include="GameOverDialog.cpp">
       <Filter>view</Filter>
     </ClCompile>
-    <ClCompile Include="PageStatistics.cpp" />
-    <ClCompile Include="ScoreChartWidget.cpp" />
     <ClCompile Include="GameLogo.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="PageStatistics.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="ScoreChartWidget.cpp">
       <Filter>view</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,8 +102,6 @@
     <QtMoc Include="GameOverDialog.h">
       <Filter>view</Filter>
     </QtMoc>
-    <QtMoc Include="PageStatistics.h" />
-    <QtMoc Include="ScoreChartWidget.h" />
     <QtMoc Include="GameLogo.h">
       <Filter>view</Filter>
     </QtMoc>
@@ -108,6 +110,12 @@
     </QtMoc>
     <QtMoc Include="SpeechManager.cpp">
       <Filter>utils</Filter>
+    </QtMoc>
+    <QtMoc Include="PageStatistics.h">
+      <Filter>view</Filter>
+    </QtMoc>
+    <QtMoc Include="ScoreChartWidget.h">
+      <Filter>view</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
