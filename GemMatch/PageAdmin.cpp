@@ -184,10 +184,6 @@ void PageAdmin::setupUI()
         "}"
     );
 
-    m_showInactiveCheck = new QCheckBox("显示零分用户");
-    m_showInactiveCheck->setStyleSheet("font-weight: bold;");
-    m_showInactiveCheck->setChecked(true);  // 关键：默认勾选！
-
     m_btnSearch = new QPushButton("🔍 搜索");
     m_btnSearch->setStyleSheet(
         "QPushButton {"
@@ -223,7 +219,6 @@ void PageAdmin::setupUI()
     searchLayout->addWidget(m_searchLabel);
     searchLayout->addWidget(m_searchEdit);
     searchLayout->addWidget(m_filterCombo);
-    searchLayout->addWidget(m_showInactiveCheck);
     searchLayout->addWidget(m_btnSearch);
     searchLayout->addWidget(m_btnClear);
     searchLayout->addStretch();
@@ -351,8 +346,7 @@ void PageAdmin::setupUI()
         // 重新加载数据
         loadUserData();
 
-        // 清空详情面板
-        m_detailPanel->setVisible(false);
+   
         m_currentSelectedUser = "";
 
         QMessageBox msgBox;
@@ -381,42 +375,6 @@ void PageAdmin::setupUI()
     setupTable();
     m_mainLayout->addWidget(m_table, 1); // 设置伸缩因子为1，让表格占据更多空间
 
-    // ==================== 用户详情面板 ====================
-    m_detailPanel = new QWidget();
-    m_detailPanel->setStyleSheet(
-        "background-color: white;"
-        "border: 2px solid #3498db;"
-        "border-radius: 10px;"
-        "padding: 15px;"
-    );
-    m_detailPanel->setVisible(false); // 初始隐藏
-
-    m_detailLayout = new QVBoxLayout(m_detailPanel);
-
-    QLabel* detailTitle = new QLabel("👤 用户详细信息");
-    detailTitle->setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;");
-    m_detailLayout->addWidget(detailTitle);
-
-    m_detailUsername = new QLabel("用户名：");
-    m_detailEmail = new QLabel("邮箱：");
-    m_detailEasyScore = new QLabel("简单模式最高分：");
-    m_detailNormalScore = new QLabel("普通模式最高分：");
-    m_detailHardScore = new QLabel("困难模式最高分：");
-    m_detailCreatedAt = new QLabel("注册时间：");
-
-    QList<QLabel*> detailLabels = {
-        m_detailUsername, m_detailEmail, m_detailEasyScore,
-        m_detailNormalScore, m_detailHardScore, m_detailCreatedAt
-    };
-
-    for (QLabel* label : detailLabels) {
-        label->setStyleSheet("font-size: 14px; margin: 5px 0;");
-        m_detailLayout->addWidget(label);
-    }
-
-    m_detailLayout->addStretch();
-    m_mainLayout->addWidget(m_detailPanel);
-
     // 连接表格点击信号
     QObject::connect(m_table, &QTableWidget::cellClicked, this, &PageAdmin::onCellClicked);
 }
@@ -426,7 +384,7 @@ void PageAdmin::setupTable()
     // 设置表格列数
     QStringList headers = {
         "ID", "用户名", "邮箱", "简单最高分", "普通最高分",
-        "困难最高分", "注册时间", "操作"
+        "困难最高分", "注册时间"
     };
     m_table->setColumnCount(headers.size());
     m_table->setHorizontalHeaderLabels(headers);
@@ -535,37 +493,6 @@ void PageAdmin::loadUserData()
 
             m_table->setItem(i, j, item);
         }
-
-        // 添加操作按钮
-        QWidget* widget = new QWidget();
-        QHBoxLayout* layout = new QHBoxLayout(widget);
-        layout->setContentsMargins(5, 5, 5, 5);
-        layout->setSpacing(5);
-
-        QPushButton* btnDetails = new QPushButton("详情");
-        btnDetails->setStyleSheet(
-            "QPushButton {"
-            "   background-color: #3498db;"
-            "   color: white;"
-            "   border: none;"
-            "   border-radius: 5px;"
-            "   padding: 5px 10px;"
-            "   font-size: 12px;"
-            "}"
-            "QPushButton:hover {"
-            "   background-color: #2980b9;"
-            "}"
-        );
-
-        QObject::connect(btnDetails, &QPushButton::clicked, [this, userData]() {
-            m_currentSelectedUser = userData[1];
-            showUserDetails();
-            });
-
-        layout->addWidget(btnDetails);
-        layout->addStretch();
-
-        m_table->setCellWidget(i, m_table->columnCount() - 1, widget);
     }
 
     // 更新状态栏
@@ -586,11 +513,6 @@ QList<QStringList> PageAdmin::getAllUsers()
         // 搜索用户名或邮箱
         sql += QString(" AND (username LIKE '%%1%' OR email LIKE '%%1%')")
             .arg(searchText);
-    }
-
-    // 根据复选框决定是否显示零分用户
-    if (!m_showInactiveCheck->isChecked()) {
-        sql += " AND (easy_high_score > 0 OR normal_high_score > 0 OR hard_high_score > 0)";
     }
 
     // 根据筛选器添加条件
@@ -644,7 +566,6 @@ void PageAdmin::clearSearch()
 {
     m_searchEdit->clear();
     m_filterCombo->setCurrentIndex(0);
-    m_showInactiveCheck->setChecked(false);
     loadUserData();
 }
 
@@ -1122,93 +1043,6 @@ void PageAdmin::onCellClicked(int row, int column)
     QApplication::processEvents();
 }
 
-void PageAdmin::showUserDetails()
-{
-    if (m_currentSelectedUser.isEmpty()) return;
-
-    QSqlQuery query(m_db);
-    query.prepare(
-        "SELECT username, email, easy_high_score, normal_high_score, "
-        "hard_high_score, easy_recent_scores, normal_recent_scores, "
-        "hard_recent_scores, created_at FROM users WHERE username = :username"
-    );
-    query.bindValue(":username", m_currentSelectedUser);
-
-    if (query.exec() && query.next()) {
-        // 显示详情面板
-        m_detailPanel->setVisible(true);
-
-        // 填充数据
-        m_detailUsername->setText(QString("用户名：%1").arg(query.value(0).toString()));
-        m_detailEmail->setText(QString("邮箱：%1").arg(query.value(1).toString()));
-        m_detailEasyScore->setText(QString("简单模式最高分：%1").arg(query.value(2).toInt()));
-        m_detailNormalScore->setText(QString("普通模式最高分：%1").arg(query.value(3).toInt()));
-        m_detailHardScore->setText(QString("困难模式最高分：%1").arg(query.value(4).toInt()));
-
-        // 解析最近得分
-        QString easyScores = query.value(5).toString();
-        QString normalScores = query.value(6).toString();
-        QString hardScores = query.value(7).toString();
-
-        // 计算最近10场的平均分
-        auto calcAverage = [](const QString& jsonStr) -> double {
-            QJsonDocument doc = QJsonDocument::fromJson(jsonStr.toUtf8());
-            QJsonArray array = doc.array();
-
-            if (array.isEmpty()) return 0.0;
-
-            double sum = 0.0;
-            for (const auto& value : array) {
-                sum += value.toInt();
-            }
-
-            return sum / array.size();
-            };
-
-        double easyAvg = calcAverage(easyScores);
-        double normalAvg = calcAverage(normalScores);
-        double hardAvg = calcAverage(hardScores);
-
-        // 格式化注册时间
-        QDateTime createTime = QDateTime::fromString(query.value(8).toString(), Qt::ISODate);
-        QString timeStr = createTime.toString("yyyy年MM月dd日 hh:mm:ss");
-        m_detailCreatedAt->setText(QString("注册时间：%1").arg(timeStr));
-
-        // 添加额外信息
-        QJsonDocument easyDoc = QJsonDocument::fromJson(easyScores.toUtf8());
-        QJsonArray easyArray = easyDoc.array();
-
-        if (m_detailLayout->count() > 7) {
-            // 移除旧的额外信息
-            while (m_detailLayout->count() > 7) {
-                QLayoutItem* item = m_detailLayout->takeAt(7);
-                if (item) {
-                    delete item->widget();
-                    delete item;
-                }
-            }
-        }
-
-        // 添加最近得分信息
-        if (!easyArray.isEmpty()) {
-            QLabel* recentLabel = new QLabel("📊 最近得分统计：");
-            recentLabel->setStyleSheet("font-weight: bold; color: #2c3e50; margin-top: 10px;");
-            m_detailLayout->insertWidget(7, recentLabel);
-
-            QLabel* easyAvgLabel = new QLabel(QString("• 简单模式平均分：%1").arg(easyAvg, 0, 'f', 1));
-            easyAvgLabel->setStyleSheet("color: #27ae60;");
-            m_detailLayout->insertWidget(8, easyAvgLabel);
-
-            QLabel* normalAvgLabel = new QLabel(QString("• 普通模式平均分：%1").arg(normalAvg, 0, 'f', 1));
-            normalAvgLabel->setStyleSheet("color: #f39c12;");
-            m_detailLayout->insertWidget(9, normalAvgLabel);
-
-            QLabel* hardAvgLabel = new QLabel(QString("• 困难模式平均分：%1").arg(hardAvg, 0, 'f', 1));
-            hardAvgLabel->setStyleSheet("color: #e74c3c;");
-            m_detailLayout->insertWidget(10, hardAvgLabel);
-        }
-    }
-}
 
 void PageAdmin::showStatistics()
 {

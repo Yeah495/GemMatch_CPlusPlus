@@ -426,12 +426,12 @@ void PageLogin::onRegisterClicked() {
         return;
     }
 
-    UserManager::RegisterStatus result1 = UserManager::instance().registerUser(user, pass, email);
-    if (result1 == UserManager::USERNAME_EXISTS) {
+    if (UserManager::instance().checkUsernameExists(user)) {
         QMessageBox::warning(this, "注册失败", "用户名已被注册");
         return;
     }
-    else if (result1 == UserManager::EMAIL_EXISTS) {
+
+    if (UserManager::instance().checkEmailExists(email)) {
         QMessageBox::warning(this, "注册失败", "邮箱已被注册");
         return;
     }
@@ -469,7 +469,6 @@ void PageLogin::onRegisterClicked() {
     if (ok && !text.isEmpty()) {
         if (text.trimmed() == code) {
             // 验证码正确，执行数据库注册
-            // ========== 这里修改了：使用 registerUser 而不是 registerUserEx ==========
             UserManager::RegisterStatus result = UserManager::instance().registerUser(user, pass, email);
 
             if (result == UserManager::REGISTER_SUCCESS) {
