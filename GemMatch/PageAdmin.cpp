@@ -323,42 +323,7 @@ void PageAdmin::setupUI()
         "}"
     );
     QObject::connect(m_btnStats, &QPushButton::clicked, this, &PageAdmin::showStatistics);
-
-    // 在按钮栏部分添加这个按钮
-    QPushButton* m_btnForceRefresh = new QPushButton("💥 强制刷新界面");
-    m_btnForceRefresh->setStyleSheet(
-        "QPushButton {"
-        "   background-color: #e67e22;"
-        "   color: white;"
-        "   border: none;"
-        "   border-radius: 8px;"
-        "   padding: 8px 20px;"
-        "   font-weight: bold;"
-        "}"
-        "QPushButton:hover {"
-        "   background-color: #d35400;"
-        "}"
-    );
-    connect(m_btnForceRefresh, &QPushButton::clicked, [this]() {
-        // 强制处理所有待处理的事件
-        QApplication::processEvents();
-
-        // 重新加载数据
-        loadUserData();
-
-   
-        m_currentSelectedUser = "";
-
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("刷新完成！");
-        msgBox.setText("界面已强制刷新！");
-        msgBox.setIcon(QMessageBox::Information);
-        msgBox.setStyleSheet("QLabel{color: white;}");
-        msgBox.exec();
-        });
-
-    // 将按钮添加到按钮布局中
-    m_buttonLayout->addWidget(m_btnForceRefresh);
+    
 
     m_buttonLayout->addWidget(m_btnRefresh);
     m_buttonLayout->addWidget(m_btnDelete);
@@ -381,13 +346,12 @@ void PageAdmin::setupUI()
 
 void PageAdmin::setupTable()
 {
-    // 设置表格列数
+    // 设置表格列数 - 现在有7列：ID、用户名、邮箱、简单最高分、普通最高分、困难最高分、注册时间
     QStringList headers = {
         "ID", "用户名", "邮箱", "简单最高分", "普通最高分",
         "困难最高分", "注册时间"
     };
-    m_table->setColumnCount(headers.size());
-    m_table->setHorizontalHeaderLabels(headers);
+    m_table->setColumnCount(headers.size());  // 应该是7列
 
     // 设置表格样式
     m_table->setStyleSheet(
@@ -474,13 +438,12 @@ void PageAdmin::loadUserData()
 
         m_table->insertRow(i);
 
-        // 填充数据
-        for (int j = 0; j < userData.size() && j < m_table->columnCount() - 1; j++) {
+        for (int j = 0; j < userData.size() && j < m_table->columnCount(); j++) {
             QTableWidgetItem* item = new QTableWidgetItem(userData[j]);
             item->setTextAlignment(Qt::AlignCenter);
 
-            // 为分数列设置特殊颜色
-            if (j >= 3 && j <= 5) { // 分数列
+            // 为分数列设置特殊颜色（第3、4、5列是分数）
+            if (j >= 3 && j <= 5) {
                 int score = userData[j].toInt();
                 if (score > 0) {
                     item->setForeground(QBrush(QColor(46, 204, 113))); // 绿色
