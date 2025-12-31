@@ -491,6 +491,9 @@ void PageLogin::onRegisterClicked() {
             QMessageBox::warning(this, "验证失败", "验证码错误！");
         }
     }
+    else {
+        QMessageBox::warning(this, "验证失败", "验证码为空！");
+    }
 
     // 清理 smtp 对象
     delete smtp;
