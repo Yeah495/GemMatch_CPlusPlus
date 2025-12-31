@@ -42,7 +42,6 @@ public slots:
     void exportToCSV();                     // 导出为CSV文件
     void refreshTable();                    // 刷新表格
     void onCellClicked(int row, int column); // 单元格点击事件
-    void showUserDetails();                 // 显示用户详情
 
 private:
     void setupUI();                         // 初始化UI
@@ -65,7 +64,6 @@ private:
     QLabel* m_searchLabel;
     QLineEdit* m_searchEdit;
     QComboBox* m_filterCombo;
-    QCheckBox* m_showInactiveCheck;
 
     // 按钮
     QPushButton* m_btnSearch;
@@ -81,15 +79,6 @@ private:
     // 表格
     QTableWidget* m_table;
 
-    // 详情面板
-    QWidget* m_detailPanel;
-    QVBoxLayout* m_detailLayout;
-    QLabel* m_detailUsername;
-    QLabel* m_detailEmail;
-    QLabel* m_detailEasyScore;
-    QLabel* m_detailNormalScore;
-    QLabel* m_detailHardScore;
-    QLabel* m_detailCreatedAt;
 
     // 数据库
     QSqlDatabase m_db;

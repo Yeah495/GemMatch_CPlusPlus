@@ -55,27 +55,6 @@ public:
 
     // 注册用户（更新版，添加总场次字段）
     RegisterStatus registerUser(const QString& user, const QString& pass, const QString& email) {
-        // 检查用户名是否已存在
-        QSqlQuery checkQuery(m_db);
-        checkQuery.prepare("SELECT COUNT(*) FROM users WHERE username = :username");
-        checkQuery.bindValue(":username", user);
-
-        if (checkQuery.exec() && checkQuery.next()) {
-            if (checkQuery.value(0).toInt() > 0) {
-                return USERNAME_EXISTS;
-            }
-        }
-
-        // 检查邮箱是否已存在
-        QSqlQuery checkEmailQuery(m_db);
-        checkEmailQuery.prepare("SELECT COUNT(*) FROM users WHERE email = :email");
-        checkEmailQuery.bindValue(":email", email);
-
-        if (checkEmailQuery.exec() && checkEmailQuery.next()) {
-            if (checkEmailQuery.value(0).toInt() > 0) {
-                return EMAIL_EXISTS;
-            }
-        }
 
         // 插入新用户，初始化所有分数和总场次为0
         QSqlQuery insertQuery(m_db);
@@ -113,6 +92,26 @@ public:
                 m_currentUser = user;
                 return true;
             }
+        }
+        return false;
+    }
+
+    bool checkUsernameExists(const QString& username) {
+        QSqlQuery query(m_db);
+        query.prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+        query.addBindValue(username);
+        if (query.exec() && query.next()) {
+            return query.value(0).toInt() > 0;
+        }
+        return false;
+    }
+
+    bool checkEmailExists(const QString& email) {
+        QSqlQuery query(m_db);
+        query.prepare("SELECT COUNT(*) FROM users WHERE email = ?");
+        query.addBindValue(email);
+        if (query.exec() && query.next()) {
+            return query.value(0).toInt() > 0;
         }
         return false;
     }
