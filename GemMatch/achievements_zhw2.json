@@ -1,0 +1,58 @@
+{
+    "easy_master": {
+        "progress": 300,
+        "unlocked": true
+    },
+    "first_game": {
+        "progress": 1,
+        "unlocked": true
+    },
+    "hard_master": {
+        "progress": 800,
+        "unlocked": true
+    },
+    "normal_master": {
+        "progress": 0,
+        "unlocked": false
+    },
+    "play_100_games": {
+        "progress": 2,
+        "unlocked": false
+    },
+    "play_10_games": {
+        "progress": 2,
+        "unlocked": false
+    },
+    "play_50_games": {
+        "progress": 2,
+        "unlocked": false
+    },
+    "score_100": {
+        "progress": 1,
+        "unlocked": true
+    },
+    "score_1000": {
+        "progress": 1,
+        "unlocked": true
+    },
+    "score_10000": {
+        "progress": 0,
+        "unlocked": false
+    },
+    "score_2000": {
+        "progress": 1,
+        "unlocked": true
+    },
+    "score_20000": {
+        "progress": 0,
+        "unlocked": false
+    },
+    "score_500": {
+        "progress": 1,
+        "unlocked": true
+    },
+    "score_5000": {
+        "progress": 1,
+        "unlocked": true
+    }
+}
