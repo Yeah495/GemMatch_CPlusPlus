@@ -352,6 +352,7 @@ void PageAdmin::setupTable()
         "困难最高分", "注册时间"
     };
     m_table->setColumnCount(headers.size());  // 应该是7列
+    m_table->setHorizontalHeaderLabels(headers);  // 确保这行代码存在
 
     // 设置表格样式
     m_table->setStyleSheet(
