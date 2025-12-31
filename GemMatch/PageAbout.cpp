@@ -110,12 +110,8 @@ void PageAbout::setupUI() {
 
     // 点击打开 Word 文档
     connect(m_btnDoc, &QPushButton::clicked, this, [=]() {
-        // 假设文档在运行目录的 doc 文件夹下，或者直接在根目录
-        // QCoreApplication::applicationDirPath() 获取 exe 所在目录
-        QString path = QCoreApplication::applicationDirPath() + "/test.docx";
-
         // 如果是 Windows 且文件路径包含中文，QUrl::fromLocalFile 处理最稳妥
-        QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+        QDesktopServices::openUrl(QUrl::fromLocalFile("assets/test.docx"));
         });
 
     // =========================================================
