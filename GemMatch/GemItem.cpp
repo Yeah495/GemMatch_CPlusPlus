@@ -14,8 +14,8 @@ GemItem::GemItem(int row, int col, GemType type, QGraphicsItem* parent)
     m_animRotate->setDuration(1000);
     m_animRotate->setStartValue(0);
     m_animRotate->setEndValue(360);
-    m_animRotate->setLoopCount(-1); //无限循环
-    m_animRotate->setEasingCurve(QEasingCurve::Linear); //匀速旋转
+    m_animRotate->setLoopCount(-1); 
+    m_animRotate->setEasingCurve(QEasingCurve::Linear);
 }
 
 void GemItem::setType(GemType type) {
@@ -57,7 +57,7 @@ void GemItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, Q
         painter->drawText(boundingRect(), Qt::AlignCenter, QString("%1,%2").arg(m_row).arg(m_col));
     }
     else {
-        //图片正常才画图片
+        //图片正常
         painter->drawPixmap(0, 0, GEM_SIZE, GEM_SIZE, pixmap);
     }
 }
@@ -78,6 +78,7 @@ void GemItem::setSelected(bool selected) {
     update();
 }
 
+//点击事件处理
 void GemItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     emit clicked(m_row, m_col);
     QGraphicsObject::mousePressEvent(event);

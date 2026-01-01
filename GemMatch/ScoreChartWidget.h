@@ -15,7 +15,7 @@ public:
 
     // 设置数据
     void setScores(const QList<int>& scores, const QString& title = "");
-    void setDifficulty(int difficulty); // 3=简单,5=普通,7=困难
+    void setDifficulty(int difficulty); 
 
     // 获取统计数据
     int getMaxScore() const { return m_yMax; }
@@ -48,4 +48,4 @@ private:
     QColor m_chartColor;
 };
 
-#endif // SCORECHARTWIDGET_H
+#endif 

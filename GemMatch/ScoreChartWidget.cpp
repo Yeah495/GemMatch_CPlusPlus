@@ -13,7 +13,7 @@ ScoreChartWidget::ScoreChartWidget(QWidget* parent)
     m_yMin(0) {
 
     // 设置默认颜色
-    m_chartColor = QColor(255, 107, 53); // 橙色
+    m_chartColor = QColor(255, 107, 53);
 
     // 设置最小大小
     setMinimumSize(400, 300);
@@ -24,10 +24,10 @@ void ScoreChartWidget::setScores(const QList<int>& scores, const QString& title)
     m_title = title;
 
     if (!m_scores.isEmpty()) {
-        // 自动计算Y轴范围
+        // 计算Y轴范围
         int maxScore = *std::max_element(m_scores.begin(), m_scores.end());
-        m_yMax = qMax(maxScore * 1.2, 100.0); // 留出20%空间
-        // 横轴最大值设置为数据点数量，最多10个
+        m_yMax = qMax(maxScore * 1.2, 100.0); 
+        // 横轴最大值设置为数据点数量
         m_xMax = qMin(m_scores.size(), 10);
     }
     else {
@@ -35,7 +35,7 @@ void ScoreChartWidget::setScores(const QList<int>& scores, const QString& title)
         m_yMax = 1000;
     }
 
-    update(); // 触发重绘
+    update(); // 重绘
 }
 
 void ScoreChartWidget::setDifficulty(int difficulty) {
@@ -43,13 +43,13 @@ void ScoreChartWidget::setDifficulty(int difficulty) {
 
     // 根据难度设置不同的线条颜色
     switch (difficulty) {
-    case 3: // 简单 - 绿色
+    case 3: 
         m_chartColor = QColor(76, 175, 80);
         break;
-    case 5: // 普通 - 蓝色
+    case 5: 
         m_chartColor = QColor(33, 150, 243);
         break;
-    case 7: // 困难 - 红色
+    case 7:
         m_chartColor = QColor(244, 67, 54);
         break;
     }
@@ -97,7 +97,7 @@ void ScoreChartWidget::paintEvent(QPaintEvent* event) {
     painter.setPen(QPen(QColor(64, 64, 64)));
     painter.setFont(QFont("Microsoft YaHei", 10));
 
-    // X轴标签（游戏场次）- 根据实际数据点数量显示
+    // X轴标签
     int dataCount = m_scores.size();
     int maxDisplayPoints = 10;  // 最多显示10个点
 
@@ -108,13 +108,13 @@ void ScoreChartWidget::paintEvent(QPaintEvent* event) {
         for (int i = 0; i < displayCount; i++) {
             // 只显示每个数据点对应的标签
             int x = m_chartRect.left() + (m_chartRect.width() * i / qMax(displayCount - 1, 1));
-            QString label = QString::number(i + 1);  // 游戏场次从1开始
+            QString label = QString::number(i + 1);  
             QRect textRect(x - 20, m_chartRect.bottom() + 5, 40, 20);
             painter.drawText(textRect, Qt::AlignCenter, label);
         }
     }
 
-    // Y轴标签（分数）
+    // Y轴标签
     for (int i = 0; i <= gridLines; i++) {
         int value = m_yMax * i / gridLines;
         int y = m_chartRect.bottom() - (m_chartRect.height() * i / gridLines);
@@ -123,12 +123,11 @@ void ScoreChartWidget::paintEvent(QPaintEvent* event) {
         painter.drawText(textRect, Qt::AlignRight | Qt::AlignVCenter, label);
     }
 
-    // 绘制折线 - 只绘制实际存在的数据点
+    // 绘制折线
     if (dataCount >= 2) {
         QPainterPath linePath;
         QPainterPath fillPath;
 
-        // 只绘制前 displayCount 个点
         for (int i = 0; i < displayCount; i++) {
             QPoint p = scoreToPoint(i, m_scores[i]);
 

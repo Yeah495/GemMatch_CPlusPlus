@@ -27,14 +27,12 @@ private:
     MainWindow* m_mainWin;
     QTableWidget* m_table;
 
-    // 视频背景
     QGraphicsView* m_view;
     QGraphicsVideoItem* m_videoItem;
     QMediaPlayer* m_player;
     QAudioOutput* m_audioOutput;
     QString m_videoPath;
 
-    // UI
     GameLogo* m_logo;
     GameButton* m_btnEasy;
     GameButton* m_btnHard;
@@ -45,7 +43,7 @@ private:
     QGraphicsProxyWidget* m_logoProxy;
 
     void setupUI();
-    void loadRankData(int difficultyLevel = 3); // 添加默认参数
+    void loadRankData(int difficultyLevel = 3);
 };
 
-#endif // SCENERANK_H
+#endif 
