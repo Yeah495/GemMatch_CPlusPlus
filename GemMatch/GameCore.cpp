@@ -1,13 +1,6 @@
-﻿/*● GameCore.h (外观总管)
-  ○ 算法核心：处理消除后的下落填充。  
-  ○ 职责：Controller 层的唯一交互对象。它内部持有 Board、MatchFinder 和 GravitySystem，协调三者工作。*/
+﻿#include "GameCore.h"
 
-
-
-
-#include "GameCore.h"
-
-#include <algorithm>     // for std::shuffle
+#include <algorithm> 
 #include <random>
 #include <ctime>
 #include <cstdlib>
@@ -23,9 +16,10 @@ void GameCore::initGame(int gemTypeCount) {
     m_board->initRandomBoard(gemTypeCount);
     m_session->resetScore();
 
-    // 先执行一次重力，填补初始生成的任何空洞
+    //先执行一次重力，填补初始生成的任何空洞
     GravitySystem::applyGravity(*m_board, gemTypeCount);
 
+    //清除初始连消
     bool stable = false;
     while (!stable) {
         // 使用 MatchFinder 找但不标记状态，直接清空
@@ -43,49 +37,15 @@ void GameCore::initGame(int gemTypeCount) {
         }
     }
     
-    // 【重要】初始化结束后，强制将所有宝石设为静止，避免带着 Falling 状态进游戏
-    for(int r=0; r<BOARD_ROWS; ++r)
-        for(int c=0; c<BOARD_COLS; ++c) {
-             Gem g = m_board->getGem(r,c);
-             g.state = GemState::Static;
-             m_board->setGem(r,c,g);
-        }
+    //初始化结束后，将所有宝石设为静止，避免带着 Falling 状态进游戏(重力系统导致)
+    resetGemStates();
 }
 
-std::vector<QPoint> GameCore::findHint() {
-    // 遍历每一个格子
-    for (int r = 0; r < BOARD_ROWS; ++r) {
-        for (int c = 0; c < BOARD_COLS; ++c) {
-
-            // 尝试向右交换
-            if (c + 1 < BOARD_COLS) {
-                m_board->swapGem(r, c, r, c + 1); // 假装交换
-                if (!MatchFinder::findMatches(*m_board).empty()) {
-                    m_board->swapGem(r, c, r, c + 1); // 还原
-                    return { QPoint(r, c), QPoint(r, c + 1) }; // 找到啦！
-                }
-                m_board->swapGem(r, c, r, c + 1); // 还原
-            }
-
-            // 尝试向下交换
-            if (r + 1 < BOARD_ROWS) {
-                m_board->swapGem(r, c, r + 1, c); // 假装交换
-                if (!MatchFinder::findMatches(*m_board).empty()) {
-                    m_board->swapGem(r, c, r + 1, c); // 还原
-                    return { QPoint(r, c), QPoint(r + 1, c) }; // 找到啦！
-                }
-                m_board->swapGem(r, c, r + 1, c); // 还原
-            }
-        }
-    }
-    return {}; // 没找到任何可以消除的一步（死局）
-}
-
+//重置所有宝石状态为静止
 void GameCore::resetGemStates() {
     for (int r = 0; r < BOARD_ROWS; ++r) {
         for (int c = 0; c < BOARD_COLS; ++c) {
             Gem g = m_board->getGem(r, c);
-            // 不管之前是什么状态，只要存在，就归位静止
             if (g.type != GemType::Empty) {
                 g.state = GemState::Static;
                 m_board->setGem(r, c, g);
@@ -94,23 +54,54 @@ void GameCore::resetGemStates() {
     }
 }
 
+//找提示
+std::vector<QPoint> GameCore::findHint() {
+    //遍历每一个格子
+    for (int r = 0; r < BOARD_ROWS; ++r) {
+        for (int c = 0; c < BOARD_COLS; ++c) {
+
+            //尝试向右交换
+            if (c + 1 < BOARD_COLS) {
+                m_board->swapGem(r, c, r, c + 1);
+                if (!MatchFinder::findMatches(*m_board).empty()) {
+                    m_board->swapGem(r, c, r, c + 1); //还原
+                    return { QPoint(r, c), QPoint(r, c + 1) }; //找到
+                }
+                m_board->swapGem(r, c, r, c + 1); //还原
+            }
+
+            // 尝试向下交换
+            if (r + 1 < BOARD_ROWS) {
+                m_board->swapGem(r, c, r + 1, c);
+                if (!MatchFinder::findMatches(*m_board).empty()) {
+                    m_board->swapGem(r, c, r + 1, c); //还原
+                    return { QPoint(r, c), QPoint(r + 1, c) }; //找到
+                }
+                m_board->swapGem(r, c, r + 1, c); //还原
+            }
+        }
+    }
+    return {}; //没找到任何可以消除的一步（死局）
+}
+
+//尝试交换
 SwapResult GameCore::trySwap(int r1, int c1, int r2, int c2) {
-    // 1. 验证坐标
+    //验证坐标
     if (!m_board->isValid(r1, c1) || !m_board->isValid(r2, c2)) return SwapResult::Fail;
 
-    // 2. 必须是相邻的
+    //必须是相邻的
     if (std::abs(r1 - r2) + std::abs(c1 - c2) != 1) return SwapResult::Fail;
 
-    // 3. 记录历史（压栈），准备悔棋用 
+    //记录历史
     m_session->pushHistory(*m_board);
 
-    // 4. 逻辑交换
+    //逻辑交换
     m_board->swapGem(r1, c1, r2, c2);
 
-    // 检查是否产生消除
+    //检查是否产生消除
     int size = 0;
-    if (!findAndMarkMatches(&size)) { // 使用统一的标记函数
-        m_board->swapGem(r1, c1, r2, c2); // 回退
+    if (!findAndMarkMatches(&size)) {
+        m_board->swapGem(r1, c1, r2, c2); //还原
         Board tempBoard;
         m_session->undo(tempBoard);
         return SwapResult::Fail;
@@ -130,8 +121,8 @@ bool GameCore::undo() {
     return false;
 }
 
+//重力接口
 void GameCore::applyGravityOnly(int gemTypeCount) {
-    // 调用之前的队列逻辑，实现宝石下沉和顶部补全
     GravitySystem::applyGravity(*m_board, gemTypeCount);
 }
 
@@ -147,8 +138,9 @@ int GameCore::getScore() const {
     return m_session->getScore();
 }
 
+//打乱盘
 void GameCore::shuffleBoard() {
-    // 1. 收集所有非空格子（只收集颜色）
+    //收集所有非空格子（只收集颜色）
     std::vector<GemType> gems;
     for (int r = 0; r < BOARD_ROWS; ++r) {
         for (int c = 0; c < BOARD_COLS; ++c) {
@@ -161,12 +153,12 @@ void GameCore::shuffleBoard() {
 
     if (gems.empty()) return;
 
-    // 2. 纯随机打乱 (不检查是否连消，生成啥就是啥)
+    //纯随机打乱
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine engine(seed);
     std::shuffle(gems.begin(), gems.end(), engine);
 
-    // 3. 填回棋盘
+    //填回棋盘
     int idx = 0;
     for (int r = 0; r < BOARD_ROWS; ++r) {
         for (int c = 0; c < BOARD_COLS; ++c) {
@@ -180,17 +172,14 @@ void GameCore::shuffleBoard() {
     }
 }
 
-// 确保 findAndMarkMatches 安全
+//返回成功与否的删除,并且设置特殊情况和正常情况的消除状态
 bool GameCore::findAndMarkMatches(int* size) {
-    // 1. 定义一个局部变量，作为本次扫描的“临时开关”
-    // 只要发现一次4连，就把它设为 true，之后绝不改回 false
+    //只要发现一次4个以上连，就把它设为 true
     bool hasSpecialEffect = false;
 
     std::set<std::pair<int, int>> pointsToExplode;
 
-    // ==========================================
-    // 1. 横向扫描 (Rows)
-    // ==========================================
+    //横向扫描
     for (int r = 0; r < BOARD_ROWS; ++r) {
         for (int c = 0; c < BOARD_COLS; ) {
             GemType currentType = m_board->getGem(r, c).type;
@@ -207,8 +196,7 @@ bool GameCore::findAndMarkMatches(int* size) {
             int matchLen = k - c;
             if (matchLen >= 3) {
                 if (matchLen >= 4) {
-                    // --- 触发大招 ---
-                    hasSpecialEffect = true; // 【关键】标记为真！
+                    hasSpecialEffect = true; //标记为真
 
                     for (int col = 0; col < BOARD_COLS; ++col) {
                         if (m_board->getGem(r, col).type != GemType::Empty)
@@ -216,9 +204,7 @@ bool GameCore::findAndMarkMatches(int* size) {
                     }
                 }
                 else {
-                    // --- 普通消除 ---
-                    // 【关键】这里只处理消除，绝对不要去修改 hasSpecialEffect
-                    // 不要写 hasSpecialEffect = false; 
+                    //普通消除
                     for (int j = c; j < k; ++j) {
                         pointsToExplode.insert({ r, j });
                     }
@@ -228,9 +214,8 @@ bool GameCore::findAndMarkMatches(int* size) {
         }
     }
 
-    // ==========================================
-    // 2. 纵向扫描 (Cols)
-    // ==========================================
+
+    //纵向扫描
     for (int c = 0; c < BOARD_COLS; ++c) {
         for (int r = 0; r < BOARD_ROWS; ) {
             GemType currentType = m_board->getGem(r, c).type;
@@ -247,17 +232,16 @@ bool GameCore::findAndMarkMatches(int* size) {
             int matchLen = k - r;
             if (matchLen >= 3) {
                 if (matchLen >= 4) {
-                    // --- 触发大招 ---
-                    hasSpecialEffect = true; // 【关键】标记为真！
+                    hasSpecialEffect = true; //标记为真
 
+                    //对应列都为消除
                     for (int row = 0; row < BOARD_ROWS; ++row) {
                         if (m_board->getGem(row, c).type != GemType::Empty)
                             pointsToExplode.insert({ row, c });
                     }
                 }
                 else {
-                    // --- 普通消除 ---
-                    // 【关键】这里不做任何状态改变，防止覆盖掉之前可能已经发现的大招
+                    //普通消除
                     for (int j = r; j < k; ++j) {
                         pointsToExplode.insert({ j, c });
                     }
@@ -267,17 +251,12 @@ bool GameCore::findAndMarkMatches(int* size) {
         }
     }
 
-    // ==========================================
-    // 3. 应用状态 (Commit)
-    // ==========================================
+
+    //设置状态
     if (pointsToExplode.empty()) {
-        m_isSpecialMatch = false; // 没有消除，肯定是 false
+        m_isSpecialMatch = false;
         return false;
     }
-
-    // 【最终提交】
-    // 将本次扫描的最终结果赋值给成员变量
-    // 这样，只要上面的循环里有任何一次触发了 >=4，这里就是 true
     m_isSpecialMatch = hasSpecialEffect;
 
     if (size) *size = pointsToExplode.size();
@@ -293,27 +272,27 @@ bool GameCore::findAndMarkMatches(int* size) {
     return true;
 }
 
-// 确保 clearMatches 彻底清除爆炸痕迹
+//清除爆炸状态(设置为空,才能重力下落)
 void GameCore::clearMatches() {
     for (int r = 0; r < BOARD_ROWS; ++r) {
         for (int c = 0; c < BOARD_COLS; ++c) {
             Gem g = m_board->getGem(r, c);
             if (g.state == GemState::Exploding) {
-                g.type = GemType::Empty;  // 正式变为空
-                g.state = GemState::Static; // 重置为静态，防止下一轮误判
+                g.type = GemType::Empty;  //变为空
+                g.state = GemState::Static; //重置为静态，防止下一轮误判
                 m_board->setGem(r, c, g);
             }
         }
     }
 }
 
+//万能宝石消除指定颜色
 int GameCore::explodeAllColor(GemType targetColor) {
     int count = 0;
     for (int r = 0; r < BOARD_ROWS; ++r) {
         for (int c = 0; c < BOARD_COLS; ++c) {
             Gem g = m_board->getGem(r, c);
-
-            // 只要是目标颜色，或者它本身就是万能宝石（自己也要炸），就标记爆炸
+            // 只要是目标颜色，或者它本身就是万能宝石（自己也要炸）
             if (g.type == targetColor || g.type == GemType::Universal) {
                 g.state = GemState::Exploding;
                 m_board->setGem(r, c, g);
