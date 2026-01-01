@@ -455,11 +455,27 @@ void PageStatistics::checkBasicAchievements() {
     // 计算总游戏场次（使用新方法获取所有难度的总场次）
     int totalGames = UserManager::instance().getCurrentUserAllTotalGames();
 
+    // 调试输出，查看总游戏场次
+    qDebug() << "检查基础成就，总游戏场次:" << totalGames;
+
     // 检查并更新所有基础游戏次数成就
     for (auto& ach : m_achievements) {
         if (ach.id == "first_game") {
+            // 只有当有真实的游戏记录时才解锁
             if (totalGames >= 1 && !ach.unlocked) {
-                unlockAchievement("first_game", "初出茅庐", "完成第1局游戏");
+                // 确保用户真的有游戏记录
+                bool hasGameRecord = false;
+                for (int difficulty : {3, 5, 7}) {
+                    QList<int> recentScores = UserManager::instance().getCurrentUserRecentScores(difficulty);
+                    if (!recentScores.isEmpty()) {
+                        hasGameRecord = true;
+                        break;
+                    }
+                }
+
+                if (hasGameRecord) {
+                    unlockAchievement("first_game", "初出茅庐", "完成第1局游戏");
+                }
             }
         }
         else if (ach.id == "play_10_games") {
@@ -486,8 +502,10 @@ void PageStatistics::checkBasicAchievements() {
 void PageStatistics::checkScoreAchievements() {
     // 检查各难度最高分成就
     for (int difficulty : {3, 5, 7}) {
-        // 使用原始的函数调用
         int highScore = UserManager::instance().getCurrentUserHighScore(difficulty);
+
+        // 调试输出
+        qDebug() << "难度" << difficulty << "最高分:" << highScore;
 
         QString achId;
         if (difficulty == 3) achId = "easy_master";
@@ -498,7 +516,8 @@ void PageStatistics::checkScoreAchievements() {
         for (auto& ach : m_achievements) {
             if (ach.id == achId) {
                 ach.progress = std::min(highScore, ach.target);
-                if (highScore >= ach.target && !ach.unlocked) {
+                // 只有当最高分确实大于0且达到目标时才解锁
+                if (highScore > 0 && highScore >= ach.target && !ach.unlocked) {
                     QString achName;
                     if (difficulty == 3) achName = "简单模式大师";
                     else if (difficulty == 5) achName = "普通模式大师";
@@ -512,9 +531,15 @@ void PageStatistics::checkScoreAchievements() {
 
     // 检查单局得分成就
     for (int difficulty : {3, 5, 7}) {
-        // 使用原始的函数调用
         QList<int> scores = UserManager::instance().getCurrentUserRecentScores(difficulty);
+
+        // 调试输出
+        qDebug() << "难度" << difficulty << "最近得分记录:" << scores;
+
         for (int score : scores) {
+            // 只有分数大于0时才检查成就
+            if (score <= 0) continue;
+
             // 检查得分成就（从低到高）
             if (score >= 100 && !isAchievementUnlocked("score_100")) {
                 unlockAchievement("score_100", "百分达人", "单局得分超过100分");
@@ -578,6 +603,29 @@ void PageStatistics::loadAchievementProgress() {
     QString currentUser = UserManager::instance().getCurrentUser();
     if (currentUser.isEmpty()) return;
 
+    // 首先检查用户是否真的有游戏记录
+    bool hasGameRecord = false;
+    int totalGames = UserManager::instance().getCurrentUserAllTotalGames();
+
+    if (totalGames == 0) {
+        // 如果没有游戏记录，强制重置所有成就状态
+        qDebug() << "用户没有游戏记录，重置成就状态";
+        for (auto& ach : m_achievements) {
+            ach.unlocked = false;
+            ach.progress = 0;
+        }
+
+        // 删除可能存在的成就文件
+        QString filePath = QDir::currentPath() + "/achievements_" + currentUser + ".json";
+        QFile file(filePath);
+        if (file.exists()) {
+            file.remove();
+            qDebug() << "已删除旧的成就文件";
+        }
+        return;
+    }
+
+    // 如果有游戏记录，才从文件加载成就状态
     QString filePath = QDir::currentPath() + "/achievements_" + currentUser + ".json";
 
     QFile file(filePath);
@@ -593,8 +641,24 @@ void PageStatistics::loadAchievementProgress() {
         for (auto& ach : m_achievements) {
             if (obj.contains(ach.id)) {
                 QJsonObject achObj = obj[ach.id].toObject();
-                ach.unlocked = achObj["unlocked"].toBool();
-                ach.progress = achObj["progress"].toInt();
+                bool wasUnlocked = achObj["unlocked"].toBool();
+                int savedProgress = achObj["progress"].toInt();
+
+                // 对于"第一局游戏"成就，需要额外检查
+                if (ach.id == "first_game") {
+                    if (totalGames >= 1) {
+                        ach.unlocked = true;
+                        ach.progress = 1;
+                    }
+                    else {
+                        ach.unlocked = false;
+                        ach.progress = 0;
+                    }
+                }
+                else {
+                    ach.unlocked = wasUnlocked;
+                    ach.progress = savedProgress;
+                }
             }
         }
     }
@@ -782,8 +846,8 @@ void PageStatistics::showNextAchievement() {
     m_achievementDisplay->show();
     m_achievementDisplay->raise();
 
-    // 3秒后自动关闭
-    m_achievementTimer->start(3000);
+    // 1.5秒后自动关闭
+    m_achievementTimer->start(1500);
 }
 
 // 新增辅助函数：根据成就ID获取描述
