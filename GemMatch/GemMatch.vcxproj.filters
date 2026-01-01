@@ -45,7 +45,6 @@
     <ClCompile Include="PageAbout.cpp">
       <Filter>view</Filter>
     </ClCompile>
-    <ClCompile Include="GameButton.cpp" />
     <ClCompile Include="VideoBackground.cpp" />
     <ClCompile Include="PageAdmin.cpp">
       <Filter>view</Filter>
@@ -62,6 +61,9 @@
       <Filter>view</Filter>
     </ClCompile>
     <ClCompile Include="ScoreChartWidget.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="GameButton.cpp">
       <Filter>view</Filter>
     </ClCompile>
   </ItemGroup>
