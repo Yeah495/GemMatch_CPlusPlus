@@ -6,11 +6,11 @@
 #include <QPushButton>
 #include <QMediaPlayer>
 #include <QAudioOutput>
-
+#include <QtWidgets/QApplication>
 #include "GameController.h"
 #include "GameOverDialog.h"
 
-// 前向声明所有子页面类，避免头文件互相包含
+//前向声明所有子页面类和中控
 class PageLogin;
 class SceneStart;
 class SceneGame;
@@ -20,43 +20,42 @@ class SceneRank;
 class PageAdmin;
 class PageStatistics;
 
+class GameController;
 
-class GameController; // 前置声明
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
-    SceneGame* getGamePage();
-
-    // 页面跳转
+    //切换页面
     void switchPage(int index);
 
-    // 提供给其他页面的接口
+    //得到主游戏界面对象
     SceneGame* getGamePage() const { return m_pageGame; }
 
+    //开始游戏
     void startNewGame(int difficulty = 3);
 
-    // 设置接口
+    //设置亮度和音乐
     void setGlobalBrightness(int value);
-    void toggleLanguage();
-    void setBGMVolume(float volume); // 设置BGM音量接口
-    float getBGMVolume() const;      // 获取当前BGM音量0.0~1.0
+    void setBGMVolume(float volume);
 
-    // 头像相关接口
+    //得到音乐音量
+    float getBGMVolume() const;
+
+    //设置与获取头像
     void setAvatarFromFile(const QString& filePath);
     void setAvatarFromPixmap(const QPixmap& pixmap);
     const QPixmap& getAvatarPixmap() const;
 
 private:
+    //初始化ui界面
     void setupAllPages();
     void setupGlobalUI();
-    void updateBrightness();
 
+    //页面指针
     QStackedWidget* m_stack;
-
-    // 页面指针
     PageLogin* m_pageLogin;
     SceneStart* m_pageStart;
     SceneGame* m_pageGame;
@@ -66,21 +65,20 @@ private:
     PageAdmin* m_pageAdmin;
     PageStatistics* m_pageStatistics;
 
+    //唯一中控
     GameController* m_controller;
 
-    // 悬浮/覆盖控件
-    QWidget* m_brightnessOverlay;
-   // QPushButton* m_langBtn;
-
-    // 全局BGM播放器
+    //音乐组件
     QMediaPlayer* m_bgmPlayer = nullptr;
     QAudioOutput* m_bgmAudioOutput = nullptr;
 
-    int m_brightness = 100;
-    int m_language = 0; // 0: CN, 1: EN
-
-    // 全局头像（已裁剪为圆形的100x100像素）
+    //随机头像
     QPixmap m_avatarPixmap;
+    
+    //亮度组件和函数
+    int m_brightness = 100;
+    QWidget* m_brightnessOverlay;
+    void updateBrightness();
 
     void onGameOver(int score);
 };

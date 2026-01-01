@@ -14,15 +14,15 @@ SceneStart::SceneStart(MainWindow* mainWin) : QWidget(mainWin), m_mainWin(mainWi
 
 void SceneStart::selectDifficulty(int level) {
     m_currentDifficulty = level;
-
-    // 如果 level 是 0，所有判断都会是 false，所有按钮都会取消高亮
+    
+    //设置选中高亮
     if (m_btnEasy) m_btnEasy->setSelected(level == 3);
     if (m_btnHard) m_btnHard->setSelected(level == 5);
     if (m_btnExtreme) m_btnExtreme->setSelected(level == 7);
 }
 
 void SceneStart::setupUI() {
-    // 1. 主布局与视图初始化
+    //主布局
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -33,7 +33,7 @@ void SceneStart::setupUI() {
     QGraphicsScene* scene = new QGraphicsScene(this);
     m_view->setScene(scene);
 
-    // 2. 视频背景
+    //视频背景
     m_player = new QMediaPlayer(this);
     m_audioOutput = new QAudioOutput(this);
     m_player->setAudioOutput(m_audioOutput);
@@ -48,14 +48,12 @@ void SceneStart::setupUI() {
     m_videoPath = "assets/videos/8.mp4";
     m_player->setLoops(QMediaPlayer::Infinite);
 
-    // =========================================================
-    // 3. 中央菜单容器 (白色磨砂)
-    // =========================================================
+    //中央菜单容器
     QWidget* menuContainer = new QWidget();
     menuContainer->setFixedSize(500, 400); // 调整大小以适应按钮
     menuContainer->setStyleSheet(
         "QWidget {"
-        "   background-color: rgba(255, 255, 255, 100);" /* 白色半透明 */
+        "   background-color: rgba(255, 255, 255, 100);" 
         "   border-radius: 20px;"
         "   border: 1px solid rgba(255, 255, 255, 200);"
         "}"
@@ -66,10 +64,9 @@ void SceneStart::setupUI() {
     menuLayout->setSpacing(20);
     menuLayout->setAlignment(Qt::AlignCenter);
 
-    // -- 第一行：三个难度按键 --
+    //三个难度按键
     QHBoxLayout* diffLayout = new QHBoxLayout();
     diffLayout->setSpacing(20);
-    // 请确保有对应图片，没有则用文字图或临时图代替
     m_btnEasy = new GameButton("assets/images/简单1.png");
     m_btnHard = new GameButton("assets/images/困难1.png");
     m_btnExtreme = new GameButton("assets/images/极限1.png");
@@ -79,62 +76,50 @@ void SceneStart::setupUI() {
     diffLayout->addWidget(m_btnExtreme);
     menuLayout->addLayout(diffLayout);
 
-    // -- 第二行：开始游戏 (大) --
+    //开始游戏
     m_btnStart = new GameButton("assets/images/开始游戏.png");
     // 如果图片不够大，可以通过 setFixedSize 强制调整，但建议直接用大图
     menuLayout->addWidget(m_btnStart, 0, Qt::AlignCenter);
 
-    // -- 第三行：排行榜 --
+    //排行榜
     m_btnRank = new GameButton("assets/images/排行榜.png");
     menuLayout->addWidget(m_btnRank, 0, Qt::AlignCenter);
 
 
-    // 【新增】 -- 第四行：个人战绩 --
+    //个人战绩
     m_btnHistory = new GameButton("assets/images/个人战绩.png");
     menuLayout->addWidget(m_btnHistory, 0, Qt::AlignCenter);
 
-    // 添加到场景
+    //添加到场景
     m_menuProxy = scene->addWidget(menuContainer);
     m_menuProxy->setZValue(1);
 
-    // =========================================================
-    // 4. Logo (独立，位于菜单上方)
-    // =========================================================
+    //Logo
     m_logo = new GameLogo("assets/images/logo_宝石迷阵.png");
     m_logoProxy = scene->addWidget(m_logo);
     m_logoProxy->setZValue(2);
 
-    // =========================================================
-    // 5. 角落按钮 (独立)
-    // =========================================================
-    // 左上：关于
+    //关于
     m_btnAbout = new GameButton("assets/images/关于.png");
     m_aboutProxy = scene->addWidget(m_btnAbout);
     m_aboutProxy->setZValue(2);
 
-    // 右上：设置
+    //设置
     m_btnSettings = new GameButton("assets/images/设置.png");
     m_settingProxy = scene->addWidget(m_btnSettings);
     m_settingProxy->setZValue(2);
 
-
-
-    // =========================================================
-        // 【修改】 6. 右上角圆形头像 (带白色描边优化)
-        // =========================================================
+    //头像
     m_avatar = new QLabel();
-    m_avatar->setFixedSize(100, 100); // 稍微调小一点，显得更精致
+    m_avatar->setFixedSize(100, 100);
     m_avatar->setStyleSheet("background: transparent;");
-
-    // 初始时不设置默认头像；后续从 MainWindow 同步
-
     m_avatarProxy = scene->addWidget(m_avatar);
     m_avatarProxy->setZValue(2);
 
-    // --- 信号连接 ---
-    connect(m_btnRank, &QPushButton::clicked, [this]() { m_mainWin->switchPage(5); }); // 假设 Rank 是 Page 5
-    connect(m_btnAbout, &QPushButton::clicked, [this]() { m_mainWin->switchPage(4); }); // 假设 About 是 Page 4
-    connect(m_btnSettings, &QPushButton::clicked, [this]() { m_mainWin->switchPage(3); }); // 假设 Settings 是 Page 3
+    //信号连接
+    connect(m_btnRank, &QPushButton::clicked, [this]() { m_mainWin->switchPage(5); });
+    connect(m_btnAbout, &QPushButton::clicked, [this]() { m_mainWin->switchPage(4); }); 
+    connect(m_btnSettings, &QPushButton::clicked, [this]() { m_mainWin->switchPage(3); }); 
     
     //难度按钮,不直接开始游戏
     connect(m_btnEasy, &QPushButton::clicked, [this]() {
@@ -162,7 +147,7 @@ void SceneStart::setupUI() {
 
     connect(m_btnHistory, &QPushButton::clicked, [this]() {
         if (m_mainWin) {
-            m_mainWin->switchPage(7); // 切换到PageStatistics页面
+            m_mainWin->switchPage(7); //切换到个人战绩页面
         }
         });
 
@@ -175,45 +160,44 @@ void SceneStart::resizeEvent(QResizeEvent* event) {
         m_videoItem->setSize(QSizeF(this->size()));
         m_view->setSceneRect(0, 0, this->width(), this->height());
 
-        // 1. 中央菜单居中偏下
+        //中央菜单
         if (m_menuProxy) {
             QWidget* w = m_menuProxy->widget();
             if (w) m_menuProxy->setPos((width() - w->width()) / 2, (height() - w->height()) / 2 + 50);
         }
 
-        // 2. Logo 居中偏上
+        //Logo
         if (m_logoProxy) {
             QWidget* w = m_logoProxy->widget();
             if (w) m_logoProxy->setPos((width() - w->width()) / 2, height() * 0.10);
         }
-
+        
+        //关于
         if (m_aboutProxy) {
             QWidget* w = m_aboutProxy->widget();
             if (w) m_aboutProxy->setPos(30, height() - w->height() - 30);
         }
 
-        // 【修改】 4. 设置按钮 -> 移到右下角
+        //设置按钮
         if (m_settingProxy) {
             QWidget* w = m_settingProxy->widget();
             if (w) m_settingProxy->setPos(width() - w->width() - 30, height() - w->height() - 30);
         }
 
-        // 【新增】 5. 头像 -> 移到右上角
+        //头像
         if (m_avatarProxy) {
             QWidget* w = m_avatarProxy->widget();
-            // 距离右边30，距离顶部30
             if (w) m_avatarProxy->setPos( 50, 50);
         }
     }
 }
 
-//只要切换到这个页面,就会自动调用一次showEvent
 void SceneStart::showEvent(QShowEvent* event) {
     QWidget::showEvent(event);
 
     selectDifficulty(0);
 
-    // 每次进入主菜单时，从 MainWindow 同步头像
+    //每次进入主菜单时，从 MainWindow 同步头像
     if (m_mainWin && m_avatar) {
         const QPixmap& pix = m_mainWin->getAvatarPixmap();
         if (!pix.isNull()) {
@@ -228,7 +212,6 @@ void SceneStart::showEvent(QShowEvent* event) {
     if (m_logo) m_logo->startEntrance();
 }
 
-//只要离开这个页面,就会自动调用一次hideEvent
 void SceneStart::hideEvent(QHideEvent* event) {
     QWidget::hideEvent(event);
     if (m_player) {
