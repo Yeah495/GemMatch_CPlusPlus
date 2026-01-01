@@ -43,7 +43,7 @@ void PageStatistics::setupUI() {
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    // 1. 创建GraphicsView和视频背景
+    // 创建视频背景
     m_view = new QGraphicsView(this);
     m_view->setStyleSheet("border: none; background: transparent;");
     m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -65,7 +65,7 @@ void PageStatistics::setupUI() {
     m_videoPath = "assets/videos/8.mp4";
     m_player->setLoops(QMediaPlayer::Infinite);
 
-    // 2. 创建主容器（白色磨砂效果）
+    // 创建主容器
     QWidget* mainContainer = new QWidget();
     mainContainer->setFixedSize(1200, 700);
     mainContainer->setStyleSheet(
@@ -80,7 +80,7 @@ void PageStatistics::setupUI() {
     containerLayout->setContentsMargins(20, 20, 20, 20);
     containerLayout->setSpacing(20);
 
-    // ========== 左侧：统计图表区 ==========
+    //统计图表区
     QWidget* leftPanel = new QWidget();
     leftPanel->setMinimumWidth(700);
     QVBoxLayout* leftLayout = new QVBoxLayout(leftPanel);
@@ -90,7 +90,7 @@ void PageStatistics::setupUI() {
     QHBoxLayout* difficultyLayout = new QHBoxLayout();
     difficultyLayout->setSpacing(30);  // 增加按钮之间的间距
 
-    // 创建按钮并设置固定大小
+    // 创建按钮
     m_btnEasy = new GameButton("assets/images/简单1.png");
     m_btnNormal = new GameButton("assets/images/困难1.png");
     m_btnHard = new GameButton("assets/images/极限1.png");
@@ -100,7 +100,7 @@ void PageStatistics::setupUI() {
     m_btnNormal->setFixedSize(150, 60);
     m_btnHard->setFixedSize(150, 60);
 
-    // 为按钮添加悬停效果（如果需要）
+    // 为按钮添加悬停效果
     QString buttonStyle =
         "QPushButton {"
         "   border: 2px solid #044BB7;"
@@ -116,7 +116,7 @@ void PageStatistics::setupUI() {
     m_btnNormal->setStyleSheet(buttonStyle);
     m_btnHard->setStyleSheet(buttonStyle);
 
-    // 添加按钮到布局，使用比例控制
+    // 添加按钮到布局
     difficultyLayout->addStretch(1);
     difficultyLayout->addWidget(m_btnEasy);
     difficultyLayout->addSpacing(20);  // 添加间距
@@ -165,7 +165,7 @@ void PageStatistics::setupUI() {
 
     leftLayout->addWidget(statsPanel);
 
-    // ========== 右侧：成就系统 ==========
+    //成就系统
     QWidget* rightPanel = new QWidget();
     rightPanel->setMinimumWidth(400);
     QVBoxLayout* rightLayout = new QVBoxLayout(rightPanel);
@@ -214,7 +214,7 @@ void PageStatistics::setupUI() {
     m_containerProxy->setZValue(1);
 
 
-    // 3. 返回按钮（放在底部）
+    // 返回按钮
     m_btnBack = new GameButton("assets/images/返回主菜单.png");
     m_btnBack->setFixedSize(200, 60);
 
@@ -246,7 +246,7 @@ void PageStatistics::loadStatisticsData() {
     ach = { "play_100_games", "百战不殆", "累计完成100局游戏", false, 0, 100 };
     m_achievements.append(ach);
 
-    // 得分成就（从小到大，保持合理的难度梯度）
+    // 得分成就
     ach = { "score_100", "百分达人", "单局得分超过100分", false, 0, 1 };
     m_achievements.append(ach);
 
@@ -286,11 +286,11 @@ void PageStatistics::loadStatisticsData() {
     updateAchievements();
 }
 
-// 修改 updateChart 方法中的统计部分
+// 改变难度时更新图表和统计数据
 void PageStatistics::updateChart(int difficultyLevel) {
     m_currentDifficulty = difficultyLevel;
 
-    // 从UserManager获取最近得分数据（最多10场）
+    // 从UserManager获取最近得分数据
     QList<int> recentScores = UserManager::instance().getCurrentUserRecentScores(difficultyLevel);
 
     // 设置图表数据
@@ -315,8 +315,8 @@ void PageStatistics::updateChart(int difficultyLevel) {
         return;
     }
 
-    // 计算统计数据（基于最近10场）
-    int totalGamesInChart = recentScores.size();  // 图表显示的游戏场次（最多10）
+    // 计算统计数据
+    int totalGamesInChart = recentScores.size();
     int totalScore = 0;
     int maxScore = 0;
     int winCount = 0;
@@ -331,7 +331,7 @@ void PageStatistics::updateChart(int difficultyLevel) {
     int winRate = totalGamesInChart > 0 ? (winCount * 100) / totalGamesInChart : 0;
     int highScore = UserManager::instance().getCurrentUserHighScore(difficultyLevel);
 
-    // 获取该难度的真实总游戏场次（新增）
+    // 获取该难度的真实总游戏场次
     int realTotalGames = UserManager::instance().getCurrentUserTotalGames(difficultyLevel);
 
     // 更新统计标签
@@ -355,15 +355,15 @@ void PageStatistics::updateAchievements() {
         if (ach.unlocked) unlockedCount++;
     }
 
-    // 计算总游戏场次（使用新方法）
+    // 计算总游戏场次
     int totalGames = UserManager::instance().getCurrentUserAllTotalGames();
 
-    // 添加成就标题（带进度）
+    // 添加成就标题
     QListWidgetItem* titleItem = new QListWidgetItem(
         QString("成就进度: %1/%2 (总游戏场次: %3)")
         .arg(unlockedCount)
         .arg(m_achievements.size())
-        .arg(totalGames));  // 显示真实总场次
+        .arg(totalGames));  
     titleItem->setTextAlignment(Qt::AlignCenter);
     titleItem->setFlags(Qt::NoItemFlags);
     titleItem->setForeground(QBrush(QColor("#2a5493")));
@@ -377,7 +377,7 @@ void PageStatistics::updateAchievements() {
     separator->setSizeHint(QSize(0, 2));
     m_achievementsList->addItem(separator);
 
-    // 添加每个成就项（其余代码保持不变）
+    // 添加每个成就项
     for (const auto& ach : m_achievements) {
         QString displayText;
 
@@ -388,10 +388,10 @@ void PageStatistics::updateAchievements() {
             displayText = QString("%1\n%2 [%3/%4]")
                 .arg(ach.name)
                 .arg(ach.description)
-                .arg(std::min(totalGames, ach.target))  // 使用真实总场次
+                .arg(std::min(totalGames, ach.target))  
                 .arg(ach.target);
         }
-        // 对于分数成就，显示最高分进度（如果适用）
+        // 对于分数成就，显示最高分进度
         else if (ach.id == "easy_master" || ach.id == "normal_master" || ach.id == "hard_master") {
             // 获取当前难度
             int difficulty = 3;
@@ -430,7 +430,7 @@ void PageStatistics::updateAchievements() {
 
             // 对于100场游戏成就，可以显示特殊图标
             if (ach.id == "play_100_games") {
-                item->setForeground(QBrush(QColor("#FFD700"))); // 金色
+                item->setForeground(QBrush(QColor("#FFD700"))); 
             }
         }
         else {
@@ -452,10 +452,9 @@ void PageStatistics::checkBasicAchievements() {
     QString currentUser = UserManager::instance().getCurrentUser();
     if (currentUser.isEmpty()) return;
 
-    // 计算总游戏场次（使用新方法获取所有难度的总场次）
+    // 计算总游戏场次
     int totalGames = UserManager::instance().getCurrentUserAllTotalGames();
 
-    // 调试输出，查看总游戏场次
     qDebug() << "检查基础成就，总游戏场次:" << totalGames;
 
     // 检查并更新所有基础游戏次数成就
@@ -504,7 +503,6 @@ void PageStatistics::checkScoreAchievements() {
     for (int difficulty : {3, 5, 7}) {
         int highScore = UserManager::instance().getCurrentUserHighScore(difficulty);
 
-        // 调试输出
         qDebug() << "难度" << difficulty << "最高分:" << highScore;
 
         QString achId;
@@ -533,14 +531,12 @@ void PageStatistics::checkScoreAchievements() {
     for (int difficulty : {3, 5, 7}) {
         QList<int> scores = UserManager::instance().getCurrentUserRecentScores(difficulty);
 
-        // 调试输出
         qDebug() << "难度" << difficulty << "最近得分记录:" << scores;
 
         for (int score : scores) {
-            // 只有分数大于0时才检查成就
             if (score <= 0) continue;
 
-            // 检查得分成就（从低到高）
+            // 检查得分成就
             if (score >= 100 && !isAchievementUnlocked("score_100")) {
                 unlockAchievement("score_100", "百分达人", "单局得分超过100分");
             }
@@ -576,7 +572,7 @@ void PageStatistics::unlockAchievement(const QString& id, const QString& name, c
             // 保存到文件
             saveAchievementProgress();
 
-            // 将成就添加到队列（id在前，name在后）
+            // 将成就添加到队列
             m_achievementQueue.append(qMakePair(id, name));
 
             // 如果没有正在显示成就，则立即显示
@@ -664,6 +660,7 @@ void PageStatistics::loadAchievementProgress() {
     }
 }
 
+// 保存成就进度到文件
 void PageStatistics::saveAchievementProgress() {
     QString currentUser = UserManager::instance().getCurrentUser();
     if (currentUser.isEmpty()) return;
@@ -766,9 +763,9 @@ void PageStatistics::hideEvent(QHideEvent* event) {
 }
 
 void PageStatistics::initAchievementDisplay() {
-    // 创建成就显示标签（放在页面顶部）
+    // 创建成就显示标签
     m_achievementDisplay = new QLabel(this);
-    m_achievementDisplay->setFixedSize(450, 120);  // 稍微调大一点以容纳图片
+    m_achievementDisplay->setFixedSize(450, 120); 
     m_achievementDisplay->setAlignment(Qt::AlignCenter);
     m_achievementDisplay->setStyleSheet(
         "QLabel {"
@@ -785,7 +782,7 @@ void PageStatistics::initAchievementDisplay() {
     m_achievementDisplay->setWordWrap(true);
     m_achievementDisplay->hide();
 
-    // 添加图标显示能力
+    // 添加图标显示
     m_achievementDisplay->setScaledContents(false);
     m_achievementDisplay->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
 
@@ -805,11 +802,11 @@ void PageStatistics::showNextAchievement() {
 
     // 获取第一个成就
     auto achievement = m_achievementQueue.takeFirst();
-    QString id = achievement.first;  // 现在id在first位置
-    QString name = achievement.second; // 名称在second位置
+    QString id = achievement.first;  
+    QString name = achievement.second; 
 
     // 根据成就ID选择不同的图片
-    QString imagePath = ":/icons/achievement_unlocked.png"; // 默认图片
+    QString imagePath = ":/icons/achievement_unlocked.png"; 
 
     // 根据成就的重要程度设置不同的图片
     if (id.contains("10000") || id.contains("20000") || id.contains("宗师") || id.contains("王者")) {
@@ -822,7 +819,7 @@ void PageStatistics::showNextAchievement() {
         imagePath = "assets/achievement/achievement_bronze.png"; // 基础成就
     }
 
-    // 设置显示内容（图片+文字）
+    // 设置显示内容
     QString displayHtml = QString(
         "<html>"
         "<div align='center'>"
@@ -836,7 +833,7 @@ void PageStatistics::showNextAchievement() {
 
     m_achievementDisplay->setText(displayHtml);
 
-    // 显示位置（页面顶部居中）
+    // 显示位置
     if (m_containerProxy) {
         QPointF containerPos = m_containerProxy->pos();
         m_achievementDisplay->move(containerPos.x() + (1200 - 450) / 2, containerPos.y() + 20);
@@ -850,7 +847,7 @@ void PageStatistics::showNextAchievement() {
     m_achievementTimer->start(1500);
 }
 
-// 新增辅助函数：根据成就ID获取描述
+// 根据成就ID获取描述
 QString PageStatistics::getAchievementDescriptionById(const QString& id) {
     for (const auto& ach : m_achievements) {
         if (ach.id == id) {

@@ -34,9 +34,7 @@ void SceneRank::setupUI() {
     m_videoPath = "assets/videos/7.mp4";
     m_player->setLoops(QMediaPlayer::Infinite);
 
-    // =========================================================
-    // 容器 (白色磨砂)
-    // =========================================================
+    // 容器 
     QWidget* container = new QWidget();
     container->setFixedSize(800, 600);
     container->setStyleSheet(
@@ -71,20 +69,20 @@ void SceneRank::setupUI() {
     m_table->verticalHeader()->setVisible(false);
     m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_table->setSelectionMode(QAbstractItemView::NoSelection);
-    m_table->setShowGrid(true); // 显示网格线
+    m_table->setShowGrid(true); 
 
-    // 表格样式适配浅色背景
+    // 表格样式
     m_table->setStyleSheet(
         "QTableWidget {"
-        "   background: rgba(255, 255, 255, 180);" // 稍微更不透明一点
-        "   gridline-color: #aaa;" // 网格线颜色
-        "   color: #333;" // 深色字体
+        "   background: rgba(255, 255, 255, 180);" 
+        "   gridline-color: #aaa;" 
+        "   color: #333;" 
         "   font-size: 16px;"
         "   border: 1px solid #ccc;"
         "   border-radius: 10px;"
         "}"
         "QHeaderView::section {"
-        "   background: #044BB7;" // 表头深蓝
+        "   background: #044BB7;"
         "   color: white;"
         "   padding: 8px;"
         "   font-weight: bold;"
@@ -93,7 +91,7 @@ void SceneRank::setupUI() {
         "}"
         "QTableWidget::item { "
         "   padding: 5px; "
-        "   border-bottom: 1px solid #ddd;" // 行间分隔线
+        "   border-bottom: 1px solid #ddd;"
         "}"
     );
     layout->addWidget(m_table);
@@ -108,7 +106,7 @@ void SceneRank::setupUI() {
 
     connect(m_btnBack, &QPushButton::clicked, [this]() { m_mainWin->switchPage(1); });
 
-    // 修改信号连接：添加难度参数
+    // 添加难度参数
     connect(m_btnEasy, &QPushButton::clicked, [this]() {
         qDebug() << "点击简单难度按钮";
         loadRankData(3);
@@ -133,15 +131,14 @@ void SceneRank::setupUI() {
     mainLayout->addWidget(m_view);
 }
 
+// 加载排行榜数据
 void SceneRank::loadRankData(int difficultyLevel) {
     qDebug() << "正在加载排行榜数据，难度：" << difficultyLevel;
 
-    // ==================== 关键修复：重置表格 ====================
-    m_table->clear(); // 清除所有内容，包括表头
-    m_table->setRowCount(0); // 重置行数为0
-    m_table->setColumnCount(3); // 重新设置列数
-    m_table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff); // 防止横向滚动条
-    // ============================================================
+    m_table->clear(); 
+    m_table->setRowCount(0);
+    m_table->setColumnCount(3);
+    m_table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff); 
 
     QString difficultyName;
     switch (difficultyLevel) {
@@ -151,25 +148,21 @@ void SceneRank::loadRankData(int difficultyLevel) {
     default: difficultyName = "未知难度";
     }
 
-    // 设置表头
     m_table->setHorizontalHeaderLabels({ "排名", "用户", difficultyName + "最高分" });
 
     // 检查数据库连接状态
     if (!UserManager::instance().isDatabaseConnected()) {
         qDebug() << "数据库连接失败！";
 
-        // 确保有1行3列来显示错误信息
         m_table->setRowCount(1);
         m_table->setColumnCount(3);
 
-        // 创建错误信息单元格
         QTableWidgetItem* errorItem = new QTableWidgetItem("数据库连接失败");
         errorItem->setTextAlignment(Qt::AlignCenter);
         errorItem->setForeground(QBrush(Qt::red));
 
-        // 合并单元格显示完整错误信息
         m_table->setItem(0, 0, errorItem);
-        m_table->setSpan(0, 0, 1, 3); // 合并第0行，从第0列开始，跨1行3列
+        m_table->setSpan(0, 0, 1, 3); 
 
         return;
     }
@@ -181,7 +174,6 @@ void SceneRank::loadRankData(int difficultyLevel) {
     if (list.isEmpty()) {
         qDebug() << "排行榜数据为空";
 
-        // 确保有1行3列来显示空数据信息
         m_table->setRowCount(1);
         m_table->setColumnCount(3);
 
@@ -189,16 +181,14 @@ void SceneRank::loadRankData(int difficultyLevel) {
         emptyItem->setTextAlignment(Qt::AlignCenter);
         emptyItem->setForeground(QBrush(Qt::gray));
 
-        // 合并单元格
         m_table->setItem(0, 0, emptyItem);
         m_table->setSpan(0, 0, 1, 3);
 
         return;
     }
 
-    // 设置表格行数（根据数据数量）
     m_table->setRowCount(list.size());
-
+    //填充数据
     qDebug() << "开始填充表格数据...";
     for (int i = 0; i < list.size(); ++i) {
         const UserData& user = list[i];
@@ -208,14 +198,12 @@ void SceneRank::loadRankData(int difficultyLevel) {
                 user.hardHighScore);
 
         QColor textColor = QColor("#044BB7");
-
-        // 排名
+        //排名
         QTableWidgetItem* itemRank = new QTableWidgetItem(QString::number(i + 1));
         itemRank->setTextAlignment(Qt::AlignCenter);
         itemRank->setForeground(QBrush(textColor));
         itemRank->setFlags(itemRank->flags() & ~Qt::ItemIsEditable);
 
-        // 统一字体（去掉前三名的特殊字体）
         itemRank->setFont(QFont("Microsoft YaHei", 11, QFont::Bold));
 
         m_table->setItem(i, 0, itemRank);
@@ -225,12 +213,12 @@ void SceneRank::loadRankData(int difficultyLevel) {
         itemName->setTextAlignment(Qt::AlignCenter);
         itemName->setForeground(QBrush(textColor));
         itemName->setFlags(itemName->flags() & ~Qt::ItemIsEditable);
-        // 统一字体
+
         itemName->setFont(QFont("Microsoft YaHei", 11, QFont::Bold));
         m_table->setItem(i, 1, itemName);
 
 
-        // 分数（根据难度显示对应分数）
+        // 分数
         int score = 0;
         switch (difficultyLevel) {
         case 3: score = user.easyHighScore; break;
@@ -241,21 +229,18 @@ void SceneRank::loadRankData(int difficultyLevel) {
         QTableWidgetItem* itemScore = new QTableWidgetItem(QString::number(score));
         itemScore->setTextAlignment(Qt::AlignCenter);
 
-        // 统一分数颜色为深蓝色（#044BB7）
-        itemScore->setForeground(QBrush(QColor("#044BB7"))); // 统一颜色
-        itemScore->setFont(QFont("Microsoft YaHei", 11, QFont::Bold)); // 统一字体
+        itemScore->setForeground(QBrush(QColor("#044BB7"))); 
+        itemScore->setFont(QFont("Microsoft YaHei", 11, QFont::Bold)); 
 
         itemScore->setFlags(itemScore->flags() & ~Qt::ItemIsEditable);
         m_table->setItem(i, 2, itemScore);
     }
 
-    // 调整列宽
     m_table->horizontalHeader()->setStretchLastSection(false);
-    m_table->setColumnWidth(0, 100);  // 排名列
-    m_table->setColumnWidth(1, 250);  // 用户名列
-    m_table->setColumnWidth(2, 200);  // 分数列
+    m_table->setColumnWidth(0, 100);  
+    m_table->setColumnWidth(1, 250);  
+    m_table->setColumnWidth(2, 200);  
 
-    // 确保列宽不会变化
     m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     m_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
@@ -270,13 +255,12 @@ void SceneRank::loadRankData(int difficultyLevel) {
                 qDebug() << "找到当前用户，高亮显示第" << i + 1 << "行";
                 foundCurrentUser = true;
 
-                // 高亮整行
                 for (int col = 0; col < 3; ++col) {
                     QTableWidgetItem* item = m_table->item(i, col);
                     if (item) {
-                        item->setBackground(QBrush(QColor(173, 216, 230, 150))); // 浅蓝色背景
+                        item->setBackground(QBrush(QColor(173, 216, 230, 150)));
                         item->setFont(QFont("Arial", 12, QFont::Bold));
-                        item->setForeground(QBrush(QColor(0, 0, 139))); // 深蓝色文字
+                        item->setForeground(QBrush(QColor(0, 0, 139)));
                     }
                 }
                 break;
@@ -293,6 +277,8 @@ void SceneRank::loadRankData(int difficultyLevel) {
     qDebug() << "表格数据填充完成，共" << m_table->rowCount() << "行";
 }
 
+
+// 调整排行榜大小
 void SceneRank::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
     if (m_videoItem && m_view) {
@@ -310,14 +296,16 @@ void SceneRank::resizeEvent(QResizeEvent* event) {
     }
 }
 
+//显示排行榜
 void SceneRank::showEvent(QShowEvent* event) {
     QWidget::showEvent(event);
-    // 默认显示简单难度排行榜
     loadRankData(3);
     if (m_player) { m_player->setSource(QUrl::fromLocalFile(m_videoPath)); m_player->play(); }
     if (m_logo) m_logo->startEntrance();
 }
 
+
+// 隐藏排行榜
 void SceneRank::hideEvent(QHideEvent* event) {
     QWidget::hideEvent(event);
     if (m_player) { m_player->stop(); m_player->setSource(QUrl()); }

@@ -41,4 +41,4 @@ private:
     QPropertyAnimation* m_animRotate; 
 };
 
-#endif // GEMITEM_H
+#endif 

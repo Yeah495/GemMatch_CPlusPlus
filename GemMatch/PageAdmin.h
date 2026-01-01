@@ -39,7 +39,7 @@ public slots:
     void deleteSelectedUser();              // 删除选中的用户
     void deleteAllUsers();                  // 删除所有用户
     void resetUserPassword();               // 重置用户密码
-    void exportToCSV();                     // 导出为CSV文件
+    void exportToTXT();                     // 导出为txt文件
     void refreshTable();                    // 刷新表格
     void onCellClicked(int row, int column); // 单元格点击事件
 
@@ -88,7 +88,7 @@ private:
         QMessageBox::Icon icon = QMessageBox::Information);
 
     int m_lastSelectedRow;
-    // 添加管理员密码验证方法
+    // 管理员密码验证方法
     bool verifyAdminPassword(const QString& password);
 };
 
