@@ -332,7 +332,7 @@ void GameController::onGameTick() {
         if (recordType > 0) {
             //调用 SceneGame 的动画接口
             m_scene->playNewRecordAnimation(recordType, [this, showGameOverDialog]() {
-                //等 3 秒，然后弹窗
+                //等 5 秒，然后弹窗
                 QTimer::singleShot(5000, this, [showGameOverDialog]() {
                     showGameOverDialog();
                     });
