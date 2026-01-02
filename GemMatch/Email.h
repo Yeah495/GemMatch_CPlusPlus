@@ -11,7 +11,7 @@ class Smtp : public QObject
 {
     Q_OBJECT
 public:
-    // host: SMTP服务器(如 smtp.qq.com), port: 端口(如 465 SSL), user: 邮箱账号, pass: 授权码(不是登录密码)
+    // host: SMTP服务器, port: 端口, user: 邮箱账号, pass: 授权码
     Smtp(const QString& user, const QString& pass, const QString& host, int port = 465);
     ~Smtp();
 

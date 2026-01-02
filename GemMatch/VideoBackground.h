@@ -7,15 +7,15 @@
 class VideoBackground : public QWidget {
     Q_OBJECT
 public:
-    // ✅ 修正：构造函数包含 videoPath 参数
+    // 构造函数
     explicit VideoBackground(const QString& videoPath, QWidget* parent = nullptr);
     ~VideoBackground();
 
     void play();
     void pause();
     void stop();
-    // ✅ 修正：声明 setVolume 方法
-    void setVolume(int volume); // 0-100
+
+    void setVolume(int volume);
 
 protected:
     void resizeEvent(QResizeEvent* event) override;

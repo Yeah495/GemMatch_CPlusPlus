@@ -19,7 +19,6 @@ using namespace winrt::Windows::Media::Core;
 
 static std::wstring to_wstring(const QString& s) { return s.toStdWString(); }
 
-// ================= Worker =================
 class SpeechManager::TtsWorker : public QObject
 {
     Q_OBJECT
@@ -30,13 +29,12 @@ public slots:
     void initWinRt()
     {
         try {
-            // ✅ 在专用线程中初始化 MTA（不要在 UI 线程 init）
+            //在专用线程中初始化多线程模型
             winrt::init_apartment(winrt::apartment_type::multi_threaded);
 
             // 预创建对象，避免第一次 speak 卡顿
             m_synth = SpeechSynthesizer();
 
-            // 选 Yaoyao（找不到则回退 zh-CN 第一个）
             bool found = false;
             auto voices = SpeechSynthesizer::AllVoices();
             for (uint32_t i = 0; i < voices.Size(); ++i) {
@@ -77,7 +75,7 @@ public slots:
             // 合成
             auto stream = m_synth.SynthesizeTextToStreamAsync(to_wstring(text)).get();
 
-            // 播放（固定 audio/wav，避免 ContentType 的坑）
+            // 播放
             m_player.Source(MediaSource::CreateFromStream(stream, L"audio/wav"));
             m_player.Play();
         }
@@ -96,7 +94,7 @@ private:
     MediaPlayer m_player{ nullptr };
 };
 
-// ================= SpeechManager =================
+
 SpeechManager& SpeechManager::instance()
 {
     static SpeechManager inst;
@@ -132,7 +130,7 @@ void SpeechManager::speak(const QString& text)
 {
     if (!m_worker) return;
 
-    // ✅ UI线程只发消息，真正的 WinRT 调用都在 TTS 线程
+    // UI线程只发消息，真正的 WinRT 调用都在 TTS 线程
     QMetaObject::invokeMethod(
         m_worker,
         "speakText",
