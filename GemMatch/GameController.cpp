@@ -568,5 +568,3 @@ void GameController::stopAllSounds() {
     if (m_soundAll) m_soundAll->stop();
     if (m_soundLaser) m_soundLaser->stop();
 }
-
-
