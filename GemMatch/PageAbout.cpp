@@ -105,7 +105,7 @@ void PageAbout::setupUI() {
     // 点击打开 Word 文档
     connect(m_btnDoc, &QPushButton::clicked, this, [=]() {
         // 如果是 Windows 且文件路径包含中文，QUrl::fromLocalFile 处理最稳妥
-        QDesktopServices::openUrl(QUrl::fromLocalFile("assets/test.docx"));
+        QDesktopServices::openUrl(QUrl::fromLocalFile("assets/项目文档.docx"));
         });
 
     m_btnRepo = new GameButton("assets/images/代码仓库.png");
