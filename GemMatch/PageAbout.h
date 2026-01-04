@@ -8,10 +8,10 @@
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include <QGraphicsProxyWidget>
-#include <QDesktopServices> // ✅ 新增：用于打开外部链接
-#include <QUrl>             // ✅ 新增：用于构建 URL
+#include <QDesktopServices> 
+#include <QUrl>            
 
-// ✅ 引入自定义控件
+
 #include "GameButton.h"
 #include "GameLogo.h"
 
@@ -33,17 +33,17 @@ private:
     QAudioOutput* m_audioOutput;
     QString m_videoPath;
 
-    // ✅ 新增控件
+
     GameLogo* m_logo;
-    GameButton* m_btnBack; // ✅ 这次加上了！
-    // ✅ 新增：两个按钮的控件指针
+    GameButton* m_btnBack; 
+//两个按钮的控件指针
     GameButton* m_btnDoc;  // 开发文档按钮
     GameButton* m_btnRepo; // 代码仓库按钮
 
-    // ✅ 两个代理
+
     QGraphicsProxyWidget* m_boxProxy;
     QGraphicsProxyWidget* m_logoProxy;
-    // ✅ 新增：两个按钮在场景中的代理指针（用于控制位置）
+ 
     QGraphicsProxyWidget* m_docProxy;
     QGraphicsProxyWidget* m_repoProxy;
 
