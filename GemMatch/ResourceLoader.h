@@ -1,5 +1,5 @@
 #pragma once
-/* Resource loader: use Qt resources (.qrc) primarily; fallback to project-relative files if necessary. */
+
 
 #ifndef RESOURCELOADER_H
 #define RESOURCELOADER_H
@@ -27,11 +27,11 @@ public:
                 return pix;
             }
 
-            // Try qrc resource first
+            
             QString resPath = QString(":/assets/images/gem_%1.png").arg(idx);
             if (QFile::exists(resPath)) pix.load(resPath);
 
-            // Fallback to project-relative path
+            
             if (pix.isNull()) {
                 QString rel = QString("assets/images/gem_%1.png").arg(idx);
                 if (QFile::exists(rel)) pix.load(rel);
@@ -49,11 +49,11 @@ public:
 
     QPixmap getBackground() {
         if (m_bg.isNull()) {
-            // Prefer the qrc resource
+            
             QString resBg = ":/assets/images/bg_login.jpg";
             if (QFile::exists(resBg)) m_bg.load(resBg);
             else {
-                // fallback to project-relative
+                
                 QString rel = QString("assets/images/bg_login.jpg");
                 if (QFile::exists(rel)) m_bg.load(rel);
                 else {
@@ -72,4 +72,4 @@ private:
     QPixmap m_bg;
 };
 
-#endif // RESOURCELOADER_H
+#endif
