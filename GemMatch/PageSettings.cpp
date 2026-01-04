@@ -22,11 +22,11 @@ PageSettings::PageSettings(MainWindow* mainWin)
 }
 
 void PageSettings::setupUI() {
-    // 1. 主布局
+    //  主布局
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    // 2. Graphics View & Scene
+    //  Graphics View & Scene
     m_view = new QGraphicsView(this);
     m_view->setStyleSheet("border: none; background: transparent;");
     m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -34,7 +34,7 @@ void PageSettings::setupUI() {
     QGraphicsScene* scene = new QGraphicsScene(this);
     m_view->setScene(scene);
 
-    // 3. 视频背景 (Z=0)
+    //  视频背景 (Z=0)
     m_player = new QMediaPlayer(this);
     m_audioOutput = new QAudioOutput(this);
     m_player->setAudioOutput(m_audioOutput);
@@ -49,9 +49,9 @@ void PageSettings::setupUI() {
     m_videoPath = "assets/videos/2.mp4"; // 保持原视频
     m_player->setLoops(QMediaPlayer::Infinite);
 
-    // =========================================================
-    // 4. 设置框容器 (Z=1) —— 模仿 PageLogin 的毛玻璃风格
-    // =========================================================
+   
+    //  设置框容器 (Z=1) 模仿 PageLogin 的毛玻璃风格
+   
     QWidget* container = new QWidget();
     container->setFixedSize(500, 600); // 调整大小
     container->setStyleSheet(
@@ -75,9 +75,9 @@ void PageSettings::setupUI() {
 
 
 
-    // =================================================
-        // 1. 头像显示 (可点击)
-        // =================================================
+    
+        //  头像显示 
+        
     m_btnAvatar = new QPushButton();
     m_btnAvatar->setFixedSize(100, 100);
     m_btnAvatar->setStyleSheet("border: none; background: transparent;"); // 去掉默认按钮样式
@@ -96,17 +96,17 @@ void PageSettings::setupUI() {
     // 将头像居中添加到布局
     form->addWidget(m_btnAvatar, 0, Qt::AlignHCenter);
 
-    // =================================================
-    // 2. 标题
-    // =================================================
+   
+    //  标题
+    
     m_labelTitle = new QLabel("系统设置");
     m_labelTitle->setAlignment(Qt::AlignCenter);
     m_labelTitle->setStyleSheet("font-size: 26px; color: #044BB7; font-weight: bold;");
     form->addWidget(m_labelTitle);
 
-    // ---------------------------------------------------------
-        // 【模块 2】语言切换 (改为按钮)
-        // ---------------------------------------------------------
+    
+        // 语言切换 (改为按钮)
+        
     QHBoxLayout* langLayout = new QHBoxLayout();
     m_lblLang = new QLabel("中英文切换");
 
@@ -138,9 +138,9 @@ void PageSettings::setupUI() {
     langLayout->addWidget(m_btnLang);
     form->addLayout(langLayout);
 
-    // =================================================
-    // 4. 音量与亮度 (原有代码)
-    // =================================================
+    
+    // 4. 音量与亮度 
+   
     m_labelMusic = new QLabel("音乐音量");
     form->addWidget(m_labelMusic);
     m_musicSlider = new QSlider(Qt::Horizontal); // 修改为成员变量
@@ -185,9 +185,9 @@ void PageSettings::setupUI() {
 
     form->addStretch();
 
-    // =================================================
-    // 5. 底部按钮
-    // =================================================
+   
+    // 底部按钮
+    
     QVBoxLayout* bottomLayout = new QVBoxLayout();
     m_btnBack = new GameButton("assets/images/返回主菜单.png");
     m_btnReLogin = new GameButton("assets/images/重新登录.png");
@@ -221,7 +221,7 @@ void PageSettings::resizeEvent(QResizeEvent* event) {
         m_videoItem->setSize(QSizeF(this->size()));
         m_view->setSceneRect(0, 0, this->width(), this->height());
 
-        // 1. 定位设置框：屏幕中心稍偏下
+        //  定位设置框：屏幕中心稍偏下
         if (m_boxProxy) {
             QWidget* widget = m_boxProxy->widget();
             if (widget) {
@@ -230,7 +230,7 @@ void PageSettings::resizeEvent(QResizeEvent* event) {
             }
         }
 
-        // 2. 定位 Logo：屏幕中心偏上
+        //  定位 Logo：屏幕中心偏上
         if (m_logoProxy) {
             QWidget* widget = m_logoProxy->widget();
             if (widget) {
@@ -247,11 +247,11 @@ void PageSettings::showEvent(QShowEvent* event) {
         m_player->setSource(QUrl::fromLocalFile(m_videoPath));
         m_player->play();
     }
-    // ✅ 触发 Logo 动画
+    //  触发 Logo 动画
     if (m_logo) {
         m_logo->startEntrance();
     }
-    // ✅ 同步滑块到当前BGM音量（0.0~1.0 -> 0~100）
+    // 同步滑块到当前BGM音量（0.0~1.0 -> 0~100）
     if (m_mainWin && m_musicSlider) {
         float vol = m_mainWin->getBGMVolume();
         int sliderVal = static_cast<int>(vol * 100.0f + 0.5f);
@@ -261,7 +261,7 @@ void PageSettings::showEvent(QShowEvent* event) {
         qDebug() << "[Settings] sync slider to BGM:" << vol << "->" << sliderVal;
     }
 
-    // ✅ 每次打开设置页时，同步当前头像按钮为全局头像
+    // 每次打开设置页时，同步当前头像按钮为全局头像
     if (m_mainWin && m_btnAvatar) {
         const QPixmap& circular = m_mainWin->getAvatarPixmap();
         if (!circular.isNull()) {
@@ -336,7 +336,7 @@ void PageSettings::onChangeAvatar() {
 
 // 切换语言的逻辑
 void PageSettings::onToggleLanguage() {
-    // 1. 获取当前按钮文字，判断状态
+    //  获取当前按钮文字，判断状态
     QString currentTxt = m_btnLang->text();
 
     if (currentTxt == "简体中文") {

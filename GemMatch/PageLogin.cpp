@@ -31,7 +31,7 @@ void PageLogin::setupUI() {
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    // 1. View & Scene
+    //  View  Scene
     m_view = new QGraphicsView(this);
     m_view->setStyleSheet("border: none; background: transparent;");
     m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -39,7 +39,7 @@ void PageLogin::setupUI() {
     QGraphicsScene* scene = new QGraphicsScene(this);
     m_view->setScene(scene);
 
-    // 2. 视频层 (Z=0)
+    // 视频层 (Z=0)
     m_player = new QMediaPlayer(this);
     m_audioOutput = new QAudioOutput(this);
     m_player->setAudioOutput(m_audioOutput);
@@ -52,9 +52,9 @@ void PageLogin::setupUI() {
     m_videoPath = "assets/videos/1.mp4";
     m_player->setLoops(QMediaPlayer::Infinite);
 
-    // =========================================================
-    // 3. 登录框容器 (不包含 Logo 了)
-    // =========================================================
+    
+    //  登录框容器 
+    
     QWidget* loginContainer = new QWidget();
     loginContainer->setFixedSize(500, 550); // 高度减小了，因为移走了Logo
     loginContainer->setStyleSheet(
@@ -114,7 +114,7 @@ void PageLogin::setupUI() {
     m_btnLogin = new GameButton("assets/images/登录1.png");
     m_btnReg = new GameButton("assets/images/注册1.png");
 
-    // 添加控件到登录框 (注意：没有 Logo)
+    // 添加控件到登录框 
     formLayout->addWidget(m_editUser);
     formLayout->addWidget(m_editPass);
     formLayout->addWidget(m_editEmail);
@@ -126,9 +126,9 @@ void PageLogin::setupUI() {
     m_loginBoxProxy = scene->addWidget(loginContainer);
     m_loginBoxProxy->setZValue(1);
 
-    // =========================================================
-    // 4. Logo 独立容器
-    // =========================================================
+    
+    //  Logo 独立容器
+    
     // 创建 Logo 对象
     m_logo = new GameLogo("assets/images/logo_宝石迷阵.png");
 
@@ -136,12 +136,11 @@ void PageLogin::setupUI() {
     m_logoProxy = scene->addWidget(m_logo);
     m_logoProxy->setZValue(2);
 
-    // =========================================================
-    // 【新增】 5. 左下角后台按键
-    // =========================================================
+    
+    //  5. 左下角后台按键
+    
     m_btnBackstage = new GameButton("assets/images/后台.png");
-    // 如果图片太大，可以强制缩小一点，例如：
-    // m_btnBackstage->setFixedSize(60, 60); 
+     
 
     m_backstageProxy = scene->addWidget(m_btnBackstage);
     m_backstageProxy->setZValue(2); // 确保在最上层
@@ -254,8 +253,8 @@ void PageLogin::setupUI() {
         if (passwordDialog.exec() == QDialog::Accepted) {
             QString inputPassword = passwordEdit->text();
 
-            // 验证密码（这里使用简单的固定密码，实际应用中可以改为数据库验证或其他方式）
-            if (inputPassword == "admin123") { // 这里可以改为你想要的密码
+            // 验证密码
+            if (inputPassword == "admin123") { 
                 // 密码正确，切换到后台管理页面
                 if (m_mainWin) {
                     m_mainWin->switchPage(6); // 切换到PageAdmin页面
@@ -393,7 +392,7 @@ void PageLogin::onLoginClicked() {
 
     if (UserManager::instance().login(user, pass)) {
         // 登录成功时，确保根据当前用户名再请求一次 Robohash 头像，
-        // 这样 MainWindow 的全局头像在第一次进入主菜单时就已经就绪。
+        
         if (!user.isEmpty()) {
             QString url = "https://robohash.org/" + user + ".png?set=set4&size=100x100";
             QNetworkRequest req(url);
@@ -535,7 +534,7 @@ void PageLogin::mousePressEvent(QMouseEvent* event) {
     // 获取点击在窗口中的坐标
     QPoint viewPos = event->pos();
 
-    // 如果需要场景坐标（通常和窗口坐标一致，除非你做了视口缩放）
+    // 如果需要场景坐标
     QPointF scenePos = m_view->mapToScene(viewPos);
 
     qDebug() << "========================================";

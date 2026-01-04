@@ -43,18 +43,18 @@ private:
     GameButton* m_btnLogin; // 原 btnLogin
     GameButton* m_btnReg;   // 原 btnReg
 
-    // 【新增】后台按键
+    //后台按键
     GameButton* m_btnBackstage;
 
-    // 【新增】头像显示和网络请求
+    // 头像显示和网络请求
     QLabel* m_avatarLabel;
     QNetworkAccessManager* m_networkManager;
 
-    // --- 关键修改：保存两个代理对象，以便独立控制位置 ---
+    // 保存两个代理对象，以便独立控制位置 ---
     QGraphicsProxyWidget* m_loginBoxProxy; // 登录框（输入框+按钮）的代理
     QGraphicsProxyWidget* m_logoProxy;     // Logo 的独立代理
 
-    // 【新增】后台按键代理
+    // 后台按键代理
     QGraphicsProxyWidget* m_backstageProxy;
 
 
